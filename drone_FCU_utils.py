@@ -77,7 +77,7 @@ def wildcard_callback(self, attr_name, value):
 	global socket_telem
 	if attr_name=="attitude":
 		data = "Roll: {} Pitch: {} Yaw: {}".format(round(value.roll,2), round(value.pitch,2), round(value.yaw,2))
-		print "SENT: " + data		
+		print "SENT: " + data
 		socket_telem.sendto(data,(HOST,PORT_TELEM))
 		pass
 
