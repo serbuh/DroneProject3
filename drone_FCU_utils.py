@@ -123,36 +123,38 @@ def wildcard_callback(self, attr_name, value):
 
 	elif attr_name=="heading":
 		#print "Heading: {}".format(value)
-		pass
+		data = {'heading': value}
 	
 	elif attr_name=="airspeed":
 		#print "Airspeed: {}".format(value)
-		pass
+		data = {'airspeed': value}
 
 	elif attr_name=="groundspeed":
 		#print "Groundspeed: {}".format(value)
-		pass
+		data = {'groundspeed': value}
 
 	elif attr_name=="channels":		
 		#print "channels 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
-		pass
+		data = {'ch1': value[1], 'ch2': value[2], 'ch3': value[3], 'ch4': value[4], 'ch5': value[5], 'ch6': value[6], 'ch7': value[7], 'ch8': value[8]}
 
 	elif attr_name=="last_heartbeat":
 		#print "last_heartbeat: {}".format(round(value,2))		
-		pass
+		data = {'last_heartbeat': round(value,2)}
 
 	elif attr_name=="gimbal":
 		#print "Gimbal. pitch: {} roll: {} yaw:{}".format(value.pitch, value.roll, value.yaw)
-		pass
+		data = {'gimbal_roll': value.roll, 'gimbal_pitch': value.pitch, 'gimbal_yaw': value.yaw}
 
 	elif attr_name=="battery":
 		#print "Battery: {}".format(value.voltage)
-		pass
+		data = {'battery': value.voltage}
+
 	#TODO: is_armable, system_status, armed, mode
 	elif attr_name=="is_armable":
 		#print "is_armable: {}".format(value)
 		#print "is_armable: {}".format(dir(value))
 		pass
+
 	if data:
 		send_telem(data)
 
