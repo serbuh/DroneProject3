@@ -2,7 +2,7 @@ import socket
 import cv2
 import numpy
 from threading import Thread
-
+import json
 
 HOST = ''
 #PORT_VIDEO = 3333
@@ -16,8 +16,9 @@ socket_telem.bind((HOST,PORT_TELEM))
 
 def getTelem():
 	while 1:
-		data = socket_telem.recv(60000)
-		print data
+		data_json = socket_telem.recv(60000)
+		data_dict = json.loads(data_json)
+		print data_dict
 
 getTelemThread = Thread(target=getTelem, args=())
 getTelemThread.start()
