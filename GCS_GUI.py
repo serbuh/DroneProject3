@@ -35,14 +35,14 @@ def GUI_init(val_dict):
     init_2labels(val_dict, 'last_heartbeat', label1_text='Last heartbeat: ', row1=14, column1=1, row2=15, column2=2)
     
     init_2labels(val_dict, 'lat_loc', label1_text='Lat loc: ', row1=15, column1=1, row2=15, column2=2)
-    init_2labels(val_dict, 'lon_loc', label1_text='Lon loc: ', row1=16, column1=1, row2=17, column2=2)
-    init_2labels(val_dict, 'alt_loc', label1_text='Alt loc: ', row1=18, column1=1, row2=18, column2=2)
+    init_2labels(val_dict, 'lon_loc', label1_text='Lon loc: ', row1=16, column1=1, row2=16, column2=2)
+    init_2labels(val_dict, 'alt_loc', label1_text='Alt loc: ', row1=17, column1=1, row2=17, column2=2)
     init_2labels(val_dict, 'lat_gl', label1_text='Lat gl: ', row1=15, column1=3, row2=15, column2=4)
-    init_2labels(val_dict, 'lon_gl', label1_text='Lon gl: ', row1=16, column1=3, row2=17, column2=4)
-    init_2labels(val_dict, 'alt_gl', label1_text='Alt gl: ', row1=18, column1=3, row2=18, column2=4)
+    init_2labels(val_dict, 'lon_gl', label1_text='Lon gl: ', row1=16, column1=3, row2=16, column2=4)
+    init_2labels(val_dict, 'alt_gl', label1_text='Alt gl: ', row1=17, column1=3, row2=17, column2=4)
     init_2labels(val_dict, 'lat_gl_rel', label1_text='Lat gl rel: ', row1=15, column1=5, row2=15, column2=6)
-    init_2labels(val_dict, 'lon_gl_rel', label1_text='Lon gl rel: ', row1=16, column1=5, row2=17, column2=6)
-    init_2labels(val_dict, 'alt_gl_rel', label1_text='Alt gl rel: ', row1=18, column1=5, row2=18, column2=6)
+    init_2labels(val_dict, 'lon_gl_rel', label1_text='Lon gl rel: ', row1=16, column1=5, row2=16, column2=6)
+    init_2labels(val_dict, 'alt_gl_rel', label1_text='Alt gl rel: ', row1=17, column1=5, row2=17, column2=6)
 
     init_2labels(val_dict, 'ch1', label1_text='Ch1: ', row1=1, column1=3, row2=1, column2=4)
     init_2labels(val_dict, 'ch2', label1_text='Ch2: ', row1=2, column1=3, row2=2, column2=4)
@@ -53,41 +53,49 @@ def GUI_init(val_dict):
     init_2labels(val_dict, 'ch7', label1_text='Ch7: ', row1=7, column1=3, row2=7, column2=4)
     init_2labels(val_dict, 'ch8', label1_text='Ch8: ', row1=8, column1=3, row2=8, column2=4)
 
-    button = tk.Button(root, text='Stop', width=25, command=close)
+    button = tk.Button(root, text='Stop', width=25, command=close_GUI)
     button.grid(row=18, column=1, columnspan=2)
 
 # Update the stored value in the dict with the new ones    
 def dict_get_new_values(val_dict):
-    for key, val in val_dict.iteritems():
-        if val['value'] == None:
-            val['value'] = 0
-        val['value'] += random.randint(1,5)
+	for key, val in val_dict.iteritems():
+		if val['value'] == None:
+			val['value'] = 0
+		val['value'] += random.randint(1,5)
 
 # Update label value with stored value in dict    
 def dict_refresh_values(val_dict):
-    for key, val in val_dict.iteritems():
-        val['lbl_val'].config(text=str(val['value']))
-#    val_dict['roll']['lbl_val'].config(text=str(val_dict['roll']['value']))
+	for key, val in val_dict.iteritems():
+		val['lbl_val'].config(text=str(val['value']))
+		#val_dict['roll']['lbl_val'].config(text=str(val_dict['roll']['value']))
 
-def close():
-    root.destroy()
-    root.quit()
+def close_GUI():
+	print("Closing GUI")
+	root.destroy()
+	root.quit()
 
 def tick():
-    global val_dict
-    dict_get_new_values(val_dict)
-    dict_refresh_values(val_dict)
-    root.after(200, tick)
+	global val_dict
+	dict_get_new_values(val_dict)
+	dict_refresh_values(val_dict)
+	root.after(200, tick)
 
-# Init root
-root = tk.Tk()
-root.title("GCS GUI")
-root.configure(background='white')
-#root.geometry('500x500')
+if __name__ == "__main__":
+	print("GCS_GUI speaking. You really should invoke me from GCS_client and not as main")
+else:
+	try:
+		print("Importing GUI")
+		print("Init root...")
+		root = tk.Tk()
+		root.title("GCS GUI")
+		root.configure(background='white')
+		#root.geometry('500x500')
 
-# Objects init
-GUI_init(val_dict)
+		print("Init object...")
+		GUI_init(val_dict)
 
-root.protocol('WM_DELETE_WINDOW', close)
-root.after(0,tick)
-root.mainloop()
+		root.protocol('WM_DELETE_WINDOW', close_GUI)
+		root.after(0,tick)
+		root.mainloop()
+	except KeyboardInterrupt:
+		close_GUI()

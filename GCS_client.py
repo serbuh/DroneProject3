@@ -1,15 +1,26 @@
+'''
+Executed from as main.
+UDP client that invokes GUI
+'''
 import socket
 import sys
 #import cv2
 #import numpy
-from threading import Thread
+import threading
 import json
+import time
 
-def get_telem():
-	while True:
+def get_telem(run_event):
+	while run_event.is_set():
 		data_json = socket_telem.recv(60000)
 		#data_dict = json.loads(data_json)		
 		print data_json
+
+def get_video(run_event):
+	pass
+
+def run_GUI(run_event):
+	import GCS_GUI
 
 if __name__ == "__main__":
 	try:
@@ -33,16 +44,34 @@ if __name__ == "__main__":
 			print 'Socket bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
 			sys.exit()
 		
-		print("Creating thread to get UDP messages ...")
-		#get_telem_thread = Thread(target=get_telem, args=())
-		#get_telem_thread.start()
-		get_telem()
-		print("Done")
+		run_event = threading.Event()
+		run_event.set()
 
-	except KeyboardInterrupt:
+		print("Start GET_TELEM Thread")
+		get_telem_thread = threading.Thread(target=get_telem, args=[run_event])
+		get_telem_thread.start()
+		print("Start GET_VIDEO Thread")
+		get_video_thread = threading.Thread(target=get_video, args=[run_event])
+		get_video_thread.start()
+		print("Start GUI Thread")
+		run_GUI_thread = threading.Thread(target=run_GUI, args=[run_event])
+		run_GUI_thread.start()
+		
+		while True:
+			time.sleep(1)
+
+	except (KeyboardInterrupt, SystemExit):
+		print("Send event to all running threads to close")
+		run_event.clear()
+		# Wait for threads to die
+		get_telem_thread.join()
+		print("GET_TELEM dead")
+		get_video_thread.join()
+		print("GET_VIDEO dead")
+		run_GUI_thread.join()
+		print("GUI dead")
 		socket_telem.close()
-		print "\nStoooooop UDP GCS client"
-		sys.exit()
+		print("Socket closed")
 else:
 	print("You are running GCS_client.py not as a main?")
 
