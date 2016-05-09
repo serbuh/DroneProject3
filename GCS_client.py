@@ -1,37 +1,48 @@
 import socket
+import sys
 #import cv2
 #import numpy
 from threading import Thread
 import json
 
-stop = 0
 def get_telem():
-	while not stop:
+	while True:
 		data_json = socket_telem.recv(60000)
 		#data_dict = json.loads(data_json)		
 		print data_json
 
 if __name__ == "__main__":
 	try:
-		HOST = ''
-		#PORT_VIDEO = 3333
-		PORT_TELEM = 3334
+		try:
+			print("Creating UDP socket ...")
+			socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+			#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		except socket.error:
+			print("Failed to create socket")
+			sys.exit()
 
-		socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-		#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-
-		socket_telem.bind((HOST,PORT_TELEM))
-		#socket_video.bind((HOST,PORT_VIDEO))
-
-
-		get_telem_thread = Thread(target=get_telem, args=())
-		get_telem_thread.start()
+		try:
+			HOST = 'localhost'
+			PORT_TELEM = 3334
+			#PORT_VIDEO = 3333
+			
+			print("Binding socket to host {} and port {} ...".format(HOST,PORT_TELEM))
+			socket_telem.bind((HOST,PORT_TELEM))
+			#socket_video.bind((HOST,PORT_VIDEO))
+		except socket.error , msg:
+			print 'Socket bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+			sys.exit()
+		
+		print("Creating thread to get UDP messages ...")
+		#get_telem_thread = Thread(target=get_telem, args=())
+		#get_telem_thread.start()
+		get_telem()
+		print("Done")
 
 	except KeyboardInterrupt:
 		socket_telem.close()
-		stop = 1
-		print "Stoooooop!"
-		get_telem_thread.join()
+		print "\nStoooooop UDP GCS client"
+		sys.exit()
 else:
 	print("You are running GCS_client.py not as a main?")
 

@@ -5,15 +5,6 @@ import time
 import argparse
 import json
 
-#PORT_VIDEO = 3333
-PORT_TELEM = 3334
-
-#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-
-HOST = 'localhost'
-#HOST = '192.168.150.1'
-
 def send_telem(data_dict):
 	data_json = json.dumps(data_dict)
 	print "SENDING: " + data_json
@@ -171,6 +162,14 @@ def close(vehicle,sitl):
 
 if __name__ == "__main__":
 	try:
+		#PORT_VIDEO = 3333
+		PORT_TELEM = 3334
+
+		#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+		HOST = 'localhost'
+		#HOST = '192.168.150.1'
 		print "Connect to FCU from drone_FCU_utils.py"
 		vehicle, sitl = connect2FCU()
 		vehicle.add_attribute_listener('*', wildcard_callback)
