@@ -1,3 +1,7 @@
+'''
+Initialize all GUI elements and update them from the values that are put to the val_dict
+'''
+
 import Tkinter as tk
 import time
 import random

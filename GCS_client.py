@@ -3,15 +3,16 @@ import cv2
 import numpy
 from threading import Thread
 
+
 HOST = ''
-PORT_VIDEO = 3333
+#PORT_VIDEO = 3333
 PORT_TELEM = 3334
 
 socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 socket_telem.bind((HOST,PORT_TELEM))
-socket_video.bind((HOST,PORT_VIDEO))
+#socket_video.bind((HOST,PORT_VIDEO))
 
 def getTelem():
 	while 1:
@@ -21,6 +22,7 @@ def getTelem():
 getTelemThread = Thread(target=getTelem, args=())
 getTelemThread.start()
 
+'''
 while True:
 	try:
 		data = socket_video.recv(60000)
@@ -33,3 +35,4 @@ while True:
 	except KeyboardInterrupt:
 		cv2.destroyAllWindows()
 		break
+'''
