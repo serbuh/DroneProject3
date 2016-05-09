@@ -1,8 +1,8 @@
 import socket
 import time
-import cv2
-from camera import *
-import numpy as np
+#import cv2
+#from camera import *
+#import numpy as np
 from drone_FCU_utils import *
 
 PORT_VIDEO = 3333
@@ -22,10 +22,10 @@ def showImage(title , frame , wait = False ):
             		raise KeyboardInterrupt()
 
 if __name__ == "__main__":
-	camera = Camera()
+	#camera = Camera()
 	vehicle = connect2FCU()
 	vehicle.add_attribute_listener('*', wildcard_callback)
-	while True:
+	'''while True:
 		frame = camera.getFrame(True)
 		while max(frame.shape[:2]) > 310:
        			frame = cv2.pyrDown(frame)
@@ -42,4 +42,4 @@ if __name__ == "__main__":
 			cv2.waitKey(0)
 			c.stop_capture()
 			c.disconnect()
-			break
+			break'''

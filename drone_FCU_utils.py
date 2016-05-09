@@ -3,12 +3,21 @@ import time
 import socket
 import time
 import argparse
+import json
 
-
-HOST = '192.168.150.1'
+#PORT_VIDEO = 3333
 PORT_TELEM = 3334
 
+#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+HOST = 'localhost'
+#HOST = '192.168.150.1'
+
+def send_telem(data_dict):
+	data_json = json.dumps(data_dict)
+	print "SENDING: " + data_json
+	socket_telem.sendto(data_json, (HOST,PORT_TELEM))
 
 def connect2FCU():
 	#Set up option parsing to get connection string	
@@ -16,8 +25,15 @@ def connect2FCU():
 	parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
 	args = parser.parse_args()
 	connection_string = args.connect
+	sitl=None
 	if not args.connect:
-    		print "Please specify the connect string"
+    		print "The connect string was not specified. Running SITL!"
+		from dronekit_sitl import SITL
+		sitl = SITL()
+		sitl.download('copter', '3.3', verbose=True)
+		sitl_args = ['-I0', '--model', 'quad', '--home=-35.363261,149.165230,584,353']
+		sitl.launch(sitl_args, await_ready=True, restart=True)
+		connection_string = 'tcp:127.0.0.1:5760'
 
 	# Connect to the Vehicle. 
 	#   Set `wait_ready=True` to ensure default attributes are populated before `connect()` returns.
@@ -70,21 +86,20 @@ def connect2FCU():
 	print " Mode: %s" % vehicle.mode.name    # settable
 	print " Armed: %s" % vehicle.armed    # settable
 	print "======================================================="
-	return vehicle
+	return vehicle, sitl
 
 def wildcard_callback(self, attr_name, value):
 	#print "(%s): %s" % (attr_name,value)
 	global socket_telem
 	if attr_name=="attitude":
-		data = {'roll': round(value.roll,2), 'pitch': round(value.pitch,2), 'yaw': round(value.yaw,2))
-		data_json = json.dumps(data)	
-		print "SENT: " + data_json
-		socket_telem.sendto(data,(HOST,PORT_TELEM))
-		pass
+		#print"roll, pitch, yaw = {} {} {}".format(round(value.roll,2),round(value.pitch,2),round(value.yaw,2))
+		data = {'roll': round(value.roll,2), 'pitch': round(value.pitch,2), 'yaw': round(value.yaw,2)}
+		send_telem(data)
 
 	elif attr_name=="velocity":
 		#print "Vx, Vy, Vz = {} {} {}".format(value[0], value[1], value[2])
-		pass
+		data = {'vx': value[0], 'vy': value[1], 'vz': value[2]}
+		send_telem(data)
 
 	elif attr_name=="rangefinder":
 		#print "Lidar {}".format(round(value.distance,2))
@@ -140,7 +155,26 @@ def wildcard_callback(self, attr_name, value):
 		#print "is_armable: {}".format(dir(value))
 		pass
 
+def close(vehicle,sitl):
+	#Close vehicle object before exiting script
+	print "\n### Closing vehicle object ###"
+	vehicle.close()
+
+	# Shut down simulator if it was started.
+	print("### Closing SITL ###")	
+	if sitl is not None:
+    		sitl.stop()
+	print("### Close Complete ###")
 
 if __name__ == "__main__":
-	print "Connect to FCU"
-	connect2FCU()
+	try:
+		print "Connect to FCU from drone_FCU_utils.py"
+		vehicle, sitl = connect2FCU()
+		vehicle.add_attribute_listener('*', wildcard_callback)
+		while(1):
+			time.sleep(1)
+	except KeyboardInterrupt:
+		close(vehicle,sitl)	
+else:
+	print("You are running drone_FCU_utils.py not as a main?")
+

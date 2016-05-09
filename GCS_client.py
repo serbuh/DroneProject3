@@ -1,27 +1,43 @@
 import socket
-import cv2
-import numpy
+#import cv2
+#import numpy
 from threading import Thread
 import json
 
-HOST = ''
-#PORT_VIDEO = 3333
-PORT_TELEM = 3334
-
-socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-
-socket_telem.bind((HOST,PORT_TELEM))
-#socket_video.bind((HOST,PORT_VIDEO))
-
-def getTelem():
-	while 1:
+stop = 0
+def get_telem():
+	while not stop:
 		data_json = socket_telem.recv(60000)
-		data_dict = json.loads(data_json)
-		print data_dict
+		#data_dict = json.loads(data_json)		
+		print data_json
 
-getTelemThread = Thread(target=getTelem, args=())
-getTelemThread.start()
+if __name__ == "__main__":
+	try:
+		HOST = ''
+		#PORT_VIDEO = 3333
+		PORT_TELEM = 3334
+
+		socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+		socket_telem.bind((HOST,PORT_TELEM))
+		#socket_video.bind((HOST,PORT_VIDEO))
+
+
+		get_telem_thread = Thread(target=get_telem, args=())
+		get_telem_thread.start()
+
+	except KeyboardInterrupt:
+		socket_telem.close()
+		stop = 1
+		print "Stoooooop!"
+		get_telem_thread.join()
+else:
+	print("You are running drone_FCU_utils.py not as a main?")
+
+
+
+
 
 '''
 while True:
