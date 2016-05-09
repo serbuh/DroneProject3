@@ -33,7 +33,7 @@ if __name__ == "__main__":
 		print "Stoooooop!"
 		get_telem_thread.join()
 else:
-	print("You are running drone_FCU_utils.py not as a main?")
+	print("You are running GCS_client.py not as a main?")
 
 
 

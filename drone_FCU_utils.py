@@ -91,31 +91,30 @@ def connect2FCU():
 def wildcard_callback(self, attr_name, value):
 	#print "(%s): %s" % (attr_name,value)
 	global socket_telem
+	data = None
 	if attr_name=="attitude":
 		#print"roll, pitch, yaw = {} {} {}".format(round(value.roll,2),round(value.pitch,2),round(value.yaw,2))
 		data = {'roll': round(value.roll,2), 'pitch': round(value.pitch,2), 'yaw': round(value.yaw,2)}
-		send_telem(data)
-
+	
 	elif attr_name=="velocity":
 		#print "Vx, Vy, Vz = {} {} {}".format(value[0], value[1], value[2])
 		data = {'vx': value[0], 'vy': value[1], 'vz': value[2]}
-		send_telem(data)
 
 	elif attr_name=="rangefinder":
 		#print "Lidar {}".format(round(value.distance,2))
-		pass
+		data = {'lidar': round(value.distance,2)}
 
 	elif attr_name=="location.global_relative_frame":
 		#print "global_relative_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		pass
+		data = {'lat_gl_rel': value.lat, 'lon_gl_rel': value.lon, 'alt_gl_rel': value.alt}
 
 	elif attr_name=="location.global_frame":
 		#print "location.global_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		pass
+		data = {'lat_gl': value.lat, 'lon_gl': value.lon, 'alt_gl': value.alt}
 
 	elif attr_name=="location.local_frame":
 		#print "location.local_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		pass
+		data = {'lat_loc': value.lat, 'lon_loc': value.lon, 'alt_loc': value.alt}
 
 	elif attr_name=="location":
 		#print "location_wtf {}".format(dir(value))
@@ -154,6 +153,8 @@ def wildcard_callback(self, attr_name, value):
 		#print "is_armable: {}".format(value)
 		#print "is_armable: {}".format(dir(value))
 		pass
+	if data:
+		send_telem(data)
 
 def close(vehicle,sitl):
 	#Close vehicle object before exiting script
