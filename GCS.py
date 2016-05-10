@@ -12,7 +12,8 @@ def get_telem(telem_client,run_event):
 	global val_dict	
 	while run_event.is_set():
 		data_json = telem_client.receive()
-		print data_json 
+		print data_json
+		#TODO put in val_dict
 
 if __name__ == "__main__":
 	telem_client = GCS_UDP_client()
@@ -21,7 +22,7 @@ if __name__ == "__main__":
 	run_event = threading.Event()
 	run_event.set()
 	
-	print("Start GET_TELEM Thread")
+	print("Start get_telem_thread")
 	get_telem_thread = threading.Thread(target=get_telem, args=[telem_client,run_event])
 	get_telem_thread.start()
 
@@ -29,11 +30,11 @@ if __name__ == "__main__":
 		while 1:
 			time.sleep(1)
 	except(KeyboardInterrupt , SystemExit):
-		print("Send event to all running threads to close")
+		print "Send event to all running threads to close"
 		run_event.clear()
-		# Wait for threads to die
 		get_telem_thread.join()
-		print("GET_TELEM dead")
-		socket_telem.close()
-		print("Socket closed")
+		print "get_telem_thread dead"
+		telem_client.close_client()
+		print "Socket closed"
+		print "######## My work here is DONE ########"
 
