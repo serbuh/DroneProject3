@@ -9,6 +9,8 @@ import random
 class GCS_GUI:
 	def __init__(self,val_dict):
 		self.val_dict = val_dict
+
+	def run_GUI(self):
 		print "GUI: Init root"
 		self.root = tk.Tk()
 		self.root.title("GCS GUI")
@@ -16,10 +18,16 @@ class GCS_GUI:
 
 		print "GUI: Init object"
 		self.GUI_init()
-
-		self.root.protocol('WM_DELETE_WINDOW', self.close_GUI)
+		
+		print "GUI: Run GUI"
+		self.root.protocol('WM_DELETE_WINDOW', self.close_GUI)		
 		self.root.after(0,self.tick)
 		self.root.mainloop()
+
+	def tick(self):
+		#self.dict_generate_new_values()
+		self.dict_refresh_values()
+		self.root.after(200, self.tick)
 
 	# Initialize item in dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
 	def init_2labels(self,val_dict, key, label1_text, row1 ,column1, row2, column2):
@@ -70,9 +78,8 @@ class GCS_GUI:
 		self.button.grid(row=18, column=1, columnspan=2)
 
 	# Update the stored value in the dict with the new ones    
-	def dict_get_new_values(self):
+	def dict_generate_new_values(self):
 		for key, val in self.val_dict.iteritems():
-			print key, val
 			if val['value'] == None:
 				val['value'] = 0
 			val['value'] += random.randint(1,5)
@@ -84,12 +91,7 @@ class GCS_GUI:
 			#val_dict['roll']['lbl_val'].config(text=str(val_dict['roll']['value']))
 
 	def close_GUI(self):
-		print("Closing GUI")
+		print("GUI: Closing GUI")
 		self.root.destroy()
 		self.root.quit()
-
-	def tick(self):
-		self.dict_get_new_values()
-		self.dict_refresh_values()
-		self.root.after(200, self.tick)
 

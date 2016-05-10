@@ -6,9 +6,12 @@ import argparse
 import json
 
 def send_telem(data_dict):
-	data_json = json.dumps(data_dict)
-	print "SENDING: " + data_json
-	socket_telem.sendto(data_json, (HOST,PORT_TELEM))
+	#data_json = json.dumps(data_dict)
+	#print "SENDING: " + data_json
+	#socket_telem.sendto(data_json, (HOST,PORT_TELEM))	
+	data_str = str(data_dict)
+	print "SENDING: " + data_str
+	socket_telem.sendto(data_str, (HOST,PORT_TELEM))
 
 def connect2FCU():
 	#Set up option parsing to get connection string	
