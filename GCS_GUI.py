@@ -54,16 +54,17 @@ class GCS_GUI:
 		self.init_2labels(self.val_dict, 'gimbal_pitch', label1_text='Gimbal pitch: ', row1=12, column1=1, row2=12, column2=2)
 		self.init_2labels(self.val_dict, 'gimbal_yaw', label1_text='Gimbal yaw: ', row1=13, column1=1, row2=13, column2=2)
 		self.init_2labels(self.val_dict, 'last_heartbeat', label1_text='Last heartbeat: ', row1=14, column1=1, row2=14, column2=2)
+		self.init_2labels(self.val_dict, 'battery', label1_text='Battery: ', row1=15, column1=1, row2=15, column2=2)
 	    
-		self.init_2labels(self.val_dict, 'lat_loc', label1_text='Lat loc: ', row1=15, column1=1, row2=15, column2=2)
-		self.init_2labels(self.val_dict, 'lon_loc', label1_text='Lon loc: ', row1=16, column1=1, row2=16, column2=2)
-		self.init_2labels(self.val_dict, 'alt_loc', label1_text='Alt loc: ', row1=17, column1=1, row2=17, column2=2)
-		self.init_2labels(self.val_dict, 'lat_gl', label1_text='Lat gl: ', row1=15, column1=3, row2=15, column2=4)
-		self.init_2labels(self.val_dict, 'lon_gl', label1_text='Lon gl: ', row1=16, column1=3, row2=16, column2=4)
-		self.init_2labels(self.val_dict, 'alt_gl', label1_text='Alt gl: ', row1=17, column1=3, row2=17, column2=4)
-		self.init_2labels(self.val_dict, 'lat_gl_rel', label1_text='Lat gl rel: ', row1=15, column1=5, row2=15, column2=6)
-		self.init_2labels(self.val_dict, 'lon_gl_rel', label1_text='Lon gl rel: ', row1=16, column1=5, row2=16, column2=6)
-		self.init_2labels(self.val_dict, 'alt_gl_rel', label1_text='Alt gl rel: ', row1=17, column1=5, row2=17, column2=6)
+		self.init_2labels(self.val_dict, 'lat_loc', label1_text='Lat loc: ', row1=16, column1=1, row2=16, column2=2)
+		self.init_2labels(self.val_dict, 'lon_loc', label1_text='Lon loc: ', row1=17, column1=1, row2=17, column2=2)
+		self.init_2labels(self.val_dict, 'alt_loc', label1_text='Alt loc: ', row1=18, column1=1, row2=18, column2=2)
+		self.init_2labels(self.val_dict, 'lat_gl', label1_text='Lat gl: ', row1=16, column1=3, row2=16, column2=4)
+		self.init_2labels(self.val_dict, 'lon_gl', label1_text='Lon gl: ', row1=17, column1=3, row2=27, column2=4)
+		self.init_2labels(self.val_dict, 'alt_gl', label1_text='Alt gl: ', row1=18, column1=3, row2=18, column2=4)
+		self.init_2labels(self.val_dict, 'lat_gl_rel', label1_text='Lat gl rel: ', row1=16, column1=5, row2=16, column2=6)
+		self.init_2labels(self.val_dict, 'lon_gl_rel', label1_text='Lon gl rel: ', row1=17, column1=5, row2=17, column2=6)
+		self.init_2labels(self.val_dict, 'alt_gl_rel', label1_text='Alt gl rel: ', row1=18, column1=5, row2=18, column2=6)
 
 		self.init_2labels(self.val_dict, 'ch1', label1_text='Ch1: ', row1=1, column1=3, row2=1, column2=4)
 		self.init_2labels(self.val_dict, 'ch2', label1_text='Ch2: ', row1=2, column1=3, row2=2, column2=4)
@@ -75,7 +76,7 @@ class GCS_GUI:
 		self.init_2labels(self.val_dict, 'ch8', label1_text='Ch8: ', row1=8, column1=3, row2=8, column2=4)
 
 		self.button = tk.Button(self.root, text='Stop', width=25, command=self.close_GUI)
-		self.button.grid(row=18, column=1, columnspan=2)
+		self.button.grid(row=19, column=1, columnspan=2)
 
 	# Update the stored value in the dict with the new ones    
 	def dict_generate_new_values(self):

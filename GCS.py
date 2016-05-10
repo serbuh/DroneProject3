@@ -9,7 +9,7 @@ TELEM_PORT = 3334
 VIDEO_PORT = 3333
 
 #dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'lat_loc', 'lon_loc', 'alt_loc', 'lat_gl', 'lon_gl', 'alt_gl', 'lat_gl_rel', 'lon_gl_rel', 'alt_gl_rel', 'last_heartbeat'])
+val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'lat_loc', 'lon_loc', 'alt_loc', 'lat_gl', 'lon_gl', 'alt_gl', 'lat_gl_rel', 'lon_gl_rel', 'alt_gl_rel', 'battery', 'last_heartbeat'])
 
 def dict_init_fields():
 	for key, val in val_dict.iteritems():
@@ -21,9 +21,9 @@ def get_telem(telem_client,run_event):
 	global val_dict	
 	while run_event.is_set():
 		data = telem_client.receive()
+		#TODO change eval(str(dict)) to smth
 		data_dict = eval(data)
-		print data_dict
-		#TODO put in val_dict
+		#print data_dict
 		for rec_key, rec_val in data_dict.iteritems():
 			if val_dict.has_key(rec_key):
 				val_dict[rec_key]['value'] = rec_val
