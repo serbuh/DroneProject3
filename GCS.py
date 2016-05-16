@@ -90,11 +90,13 @@ def GUI_init():
 	GUI_init_2labels('gps_0_fix', label1_text='GPS fix: ', row1=21, column1=1, row2=21, column2=2)
 	GUI_init_2labels('gps_0_satellites', label1_text='Satellites: ', row1=22, column1=1, row2=22, column2=2)
 	GUI_init_2labels('ekf_ok', label1_text='EKF OK: ', row1=23, column1=1, row2=23, column2=2)
+	GUI_init_2labels('mode', label1_text='Mode: ', row1=24, column1=1, row2=24, column2=2)
+
 
 	#TODO Design Q: why do we see here run_event, get_telem, telem_client. It is not defined as global...
 	#TODO Design Q: Do I need to define globals then (GUI_root, val_dict)?
 	GUI_button = tk.Button(text='Stop', width=25, command= lambda: close_all(run_event,get_telem,telem_client))
-	GUI_button.grid(row=24, column=1, columnspan=2)
+	GUI_button.grid(row=25, column=1, columnspan=2)
 
 # Update the stored value in the dict with the new ones    
 def GUI_dict_generate_new_values():
@@ -128,7 +130,7 @@ def GUI_tick():
 
 if __name__ == "__main__":
 	#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-	val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'lat_loc', 'lon_loc', 'alt_loc', 'lat_gl', 'lon_gl', 'alt_gl', 'lat_gl_rel', 'lon_gl_rel', 'alt_gl_rel', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok'])
+	val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'lat_loc', 'lon_loc', 'alt_loc', 'lat_gl', 'lon_gl', 'alt_gl', 'lat_gl_rel', 'lon_gl_rel', 'alt_gl_rel', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode'])
 	# Init all val_dict fields
 	dict_init_fields()
 
