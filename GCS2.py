@@ -84,7 +84,8 @@ def GUI_init():
 	GUI_init_2labels('ch6', label1_text='Ch6: ', row1=6, column1=3, row2=6, column2=4)
 	GUI_init_2labels('ch7', label1_text='Ch7: ', row1=7, column1=3, row2=7, column2=4)
 	GUI_init_2labels('ch8', label1_text='Ch8: ', row1=8, column1=3, row2=8, column2=4)
-
+	#TODO Design Q: why do we see here run_event, get_telem, telem_client. It is not defined as global...
+	#TODO Design Q: Do I need to define globals then (GUI_root, val_dict)?
 	GUI_button = tk.Button(text='Stop', width=25, command= lambda: close_all(run_event,get_telem,telem_client))
 	GUI_button.grid(row=19, column=1, columnspan=2)
 
