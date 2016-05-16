@@ -35,3 +35,7 @@ Possible new GUI + assync UDP design:
 ](https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
 )
 - [http://code.activestate.com/recipes/82965-threads-tkinter-and-asynchronous-io/](http://code.activestate.com/recipes/82965-threads-tkinter-and-asynchronous-io/)
+
+
+- drone's PC is a UDP Server. Need to put a client's IP in a HOST parameter.
+- GCS PC is a UDP Client. Need to put localhost in a HOST parameter.
