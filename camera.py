@@ -16,10 +16,12 @@ class Camera:
 		frame = fc2.Image()
     		self.camera.retrieve_buffer(frame)
     		a = np.array(frame)
-		#while max(a.shape[:2]) > 500:
-        	#		a = cv2.pyrDown(a)
+		#cv2.imshow("1",a)
+		#while max(a.shape) > 1000:
+        	#	a = cv2.pyrDown(a)
+		
 		if iscolor:
-			return cv2.cvtColor(a, cv2.COLOR_BayerGR2BGR)
+			return cv2.resize((cv2.cvtColor(a, cv2.COLOR_BayerGR2BGR)),(300, 240))
 		else:
 			return a
 
