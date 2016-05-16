@@ -19,7 +19,7 @@ sudo python drone_UDP_server.py --connect /dev/ttyACM0
 ```
 
 Possible new GUI + assync UDP design:
-[https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
+- [https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
 ](https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
 )
-[http://code.activestate.com/recipes/82965-threads-tkinter-and-asynchronous-io/](http://code.activestate.com/recipes/82965-threads-tkinter-and-asynchronous-io/)
+- [http://code.activestate.com/recipes/82965-threads-tkinter-and-asynchronous-io/](http://code.activestate.com/recipes/82965-threads-tkinter-and-asynchronous-io/)
