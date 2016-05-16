@@ -80,11 +80,12 @@ def connect2FCU():
 	return vehicle, sitl
 
 #Callback definition for mode observer
-def mode_callback(self, attr_name):
-	global socket_telem
-	data = {'mode': self.mode}
-	if data:
-		send_telem(data)
+#def mode_callback(self, attr_name, value):
+#	global socket_telem
+#	data = {'mode': self.mode}
+#	print "sending MODE"
+#	if data:
+#		send_telem(data)
 
 def wildcard_callback(self, attr_name, value):
 	#print "(%s): %s" % (attr_name,value)
@@ -165,6 +166,10 @@ def wildcard_callback(self, attr_name, value):
 		#print "mount: {}".format(value)
 		pass
 
+	elif attr_name=="mode":		
+		#print "mode: {}".format(value.name)
+		data = {'mode': value.name}
+
 	#TODO: is_armable, system_status, armed, mode
 
 	else:
@@ -196,7 +201,7 @@ if __name__ == "__main__":
 		print "Connect to FCU from drone_FCU_utils.py"
 		vehicle, sitl = connect2FCU()
 		vehicle.add_attribute_listener('*', wildcard_callback)
-		vehicle.add_attribute_listener('mode', mode_callback)
+		#vehicle.add_attribute_listener('mode', mode_callback)
 
 		while(1):
 			time.sleep(1)
