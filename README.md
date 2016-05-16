@@ -3,17 +3,17 @@
 We use clean Ubuntu 14.04 with following dependencies installed:
 - Drone-kit:
 - FlyCapture:
+[Fly Capture Guide](https://github.com/jordens/pyflycapture2)
 ```sh
 mkdir ~/git
 cd ~/git
 git clone https://github.com/peterpolidoro/pyflycapture2.git
 sudo apt-get install python-pip -y
-pip install cython
-pip install numpy
+sudo pip install cython
+sudo pip install numpy
 cd ~/git/pyflycapture2/
-python setup.py install
+sudo python setup.py install
 ```
-[https://github.com/jordens/pyflycapture2](https://github.com/jordens/pyflycapture2)
 
 - TkInter:
 ```sh
