@@ -25,24 +25,18 @@ while 1:
 
 	red_hue_image = cv2.GaussianBlur(red_hue_image,(9,9), 2, 2);
 	tmp = red_hue_image.shape[0]
-	#circles = cv2.HoughCircles(red_hue_image,cv2.HOUGH_GRADIENT,1,tmp/8, 100, 20)
+	circles = cv2.HoughCircles(red_hue_image,cv2.HOUGH_GRADIENT,1,tmp/8, 100, 20)
 
 	radius = 0
 	index = 0
 	flag = 0
-	circles = None
 	if circles != None:
-		flag = 1		
 		for i in range(0,len(circles)):
-			#center = (int(round(circles[0][i][0],0)),int(round(circles[0][i][1],0)))
-			 if radius < int(round(circles[0][i][2])):
-				radius = int(round(circles[0][i][2]))
-				index = i
-			#cv2.circle(frame, center, radius, (0, 255, 0), 5)
-	if flag == 1:
-		radius = int(round(circles[0][index][2]))
-		center = (int(round(circles[0][index][0],0)),int(round(circles[0][index][1],0)))
-		cv2.circle(frame, center, radius, (0, 255, 0), 5)
+			center = (int(round(circles[0][i][0],0)),int(round(circles[0][i][1],0)))
+			radius = int(round(circles[0][i][2]))
+			cv2.circle(frame, center, radius, (0, 255, 0), 5)
+	
+		#cv2.circle(frame, center, radius, (0, 255, 0), 5)
 	#cv2.imshow("Threshold lower image", lower_red_hue_range);
 	#cv2.imshow("Threshold upper image", upper_red_hue_range);
 	#cv2.imshow("Combined threshold images", red_hue_image);
