@@ -5,11 +5,11 @@ import time
 import argparse
 import json
 
-def send_telem(data_dict):
-	data_json = json.dumps(data_dict)
-	print "SENDING: " + data_json
-	socket_telem.sendto(data_json, (HOST,PORT_TELEM))
-
+def send_telem(data_dict):	
+	data_str = str(data_dict)
+	print "SENDING: " + data_str
+	socket_telem.sendto(data_str, (HOST,PORT_TELEM))
+	
 def connect2FCU():
 	#Set up option parsing to get connection string	
 	parser = argparse.ArgumentParser(description='HUD module')
@@ -79,6 +79,13 @@ def connect2FCU():
 	print "======================================================="
 	return vehicle, sitl
 
+#Callback definition for mode observer
+def mode_callback(self, attr_name):
+	global socket_telem
+	data = {'mode': self.mode}
+	if data:
+		send_telem(data)
+
 def wildcard_callback(self, attr_name, value):
 	#print "(%s): %s" % (attr_name,value)
 	global socket_telem
@@ -93,7 +100,7 @@ def wildcard_callback(self, attr_name, value):
 
 	elif attr_name=="rangefinder":
 		#print "Lidar {}".format(round(value.distance,2))
-		data = {'lidar': round(value.distance,2)}
+		data = {'rangefinder': round(value.distance,2)}
 
 	elif attr_name=="location.global_relative_frame":
 		#print "global_relative_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
@@ -125,7 +132,7 @@ def wildcard_callback(self, attr_name, value):
 		data = {'groundspeed': value}
 
 	elif attr_name=="channels":		
-		#print "channels 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
+		#print "Channels. 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
 		data = {'ch1': value[1], 'ch2': value[2], 'ch3': value[3], 'ch4': value[4], 'ch5': value[5], 'ch6': value[6], 'ch7': value[7], 'ch8': value[8]}
 
 	elif attr_name=="last_heartbeat":
@@ -137,15 +144,31 @@ def wildcard_callback(self, attr_name, value):
 		data = {'gimbal_roll': value.roll, 'gimbal_pitch': value.pitch, 'gimbal_yaw': value.yaw}
 
 	elif attr_name=="battery":
-		#print "Battery: {}".format(value.voltage)
+		#print "Battery. {}".format(value.voltage)
 		data = {'battery': value.voltage}
 
-	#TODO: is_armable, system_status, armed, mode
 	elif attr_name=="is_armable":
 		#print "is_armable: {}".format(value)
 		#print "is_armable: {}".format(dir(value))
 		pass
 
+	elif attr_name=="gps_0":
+		#print "gps_0. eph: {} epv: {} fix_type: {} satellites_visible: {}".format(value.eph, value.epv, value.fix_type, value.satellites_visible)
+		data = {'gps_0_HDOP': value.eph, 'gps_0_VDOP': value.epv, 'gps_0_fix': value.fix_type, 'gps_0_satellites': value.satellites_visible}
+
+	elif attr_name=="ekf_ok":
+		#print "ekf_ok: {}".format(value)
+		data = {'ekf_ok': value}
+
+	elif attr_name=="mount":
+		#method is replaced by gimbal
+		#print "mount: {}".format(value)
+		pass
+
+	#TODO: is_armable, system_status, armed, mode
+
+	else:
+		print "### NOT SENT:" + attr_name
 	if data:
 		send_telem(data)
 
@@ -173,6 +196,8 @@ if __name__ == "__main__":
 		print "Connect to FCU from drone_FCU_utils.py"
 		vehicle, sitl = connect2FCU()
 		vehicle.add_attribute_listener('*', wildcard_callback)
+		vehicle.add_attribute_listener('mode', mode_callback)
+
 		while(1):
 			time.sleep(1)
 	except KeyboardInterrupt:
