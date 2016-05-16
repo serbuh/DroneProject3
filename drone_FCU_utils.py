@@ -7,7 +7,7 @@ import json
 
 def send_telem(data_dict):	
 	data_str = str(data_dict)
-	print "SENDING: " + data_str
+	#print "SENDING: " + data_str
 	socket_telem.sendto(data_str, (HOST,PORT_TELEM))
 	
 def connect2FCU():
@@ -30,7 +30,7 @@ def connect2FCU():
 	#   Set `wait_ready=True` to ensure default attributes are populated before `connect()` returns.
 	print "\nConnecting to vehicle on: %s" % connection_string
 	vehicle = connect(connection_string, wait_ready=True)
-	#vehicle.wait_ready('autopilot_version')
+	vehicle.wait_ready('autopilot_version')
 	# Get all vehicle attributes (state)
 	print "======================================================="
 	print "\nGet all vehicle attribute values:"
@@ -79,12 +79,6 @@ def connect2FCU():
 	print "======================================================="
 	return vehicle, sitl
 
-#Callback definition for mode observer
-def mode_callback(self, attr_name):
-	global socket_telem
-	data = {'mode': self.mode}
-	if data:
-		send_telem(data)
 
 def wildcard_callback(self, attr_name, value):
 	#print "(%s): %s" % (attr_name,value)
@@ -165,7 +159,15 @@ def wildcard_callback(self, attr_name, value):
 		#print "mount: {}".format(value)
 		pass
 
-	#TODO: is_armable, system_status, armed, mode
+	elif attr_name=="mode":		
+		#print "mode: {}".format(value.name)
+		data = {'mode': value.name}
+
+	elif attr_name=="armed":		
+		#print "armed: {}".format(value)
+		data = {'armed': str(value)}
+
+	#TODO: is_armable, system_status
 
 	else:
 		print "### NOT SENT:" + attr_name
@@ -178,8 +180,8 @@ def close(vehicle,sitl):
 	vehicle.close()
 
 	# Shut down simulator if it was started.
-	print("### Closing SITL ###")	
 	if sitl is not None:
+		print("### Closing SITL ###")
     		sitl.stop()
 	print("### Close Complete ###")
 
@@ -193,10 +195,10 @@ if __name__ == "__main__":
 
 		HOST = 'localhost'
 		#HOST = '192.168.150.1'
-		print "Connect to FCU from drone_FCU_utils.py"
+		print "Connect to FCU"
 		vehicle, sitl = connect2FCU()
+		print "Start to listen and SEND!"
 		vehicle.add_attribute_listener('*', wildcard_callback)
-		vehicle.add_attribute_listener('mode', mode_callback)
 
 		while(1):
 			time.sleep(1)
