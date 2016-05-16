@@ -10,45 +10,18 @@ import imutils
 import cv2
 from camera import *
 
-# construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-v", "--video",
-	help="path to the (optional) video file")
-ap.add_argument("-b", "--buffer", type=int, default=64,
-	help="max buffer size")
-args = vars(ap.parse_args())
+pts = deque(maxlen=64)
 
-# define the lower and upper boundaries of the "green"
-# ball in the HSV color space, then initialize the
-# list of tracked points
-#lower = (29, 86, 6)
-#upper =(64, 255, 255)
 
-lower = (200, 20, 20)
-
-upper = (255, 40, 40)
-
-pts = deque(maxlen=args["buffer"])
-
-# if a video path was not supplied, grab the reference
-# to the webcam
-#if not args.get("video", False):
 camera = Camera()
 
-# otherwise, grab a reference to the video file
-#else:
-	#camera = cv2.VideoCapture(args["video"])
 
-# keep looping
 while True:
 	# grab the current frame
 	frame = camera.getFrame(True)
 
 	# if we are viewing a video and we did not grab a frame,
 	# then we have reached the end of the video
-	if args.get("video") :
-		break
-
 	# resize the frame, blur it, and convert it to the HSV
 	# color space
 	frame = imutils.resize(frame, width=500)
@@ -58,10 +31,22 @@ while True:
 	# construct a mask for the color "green", then perform
 	# a series of dilations and erosions to remove any small
 	# blobs left in the mask
-	mask = cv2.inRange(hsv, lower, upper)
-	mask = cv2.erode(mask, None, iterations=2)
-	mask = cv2.dilate(mask, None, iterations=2)
+	
+	# lower mask (0-10)
+	lower_red = np.array([0,50,50])
+	upper_red = np.array([10,255,255])
+	mask0 = cv2.inRange(hsv, lower_red, upper_red)
+	mask0 = cv2.erode(mask0, None, iterations=2)
+	mask0 = cv2.dilate(mask0, None, iterations=2)
 
+	# upper mask (170-180)
+	lower_red = np.array([170,50,50])
+	upper_red = np.array([180,255,255])
+	mask1 = cv2.inRange(hsv, lower_red, upper_red)
+	mask1 = cv2.erode(mask1, None, iterations=2)
+	mask1 = cv2.dilate(mask1, None, iterations=2)	
+
+	mask = mask1 + mask0
 	# find contours in the mask and initialize the current
 	# (x, y) center of the ball
 	cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
@@ -98,9 +83,9 @@ while True:
 
 		# otherwise, compute the thickness of the line and
 		# draw the connecting lines
-		thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
+		thickness = int(np.sqrt(64 / float(i + 1)) * 2.5)
 		cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
-'''
+	'''
 	# show the frame to our screen
 	a = frame.shape
 	if center != None:
