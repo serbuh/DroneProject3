@@ -2,7 +2,7 @@ import socket
 import cv2
 import numpy
 
-HOST = '192.168.159.133'
+HOST = ''
 PORT = 3333
 
 s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
