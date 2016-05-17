@@ -10,15 +10,16 @@ import imutils
 import cv2
 from camera import *
 
-pts = deque(maxlen=64)
+#pts = deque(maxlen=64)
 
 
-camera = Camera()
+#camera = Camera()
 
 
-while True:
+#while True:
+def redBallTracking(frame):
 	# grab the current frame
-	frame = camera.getFrame(True)
+	#frame = camera.getFrame(True)
 
 	# if we are viewing a video and we did not grab a frame,
 	# then we have reached the end of the video
@@ -72,7 +73,7 @@ while True:
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
 	# update the points queue
-	pts.appendleft(center)
+	#pts.appendleft(center)
 
 	# loop over the set of tracked points
 	'''for i in xrange(1, len(pts)):
@@ -99,14 +100,14 @@ while True:
 		else:
 			print "Lower " + s + " corner"
 	#print  (a[2])
-	cv2.imshow("Frame", frame)
-	cv2.imshow("Mask", mask)
-	key = cv2.waitKey(1) & 0xFF
-
+	#cv2.imshow("Frame", frame)
+	#cv2.imshow("Mask", mask)
+	#key = cv2.waitKey(1) & 0xFF
+	return frame
 	# if the 'q' key is pressed, stop the loop
-	if key == ord("q"):
-		break
+#	if key == ord("q"):
+#		break
 
 # cleanup the camera and close any open windows
 #camera.release()
-cv2.destroyAllWindows()
+#cv2.destroyAllWindows()
