@@ -14,7 +14,7 @@ while True:
 		for i in range(0,n-1):
 			data = data + s.recv(1000)
 		frame = numpy.fromstring(data, dtype=numpy.uint8)
-		frame = numpy.reshape(frame, (120,160,3))
+		frame = numpy.reshape(frame, (640,480,3))
 		cv2.imshow("Client", frame)
 		if cv2.waitKey(1)&0xff == ord('q'):
  				raise KeyboardInterrupt()
