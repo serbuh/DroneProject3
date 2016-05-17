@@ -11,6 +11,7 @@ s.bind((HOST,PORT))
 while True:
 	try:
 		data = ""
+		n = 1000
 		for i in range(0,n-1):
 			data = data + s.recv(1000)
 		frame = numpy.fromstring(data, dtype=numpy.uint8)
