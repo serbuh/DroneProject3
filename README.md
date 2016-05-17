@@ -39,3 +39,11 @@ Possible new GUI + assync UDP design:
 
 - drone's PC is a UDP Server. Need to put a client's IP in a HOST parameter.
 - GCS PC is a UDP Client. Need to put localhost in a HOST parameter.
+- hotspot on ubuntu:
+ ```sh
+apt-get install hostapd
+```
+```sh
+cd /etc/hostapd
+cat host.conf
+- 
