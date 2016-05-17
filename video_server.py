@@ -24,8 +24,9 @@ if __name__ == "__main__":
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	while True:
 		frame = camera.getFrame(True)
-		while max(frame.shape[:2]) > 310:
-       			frame = cv2.pyrDown(frame)
+		#while max(frame.shape[:2]) > 300:
+       		#	frame = cv2.pyrDown(frame)
+		frame = cv2.resize(frame,(640, 480))
 		try:
 			#cv2.imshow("Server", frame)
 			#if cv2.waitKey(1)&0xff == ord('q'):
@@ -34,12 +35,15 @@ if __name__ == "__main__":
 			#print frame.shape
 			frame = frame.flatten()
 			data = frame.tostring()
-			#print "Sent Frame! Length {}".format(len(data))
+			n = 1000
+			num = float(len(data))/n
+			l = [ data [i:i + int(num)] for i in range(0, (n-1)*int(num), int(num))]
+			print "Sent Frame! Length {}".format(len(l[0]))
 			print "SENT!"
-			s.sendto(data,(HOST,PORT))
+			for i in range(0,n-1):
+				s.sendto(l[i],(HOST,PORT))
 		except KeyboardInterrupt:
 			cv2.waitKey(0)
-			c.stop_capture()
-			c.disconnect()
+			s.close()
 			break
 

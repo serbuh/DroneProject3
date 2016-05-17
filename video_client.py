@@ -10,7 +10,9 @@ s.bind((HOST,PORT))
 
 while True:
 	try:
-		data = s.recv(66000)
+		data = ""
+		for i in range(0,n-1):
+			data = data + s.recv(1000)
 		frame = numpy.fromstring(data, dtype=numpy.uint8)
 		frame = numpy.reshape(frame, (120,160,3))
 		cv2.imshow("Client", frame)
