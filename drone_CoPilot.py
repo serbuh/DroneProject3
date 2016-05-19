@@ -174,7 +174,7 @@ def wildcard_callback(self, attr_name, value):
 	if data:
 		send_telem(data)
 
-def close(vehicle,sitl):
+def close_all(vehicle,sitl):
 	#Close vehicle object before exiting script
 	print "\n### Closing vehicle object ###"
 	vehicle.close()
@@ -183,14 +183,36 @@ def close(vehicle,sitl):
 	if sitl is not None:
 		print("### Closing SITL ###")
     		sitl.stop()
+	if GUI_enabled:
+		print("### Closing GUI ###")
+		drone_GUI_close()
 	print("### Close Complete ###")
+
+
+######## GUI stuff ########
+
+def drone_GUI_init():
+	lbl = tk.Label(drone_GUI_root, text='hiello world' ,font=('arial', 16, 'bold'), fg='red',bg='white')
+	lbl.grid(row=1, column=1, columnspan=1)
+	GUI_button = tk.Button(text='Stop', width=25, command= lambda: close_all(vehicle,sitl))
+	GUI_button.grid(row=2, column=1, columnspan=2)
+
+def drone_GUI_close():
+	print("drone GUI: Closing GUI ...")
+	drone_GUI_root.destroy()
+	drone_GUI_root.quit()
+
+def drone_GUI_tick():
+	pass
+	drone_GUI_root.after(200, drone_GUI_tick)
+
+######## GUI stuff end ########
 
 if __name__ == "__main__":
 	try:
-		#PORT_VIDEO = 3333
-		PORT_TELEM = 3334
-
-		#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		GUI_enabled = 1
+		#GUI_enabled = 0
+		PORT_TELEM = 3334		
 		socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 		HOST = 'localhost'
@@ -200,10 +222,29 @@ if __name__ == "__main__":
 		print "Start to listen and SEND!"
 		vehicle.add_attribute_listener('*', wildcard_callback)
 
-		while(1):
-			time.sleep(1)
+######## GUI ########
+		if (GUI_enabled != 0) :
+			print "*** drone: START GUI ***"
+			import Tkinter as tk
+			drone_GUI_root = tk.Tk()
+			drone_GUI_root.title("drone GUI")
+			drone_GUI_root.configure(background='white')
+			print "drone GUI: Init object"
+			drone_GUI_init()
+			drone_GUI_root.protocol('WM_DELETE_WINDOW', lambda: close_all(vehicle,sitl))		
+			print "drone GUI: Run GUI"
+			drone_GUI_root.after(0,drone_GUI_tick)
+			print "GSC: All set, GO!"
+			try:
+				drone_GUI_root.mainloop()
+			except(KeyboardInterrupt):
+				close_all(vehicle,sitl)
+####### GUI end #######
+		else:
+			while(1):
+				time.sleep(1)		
 	except KeyboardInterrupt:
-		close(vehicle,sitl)	
+		close_all(vehicle,sitl)	
 else:
-	print("You are running drone_FCU_utils.py not as a main?")
+	print("You are running me not as a main?")
 
