@@ -4,6 +4,7 @@ import socket
 import time
 import argparse
 import json
+import drone_controll
 
 def send_telem(data_dict):	
 	data_str = str(data_dict)
@@ -191,11 +192,25 @@ def close_all(vehicle,sitl):
 
 ######## GUI stuff ########
 
+def key(event):
+	#print "pressed", repr(event.char)
+	if (event.char=='w'):
+		print "W!"
+	elif (event.char=='a'):
+		print "A!"
+		#Arm and take of to altitude of 5 meters
+		vehicle_controll.arm_and_takeoff(5)
+	elif (event.char=='s'):
+		print "S!"
+	elif (event.char=='d'):
+		print "D!"
+	
 def drone_GUI_init():
-	lbl = tk.Label(drone_GUI_root, text='hiello world' ,font=('arial', 16, 'bold'), fg='red',bg='white')
+	lbl = tk.Label(drone_GUI_root, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
 	lbl.grid(row=1, column=1, columnspan=1)
 	GUI_button = tk.Button(text='Stop', width=25, command= lambda: close_all(vehicle,sitl))
 	GUI_button.grid(row=2, column=1, columnspan=2)
+	drone_GUI_root.bind("<Key>", key)
 
 def drone_GUI_close():
 	print("drone GUI: Closing GUI ...")
@@ -221,6 +236,7 @@ if __name__ == "__main__":
 		vehicle, sitl = connect2FCU()
 		print "Start to listen and SEND!"
 		vehicle.add_attribute_listener('*', wildcard_callback)
+		vehicle_controll = drone_controll.vehicle_controll(vehicle)
 
 ######## GUI ########
 		if (GUI_enabled != 0) :

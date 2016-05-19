@@ -1,6 +1,7 @@
 import threading
 import time
-from GCS_UDP_client import *
+#from GCS_UDP_client import *
+import GCS_UDP_client as UDP
 import json
 import Tkinter as tk
 import random
@@ -42,8 +43,8 @@ def GUI_init_2labels(key, label1_text, row1 ,column1):
 	global GUI_root, val_dict
 	row2 = row1
 	column2= column1 + 1
-	lbl_name = tk.Label(GUI_root, text=label1_text,font=('arial', 16, 'bold'), fg='red',bg='white')
-	lbl_val = tk.Label(GUI_root, font=('arial', 16, 'bold'), fg='red',bg='white')     
+	lbl_name = tk.Label(GUI_root, text=label1_text,font=('arial', 16, 'bold'), fg='green',bg='black')
+	lbl_val = tk.Label(GUI_root, font=('arial', 16, 'bold'), fg='green',bg='black')     
 	val_dict[key] = {'lbl_name': lbl_name, 'lbl_val': lbl_val, 'value': None}
 	val_dict[key]['lbl_name'].grid(row=row1, column=column1, columnspan=1)
 	val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)
@@ -142,7 +143,7 @@ if __name__ == "__main__":
 	dict_init_fields()
 
 	print "*** GSC: START TELEM ***"	
-	telem_client = GCS_UDP_client()
+	telem_client = UDP.GCS_UDP_client()
 	telem_client.connect(HOST,TELEM_PORT)
 
 	run_event = threading.Event()
@@ -156,7 +157,7 @@ if __name__ == "__main__":
 	print "*** GSC: START GUI ***"
 	GUI_root = tk.Tk()
 	GUI_root.title("GCS GUI")
-	GUI_root.configure(background='white')
+	GUI_root.configure(background='black')
 	print "GUI: Init object"
 	GUI_init()
 	GUI_root.protocol('WM_DELETE_WINDOW', lambda: close_all(run_event,get_telem,telem_client))		
