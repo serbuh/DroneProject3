@@ -98,20 +98,20 @@ def wildcard_callback(self, attr_name, value):
 		data = {'rangefinder': round(value.distance,2)}
 
 	elif attr_name=="location.global_relative_frame":
-		#print "global_relative_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		data = {'lat_gl_rel': value.lat, 'lon_gl_rel': value.lon, 'alt_gl_rel': value.alt}
+		#print "location.global_relative_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
+		data = {'frame_gl_rel_lat': value.lat, 'frame_gl_rel_lon': value.lon, 'frame_gl_rel_alt': value.alt}
 
 	elif attr_name=="location.global_frame":
 		#print "location.global_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		data = {'lat_gl': value.lat, 'lon_gl': value.lon, 'alt_gl': value.alt}
+		data = {'frame_gl_lat': value.lat, 'frame_gl_lon': value.lon, 'frame_gl_alt': value.alt}
 
 	elif attr_name=="location.local_frame":
-		#print "location.local_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		data = {'lat_loc': value.lat, 'lon_loc': value.lon, 'alt_loc': value.alt}
+		#print "location.local_frame north, east, down = {} {} {}".format(value.north, value.east, value.down)
+		data = {'frame_loc_north': value.north, 'frame_loc_east': value.east, 'frame_loc_down': value.down}
 
 	elif attr_name=="location":
-		#print "location_wtf {}".format(dir(value))
-		#print "location_wtf {}".format(value)
+		#print "location_all {}".format(dir(value))
+		#print "location_all {}".format(value)
 		pass
 
 	elif attr_name=="heading":
@@ -120,11 +120,11 @@ def wildcard_callback(self, attr_name, value):
 	
 	elif attr_name=="airspeed":
 		#print "Airspeed: {}".format(value)
-		data = {'airspeed': value}
+		data = {'airspeed': round(value,3)}
 
 	elif attr_name=="groundspeed":
 		#print "Groundspeed: {}".format(value)
-		data = {'groundspeed': value}
+		data = {'groundspeed': round(value,3)}
 
 	elif attr_name=="channels":		
 		#print "Channels. 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
@@ -141,11 +141,6 @@ def wildcard_callback(self, attr_name, value):
 	elif attr_name=="battery":
 		#print "Battery. {}".format(value.voltage)
 		data = {'battery': value.voltage}
-
-	elif attr_name=="is_armable":
-		#print "is_armable: {}".format(value)
-		#print "is_armable: {}".format(dir(value))
-		pass
 
 	elif attr_name=="gps_0":
 		#print "gps_0. eph: {} epv: {} fix_type: {} satellites_visible: {}".format(value.eph, value.epv, value.fix_type, value.satellites_visible)
@@ -168,7 +163,13 @@ def wildcard_callback(self, attr_name, value):
 		#print "armed: {}".format(value)
 		data = {'armed': str(value)}
 
-	#TODO: is_armable, system_status
+	elif attr_name=="is_armable":
+		#print "is_armable: {}".format(value)
+		print "is_armable: {}".format(dir(value))
+
+	elif attr_name=="system_status":
+		#print "System status {}".format(value.state)
+		data = {'system_status': value.state}
 
 	else:
 		print "### NOT SENT:" + attr_name
