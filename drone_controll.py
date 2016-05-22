@@ -13,6 +13,13 @@ class vehicle_controll:
 	def __init__(self, vehicle):
 		self.vehicle = vehicle
 	
+	"""
+	The example is completing. LAND at current location.
+	"""
+	def land_here(self):
+		print("Setting LAND mode...")
+		self.vehicle.mode = VehicleMode("LAND")
+
 	def arm_and_takeoff(self, aTargetAltitude):
 
 		"""
@@ -609,24 +616,4 @@ send_global_velocity(SOUTH,EAST,0,DURATION)
 send_global_velocity(0,0,0,1)
 
 '''
-###commented
-"""
-The example is completing. LAND at current location.
-"""
-###commented
-'''
-print("Setting LAND mode...")
-vehicle.mode = VehicleMode("LAND")
 
-
-#Close vehicle object before exiting script
-print "Close vehicle object"
-vehicle.close()
-
-# Shut down simulator if it was started.
-if sitl is not None:
-    sitl.stop()
-
-print("Completed")
-'''
-###commented

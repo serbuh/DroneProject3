@@ -107,7 +107,7 @@ def wildcard_callback(self, attr_name, value):
 
 	elif attr_name=="location.local_frame":
 		#print "location.local_frame north, east, down = {} {} {}".format(value.north, value.east, value.down)
-		data = {'frame_loc_north': value.north, 'frame_loc_east': value.east, 'frame_loc_down': value.down}
+		data = {'frame_loc_north': round(value.north,3), 'frame_loc_east': round(value.east,3), 'frame_loc_down': round(value.down,3)}
 
 	elif attr_name=="location":
 		#print "location_all {}".format(dir(value))
@@ -200,11 +200,15 @@ def key(event):
 	elif (event.char=='a'):
 		print "A!"
 		#Arm and take of to altitude of 5 meters
-		vehicle_controll.arm_and_takeoff(5)
+		vehicle_controll.arm_and_takeoff(100)
 	elif (event.char=='s'):
 		print "S!"
 	elif (event.char=='d'):
 		print "D!"
+	elif (event.char=='l'):
+		print "D!"
+		vehicle_controll.land_here()
+#		vehicle_controll.condition_yaw(grad_heading, relative=True)
 	
 def drone_GUI_init():
 	lbl = tk.Label(drone_GUI_root, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
