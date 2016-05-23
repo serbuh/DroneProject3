@@ -200,7 +200,7 @@ def key(event):
 	elif (event.char=='a'):
 		print "A!"
 		#Arm and take of to altitude of 5 meters
-		vehicle_controll.arm_and_takeoff(100)
+		vehicle_controll.arm_and_takeoff(10)
 	elif (event.char=='s'):
 		print "S!"
 	elif (event.char=='d'):
@@ -209,6 +209,22 @@ def key(event):
 		print "D!"
 		vehicle_controll.land_here()
 #		vehicle_controll.condition_yaw(grad_heading, relative=True)
+	elif (event.char=='t'):
+		print "T!"
+		vehicle_controll.triangle()
+	elif (event.char=='y'):
+		print "Y!"
+		vehicle_controll.triangle2()
+	elif (event.char=='u'):
+		print "U!"
+		vehicle_controll.square()
+	elif (event.char=='i'):
+		print "I!"
+		vehicle_controll.square2()
+	elif (event.char=='p'):
+		print "P!"
+		vehicle_controll.diamond()
+
 	
 def drone_GUI_init():
 	lbl = tk.Label(drone_GUI_root, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
