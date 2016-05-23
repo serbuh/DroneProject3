@@ -39,6 +39,12 @@ Connect additional GCS (MAVProxy)
 mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551
 ```
 
+If module map is not loaded (fails to import cv) simply install that:
+```sh
+sudo apt-get install python-matplotlib python-serial python-wxgtk2.8 python-lxml
+sudo apt-get install python-scipy python-opencv ccache gawk git python-pip python-pexpect
+```
+
 Possible new GUI + assync UDP design:
 - [https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
 ](https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
