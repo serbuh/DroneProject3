@@ -195,18 +195,31 @@ def close_all(vehicle,sitl):
 
 def key(event):
 	#print "pressed", repr(event.char)
+	if (event.char=='z'):
+		print "Z!"
+		#Arm and take of to altitude of 5 meters
+		vehicle_controll.arm_and_takeoff(10)	
 	if (event.char=='w'):
 		print "W!"
+		vehicle_controll.move_forward(20)
 	elif (event.char=='a'):
 		print "A!"
-		#Arm and take of to altitude of 5 meters
-		vehicle_controll.arm_and_takeoff(10)
+		vehicle_controll.move_left(20)
 	elif (event.char=='s'):
 		print "S!"
+		vehicle_controll.move_backward(20)
 	elif (event.char=='d'):
 		print "D!"
+		vehicle_controll.move_right(20)
+	elif (event.char=='q'):
+		print "Q!"
+		vehicle_controll.yaw_left(10)
+	elif (event.char=='e'):
+		print "E!"
+		vehicle_controll.yaw_right(10)
+
 	elif (event.char=='l'):
-		print "D!"
+		print "L!"
 		vehicle_controll.land_here()
 #		vehicle_controll.condition_yaw(grad_heading, relative=True)
 	elif (event.char=='t'):

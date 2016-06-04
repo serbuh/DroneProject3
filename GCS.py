@@ -42,8 +42,8 @@ def GUI_init_2labels(key, label1_text, row1 ,column1):
 	global GUI_root, val_dict
 	row2 = row1
 	column2= column1 + 1
-	lbl_name = tk.Label(GUI_root, text=label1_text,font=('arial', 16, 'bold'), fg='green',bg='black')
-	lbl_val = tk.Label(GUI_root, font=('arial', 16, 'bold'), fg='green',bg='black')     
+	lbl_name = tk.Label(GUI_root, text=label1_text,font=('arial', 10, 'bold'), fg='green',bg='black')
+	lbl_val = tk.Label(GUI_root, font=('arial', 10, 'bold'), fg='green',bg='black')     
 	val_dict[key] = {'lbl_name': lbl_name, 'lbl_val': lbl_val, 'value': None}
 	val_dict[key]['lbl_name'].grid(row=row1, column=column1, columnspan=1)
 	val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)

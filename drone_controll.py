@@ -10,15 +10,86 @@ import time
 
 class vehicle_controll:
 	vehicle = None
+	
+	DURATION = 1 #Set duration for each segment.
+
+	#Set up velocity vector to map to each direction.
+	# vx > 0 => fly North
+	# vx < 0 => fly South
+	NORTH = 1
+	SOUTH = -1
+
+	# Note for vy:
+	# vy > 0 => fly East
+	# vy < 0 => fly West
+	EAST = 1
+	WEST = -1
+
+	# Note for vz: 
+	# vz < 0 => ascend
+	# vz > 0 => descend
+	UP = -0.5
+	DOWN = 0.5
+
 	def __init__(self, vehicle):
 		self.vehicle = vehicle
-	
+		print("Set airspeed to 2m/s, (10m/s max).")
+		self.vehicle.airspeed = 2
+		print("Set groundspeed to 2m/s, (15m/s max).")
+		self.vehicle.groundspeed = 2
+		
 	"""
 	The example is completing. LAND at current location.
 	"""
 	def land_here(self):
 		print("Setting LAND mode...")
 		self.vehicle.mode = VehicleMode("LAND")
+
+	def move_forward(self, distance):
+#		print("Set groundspeed to 1m/s.")
+#		self.vehicle.groundspeed=1
+#		print("Position North 1")
+#		self.goto(distance, 0)
+		print("Velocity North for " + str(self.DURATION) + " sec")
+		self.send_ned_velocity(self.NORTH,0,0,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+
+	def move_backward(self, distance):
+#		print("Set groundspeed to 1m/s.")
+#		self.vehicle.groundspeed=1
+#		print("Position South 1")
+#		self.goto(~distance, 0)
+		print("Velocity South for " + str(self.DURATION) + " sec")
+		self.send_ned_velocity(self.SOUTH,0,0,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+	def move_left(self, distance):
+#		print("Set groundspeed to 1m/s.")
+#		self.vehicle.groundspeed=1
+#		print("Position West 1")
+#		self.goto(0, ~distance)
+		print("Velocity West for " + str(self.DURATION) + " sec")
+		self.send_ned_velocity(0,self.WEST,0,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+
+	def move_right(self, distance):
+#		print("Set groundspeed to 1m/s.")
+#		self.vehicle.groundspeed=1
+#		print("Position East 1")
+#		self.goto(0, distance)
+		print("Velocity East for " + str(self.DURATION) + " sec")
+		self.send_ned_velocity(0,self.EAST,0,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+	def yaw_left(self, angle):
+		print("Yaw left " + str(angle) + " relative (to previous yaw heading)")
+		self.condition_yaw(360-angle, relative=True)
+
+	def yaw_right(self, angle):
+		print("Yaw right " + str(angle) + " relative (to previous yaw heading)")
+		self.condition_yaw(angle, relative=True)
 
 	def arm_and_takeoff(self, aTargetAltitude):
 
@@ -577,7 +648,8 @@ class vehicle_controll:
 		msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
 			0,       # time_boot_ms (not used)
 			0, 0,    # target system, target component
-			mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+#			mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+			mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
 			0b0000111111000111, # type_mask (only speeds enabled)
 			0, 0, 0, # x, y, z positions (not used)
 			velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
@@ -588,8 +660,8 @@ class vehicle_controll:
 		for x in range(0,duration):
 			self.vehicle.send_mavlink(msg)
 			time.sleep(1)
-    
-    
+
+
 
 
 	def send_global_velocity(self, velocity_x, velocity_y, velocity_z, duration):
