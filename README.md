@@ -100,3 +100,4 @@ WPA + WPA2 passphrase:
 ```
 create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
 ```
+To create a service (AP on boot), copy create_ap.service from git repository (https://github.com/oblique/create_ap) to /etc/systemd/system/create_ap.service then edit it.
