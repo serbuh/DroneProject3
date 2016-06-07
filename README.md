@@ -76,12 +76,15 @@ wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubun
 sudo dpkg -i hostapd*.deb
 sudo apt-mark hold hostapd
 ```
-After installing hostapd, install ap-hotspot: (adding repository is probably not needed)
+After installing hostapd, if ubuntu is new, you need to use create_ap instead of ap-hotspot. See below.
+To install ap-hotspot: (adding repository is probably not needed)
 ```
 sudo add-apt-repository ppa:nilarimogard/webupd8
 sudo apt-get update
 sudo apt-get install ap-hotspot
 ```
+To install create_ap: http://askubuntu.com/a/701049
+
 In order to get hostapd working wth TP-LINK thingy, install linux headers:
 ```
 sudo apt-get install linux-headers-generic
