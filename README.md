@@ -55,62 +55,48 @@ Possible new GUI + assync UDP design:
 - drone's PC is a UDP Server. Need to put a client's IP in a HOST parameter.
 - GCS PC is a UDP Client. Need to put localhost in a HOST parameter.
 - hotspot:
-ap-hotspot uses hostapd
-- hostapd, 64 bit:
-cd /tmp
-wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_amd64.deb
-sudo dpkg -i hostapd*.deb
-sudo apt-mark hold hostapd
-
-- hostapd, 32 bit:
+Read http://odroid.com/dokuwiki/doku.php?id=en:xu4_wlan_ap#configuration_for_wifi_module_3
+In short, download and patch hostapd, replace with existing. Then use create_ap for AP creation.
 ```
-cd /tmp
-wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_i386.deb
-sudo dpkg -i hostapd*.deb
-sudo apt-mark hold hostapd
+sudo apt-get install libnl-3-dev libnl-genl-3-dev libssl-dev hostapd iptables
+sudo apt-get install --reinstall pkg-config
+$ git clone https://github.com/pritambaral/hostapd-rtl871xdrv.git
+$
+$ wget https://w1.fi/releases/hostapd-2.5.tar.gz
+$ tar xvfz hostapd-2.5.tar.gz
+$ cd hostapd-2.5
+$ patch -p1 < ../hostapd-rtl871xdrv/rtlxdrv.patch
+$ cd hostapd
+$ cp defconfig .config
+$ echo CONFIG_LIBNL32=y >> .config
+$ echo CONFIG_DRIVER_RTW=y >> .config
+$ 
+$ make
 ```
-- hostapd, armhf:
+Backup the hostapd demon. Replace the demon with configured one.
 ```
-cd /tmp
-wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_armhf.deb
-sudo dpkg -i hostapd*.deb
-sudo apt-mark hold hostapd
+$ cp /usr/sbin/hostapd /usr/sbin/hostapd.back
+$ cp hostapd /usr/sbin/hostapd
 ```
-After installing hostapd, if ubuntu is new, you need to use create_ap instead of ap-hotspot. See below.
-To install ap-hotspot: (adding repository is probably not needed)
+Verify that you have installed the latest version
 ```
-sudo add-apt-repository ppa:nilarimogard/webupd8
-sudo apt-get update
-sudo apt-get install ap-hotspot
+$ /usr/sbin/hostapd -v
+hostapd v2.5 for Realtek rtl871xdrv
+User space daemon for IEEE 802.11 AP management,
+IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator
+Copyright (c) 2002-2015, Jouni Malinen <j@w1.fi> and contributors
 ```
 To install create_ap: http://askubuntu.com/a/701049
-
-In order to get hostapd working wth TP-LINK thingy, install linux headers:
 ```
-sudo apt-get install linux-headers-generic
+git clone https://github.com/oblique/create_ap
+cd create_ap
+make install
 ```
-Then follow https://bogeskov.dk/UsbAccessPoint.html
-
-Then:
- ```sh
-apt-get install hostapd
+No passphrase (open network):
 ```
-Configure:
-```sh
-sudo ap-hotspot configure
+create_ap wlan0 eth0 MyAccessPoint
 ```
-Start/Stop:
-```sh
-sudo ap-hotspot start
-sudo ap-hotspot stop
-sudo ap-hotspot restart
+WPA + WPA2 passphrase:
 ```
-List of commands:
-```sh
-ap-hotspot
-```
-
-```sh
-cd /etc/hostapd
-cat host.conf
+create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
 ```
