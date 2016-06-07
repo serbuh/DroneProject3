@@ -63,11 +63,19 @@ sudo dpkg -i hostapd*.deb
 sudo apt-mark hold hostapd
 
 - hostapd, 32 bit:
+```
 cd /tmp
 wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_i386.deb
 sudo dpkg -i hostapd*.deb
 sudo apt-mark hold hostapd
-
+```
+- hostapd, armhf:
+```
+cd /tmp
+wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_armhf.deb
+sudo dpkg -i hostapd*.deb
+sudo apt-mark hold hostapd
+```
 
  ```sh
 apt-get install hostapd
