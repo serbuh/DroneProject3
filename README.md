@@ -77,7 +77,8 @@ sudo dpkg -i hostapd*.deb
 sudo apt-mark hold hostapd
 ```
 After installing hostapd, install ap-hotspot: (adding repository is probably not needed)
-```sudo add-apt-repository ppa:nilarimogard/webupd8
+```
+sudo add-apt-repository ppa:nilarimogard/webupd8
 sudo apt-get update
 sudo apt-get install ap-hotspot
 ```
