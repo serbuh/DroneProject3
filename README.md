@@ -82,6 +82,12 @@ sudo add-apt-repository ppa:nilarimogard/webupd8
 sudo apt-get update
 sudo apt-get install ap-hotspot
 ```
+In order to get hostapd working wth TP-LINK thingy, install linux headers:
+```
+sudo apt-get install linux-headers-generic
+```
+Then follow https://bogeskov.dk/UsbAccessPoint.html
+
 Then:
  ```sh
 apt-get install hostapd
