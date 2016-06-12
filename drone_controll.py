@@ -657,9 +657,15 @@ class vehicle_controll:
 			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
 
 		# send command to vehicle on 1 Hz cycle
-		for x in range(0,duration):
-			self.vehicle.send_mavlink(msg)
-			time.sleep(1)
+#		for x in range(0,duration):
+#			self.vehicle.send_mavlink(msg)
+#			time.sleep(1)
+		
+		self.vehicle.send_mavlink(msg)
+		time.sleep(0.1)
+
+
+		
 
 
 

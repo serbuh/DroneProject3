@@ -5,6 +5,7 @@ import time
 import argparse
 import json
 import drone_controll
+import Tkinter as tk
 
 def send_telem(data_dict):	
 	data_str = str(data_dict)
@@ -79,6 +80,64 @@ def connect2FCU():
 	print " Armed: %s" % vehicle.armed    # settable
 	print "======================================================="
 	return vehicle, sitl
+
+
+##############################
+
+class GUI_main(tk.Frame):
+	def __init__(self, root, *args, **kwargs):
+		print "drone GUI: Start"
+		tk.Frame.__init__(self, root, *args, **kwargs)
+		self.root = root
+		self.frame1 = tk.Frame(self.root)
+		self.root.title("drone GUI")
+		self.frame1.configure(background='white')
+		self.GUI_init(self.frame1)
+		self.frame1.grid(row=0, column=0)
+		self.root.after(0,self.drone_GUI_tick)
+
+	def GUI_init(self, frame):
+		print "drone GUI: Init objects"
+		#self.root.protocol('WM_DELETE_WINDOW', lambda: close_all(vehicle,sitl))
+		self.root.protocol('WM_DELETE_WINDOW', self.drone_GUI_close)		
+		
+		self.lbl_title = tk.Label(frame, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
+		self.lbl_title.grid(row=0, column=0, columnspan=3)
+		self.lbl_param = tk.Label(frame, text='Param', fg='black',bg='white')
+		self.lbl_param.grid(row=1, column=0, columnspan=1)
+		self.ent_param = tk.Entry(frame)
+		self.ent_param.grid(row=1, column=1)
+		self.btn_do = tk.Button(frame, text='Do', command=self.on_button_do)
+		self.btn_do.grid(row=1, column=2, columnspan=1)
+		self.lbl_test = tk.Label(frame, text='0')
+		self.lbl_test.grid(row=2, column=0, columnspan=1)
+		self.btn_stop = tk.Button(frame, text='Stop', width=25, command= self.on_button_stop)
+		self.btn_stop.grid(row=3, column=0, columnspan=3)
+		#self.btn_stop = tk.Button(text='Stop', width=25, command= lambda: close_all(vehicle,sitl)).grid(row=2, column=0, columnspan=3)
+		#drone_GUI_root.bind("<Key>", key)
+		self.counter = 0
+
+
+
+	def on_button_do(self):
+		print(self.ent_param.get())
+
+	def on_button_stop(self):
+		self.drone_GUI_close()
+
+	def drone_GUI_close(self):
+		print("drone GUI: Closing GUI")
+		self.root.destroy()
+		self.root.quit()
+
+	def drone_GUI_tick(self):
+		self.lbl_test.config(text = str(self.counter))	
+		self.counter = self.counter + 1
+		self.root.after(200, self.drone_GUI_tick)
+
+
+##############################
+
 
 
 def wildcard_callback(self, attr_name, value):
@@ -217,7 +276,6 @@ def key(event):
 	elif (event.char=='e'):
 		print "E!"
 		vehicle_controll.yaw_right(10)
-
 	elif (event.char=='l'):
 		print "L!"
 		vehicle_controll.land_here()
@@ -238,29 +296,23 @@ def key(event):
 		print "P!"
 		vehicle_controll.diamond()
 
-	
-def drone_GUI_init():
-	lbl = tk.Label(drone_GUI_root, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
-	lbl.grid(row=1, column=1, columnspan=1)
-	GUI_button = tk.Button(text='Stop', width=25, command= lambda: close_all(vehicle,sitl))
-	GUI_button.grid(row=2, column=1, columnspan=2)
-	drone_GUI_root.bind("<Key>", key)
-
-def drone_GUI_close():
-	print("drone GUI: Closing GUI ...")
-	drone_GUI_root.destroy()
-	drone_GUI_root.quit()
-
-def drone_GUI_tick():
-	pass
-	drone_GUI_root.after(200, drone_GUI_tick)
 
 ######## GUI stuff end ########
+
+def run_GUI():
+	root = tk.Tk()
+	GUI_main(root)
+	print "drone: GUI and Telem is ready, GO!"
+	try:
+		root.mainloop()
+	except(KeyboardInterrupt):
+		close_all(vehicle,sitl)
 
 if __name__ == "__main__":
 	try:
 		GUI_enabled = 1
 		#GUI_enabled = 0
+		'''
 		PORT_TELEM = 3334		
 		socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
@@ -271,25 +323,9 @@ if __name__ == "__main__":
 		print "Start to listen and SEND!"
 		vehicle.add_attribute_listener('*', wildcard_callback)
 		vehicle_controll = drone_controll.vehicle_controll(vehicle)
-
-######## GUI ########
+		'''
 		if (GUI_enabled != 0) :
-			print "*** drone: START GUI ***"
-			import Tkinter as tk
-			drone_GUI_root = tk.Tk()
-			drone_GUI_root.title("drone GUI")
-			drone_GUI_root.configure(background='white')
-			print "drone GUI: Init object"
-			drone_GUI_init()
-			drone_GUI_root.protocol('WM_DELETE_WINDOW', lambda: close_all(vehicle,sitl))		
-			print "drone GUI: Run GUI"
-			drone_GUI_root.after(0,drone_GUI_tick)
-			print "GSC: All set, GO!"
-			try:
-				drone_GUI_root.mainloop()
-			except(KeyboardInterrupt):
-				close_all(vehicle,sitl)
-####### GUI end #######
+			run_GUI()
 		else:
 			while(1):
 				time.sleep(1)		
