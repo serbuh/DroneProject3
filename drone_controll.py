@@ -41,8 +41,18 @@ class vehicle_controll:
 	"""
 	The example is completing. LAND at current location.
 	"""
+
+	def send_command(self, command, command_param):
+		if command=="arm":
+			print "Drone: drone controll - arm and takeoff to " + str(command_param) + " meters"
+			self.arm_and_takeoff(int(command_param))
+		elif command=="land":
+			print "Drone: drone controll - land here"
+			self.land_here()
+		else:
+			print "Drone: drone controll - Warning: command " + command + " does not exist!"
+
 	def land_here(self):
-		print("Setting LAND mode...")
 		self.vehicle.mode = VehicleMode("LAND")
 
 	def move_forward(self, distance):
