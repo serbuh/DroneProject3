@@ -1,6 +1,6 @@
 import threading
 import time
-from GCS_UDP_client import *
+import GCS_UDP_client as UDP
 import json
 import Tkinter as tk
 import random
@@ -42,15 +42,14 @@ def GUI_init_2labels(key, label1_text, row1 ,column1):
 	global GUI_root, val_dict
 	row2 = row1
 	column2= column1 + 1
-	lbl_name = tk.Label(GUI_root, text=label1_text,font=('arial', 16, 'bold'), fg='red',bg='white')
-	lbl_val = tk.Label(GUI_root, font=('arial', 16, 'bold'), fg='red',bg='white')     
+	lbl_name = tk.Label(GUI_root, text=label1_text,font=('arial', 10, 'bold'), fg='green',bg='black')
+	lbl_val = tk.Label(GUI_root, font=('arial', 10, 'bold'), fg='green',bg='black')     
 	val_dict[key] = {'lbl_name': lbl_name, 'lbl_val': lbl_val, 'value': None}
 	val_dict[key]['lbl_name'].grid(row=row1, column=column1, columnspan=1)
 	val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)
 
 # Initializing GUI
 def GUI_init():
-	global GUI_root, val_dict
 	GUI_init_2labels('roll', label1_text='Roll: ', row1=1, column1=1)
 	GUI_init_2labels('pitch', label1_text='Pitch: ', row1=2, column1=1)
 	GUI_init_2labels('yaw', label1_text='Yaw: ', row1=3, column1=1)
@@ -83,22 +82,22 @@ def GUI_init():
 	GUI_init_2labels('ch8', label1_text='Ch8: ', row1=8, column1=5)
 
     
-	GUI_init_2labels('lat_loc', label1_text='Lat loc: ', row1=12, column1=1)
-	GUI_init_2labels('lon_loc', label1_text='Lon loc: ', row1=13, column1=1)
-	GUI_init_2labels('alt_loc', label1_text='Alt loc: ', row1=14, column1=1)
-	GUI_init_2labels('lat_gl', label1_text='Lat gl: ', row1=12, column1=3)
-	GUI_init_2labels('lon_gl', label1_text='Lon gl: ', row1=13, column1=3)
-	GUI_init_2labels('alt_gl', label1_text='Alt gl: ', row1=14, column1=3)
-	GUI_init_2labels('lat_gl_rel', label1_text='Lat gl rel: ', row1=12, column1=5)
-	GUI_init_2labels('lon_gl_rel', label1_text='Lon gl rel: ', row1=13, column1=5)
-	GUI_init_2labels('alt_gl_rel', label1_text='Alt gl rel: ', row1=14, column1=5)
+	GUI_init_2labels('frame_loc_north', label1_text='North (loc): ', row1=12, column1=1)
+	GUI_init_2labels('frame_loc_east', label1_text='East (loc): ', row1=13, column1=1)
+	GUI_init_2labels('frame_loc_down', label1_text='Down (loc): ', row1=14, column1=1)
+	GUI_init_2labels('frame_gl_lat', label1_text='Lat (gl): ', row1=12, column1=3)
+	GUI_init_2labels('frame_gl_lon', label1_text='Lon (gl): ', row1=13, column1=3)
+	GUI_init_2labels('frame_gl_alt', label1_text='Alt (gl): ', row1=14, column1=3)
+	GUI_init_2labels('frame_gl_rel_lat', label1_text='Lat (gl rel): ', row1=12, column1=5)
+	GUI_init_2labels('frame_gl_rel_lon', label1_text='Lon (gl rel): ', row1=13, column1=5)
+	GUI_init_2labels('frame_gl_rel_alt', label1_text='Alt (gl rel): ', row1=14, column1=5)
 
 
 	GUI_init_2labels('airspeed', label1_text='Airspeed: ', row1=15, column1=1)
 	GUI_init_2labels('groundspeed', label1_text='Groundspeed: ', row1=16, column1=1)	
 	GUI_init_2labels('mode', label1_text='Mode: ', row1=17, column1=1)
 	GUI_init_2labels('armed', label1_text='Armed: ', row1=18, column1=1)
-
+	GUI_init_2labels('system_status', label1_text='System status: ', row1=19, column1=1)
 
 	#TODO Design Q: why do we see here run_event, get_telem, telem_client. It is not defined as global...
 	#TODO Design Q: Do I need to define globals then (GUI_root, val_dict)?
@@ -137,12 +136,12 @@ def GUI_tick():
 
 if __name__ == "__main__":
 	#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-	val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'lat_loc', 'lon_loc', 'alt_loc', 'lat_gl', 'lon_gl', 'alt_gl', 'lat_gl_rel', 'lon_gl_rel', 'alt_gl_rel', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed'])
+	val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status'])
 	# Init all val_dict fields
 	dict_init_fields()
 
 	print "*** GSC: START TELEM ***"	
-	telem_client = GCS_UDP_client()
+	telem_client = UDP.GCS_UDP_client()
 	telem_client.connect(HOST,TELEM_PORT)
 
 	run_event = threading.Event()
@@ -156,7 +155,7 @@ if __name__ == "__main__":
 	print "*** GSC: START GUI ***"
 	GUI_root = tk.Tk()
 	GUI_root.title("GCS GUI")
-	GUI_root.configure(background='white')
+	GUI_root.configure(background='black')
 	print "GUI: Init object"
 	GUI_init()
 	GUI_root.protocol('WM_DELETE_WINDOW', lambda: close_all(run_event,get_telem,telem_client))		

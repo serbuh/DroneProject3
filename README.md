@@ -29,6 +29,21 @@ Connect via USB with the following connection string:
 ```sh
 sudo python drone_UDP_server.py --connect /dev/ttyACM0
 ```
+Install MAVProxy:
+```sh
+pip install MAVProxy
+```
+
+Connect additional GCS (MAVProxy)
+```sh
+mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551
+```
+
+If module map is not loaded (fails to import cv) simply install that:
+```sh
+sudo apt-get install python-matplotlib python-serial python-wxgtk2.8 python-lxml
+sudo apt-get install python-scipy python-opencv ccache gawk git python-pip python-pexpect
+```
 
 Possible new GUI + assync UDP design:
 - [https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
@@ -40,39 +55,49 @@ Possible new GUI + assync UDP design:
 - drone's PC is a UDP Server. Need to put a client's IP in a HOST parameter.
 - GCS PC is a UDP Client. Need to put localhost in a HOST parameter.
 - hotspot:
-ap-hotspot uses hostapd
-- hostapd, 64 bit:
-cd /tmp
-wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_amd64.deb
-sudo dpkg -i hostapd*.deb
-sudo apt-mark hold hostapd
-
-- hostapd, 32 bit:
-cd /tmp
-wget http://old-releases.ubuntu.com/ubuntu/pool/universe/w/wpa/hostapd_1.0-3ubuntu2.1_i386.deb
-sudo dpkg -i hostapd*.deb
-sudo apt-mark hold hostapd
-
-
- ```sh
-apt-get install hostapd
+Read http://odroid.com/dokuwiki/doku.php?id=en:xu4_wlan_ap#configuration_for_wifi_module_3
+In short, download and patch hostapd, replace with existing. Then use create_ap for AP creation.
 ```
-Configure:
-```sh
-sudo ap-hotspot configure
+sudo apt-get install libnl-3-dev libnl-genl-3-dev libssl-dev hostapd iptables
+sudo apt-get install --reinstall pkg-config
+$ git clone https://github.com/pritambaral/hostapd-rtl871xdrv.git
+$
+$ wget https://w1.fi/releases/hostapd-2.5.tar.gz
+$ tar xvfz hostapd-2.5.tar.gz
+$ cd hostapd-2.5
+$ patch -p1 < ../hostapd-rtl871xdrv/rtlxdrv.patch
+$ cd hostapd
+$ cp defconfig .config
+$ echo CONFIG_LIBNL32=y >> .config
+$ echo CONFIG_DRIVER_RTW=y >> .config
+$ 
+$ make
 ```
-Start/Stop:
-```sh
-sudo ap-hotspot start
-sudo ap-hotspot stop
-sudo ap-hotspot restart
+Backup the hostapd demon. Replace the demon with configured one.
 ```
-List of commands:
-```sh
-ap-hotspot
+$ cp /usr/sbin/hostapd /usr/sbin/hostapd.back
+$ cp hostapd /usr/sbin/hostapd
 ```
-
-```sh
-cd /etc/hostapd
-cat host.conf
+Verify that you have installed the latest version
 ```
+$ /usr/sbin/hostapd -v
+hostapd v2.5 for Realtek rtl871xdrv
+User space daemon for IEEE 802.11 AP management,
+IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator
+Copyright (c) 2002-2015, Jouni Malinen <j@w1.fi> and contributors
+```
+To install create_ap: http://askubuntu.com/a/701049
+```
+git clone https://github.com/oblique/create_ap
+cd create_ap
+make install
+```
+No passphrase (open network):
+```
+create_ap wlan0 eth0 MyAccessPoint
+```
+WPA + WPA2 passphrase:
+```
+create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
+```
+To create a service (AP on boot), copy create_ap.service from git repository (https://github.com/oblique/create_ap) to /etc/systemd/system/create_ap.service then edit it. This instructions is from http://www.runeaudio.com/forum/hostapd-configuration-wifi-hotspot-setup-t567.html

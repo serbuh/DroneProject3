@@ -4,6 +4,8 @@ import socket
 import time
 import argparse
 import json
+import drone_controll
+import Tkinter as tk
 
 def send_telem(data_dict):	
 	data_str = str(data_dict)
@@ -79,6 +81,7 @@ def connect2FCU():
 	print "======================================================="
 	return vehicle, sitl
 
+########### Telem ###########
 
 def wildcard_callback(self, attr_name, value):
 	#print "(%s): %s" % (attr_name,value)
@@ -97,20 +100,20 @@ def wildcard_callback(self, attr_name, value):
 		data = {'rangefinder': round(value.distance,2)}
 
 	elif attr_name=="location.global_relative_frame":
-		#print "global_relative_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		data = {'lat_gl_rel': value.lat, 'lon_gl_rel': value.lon, 'alt_gl_rel': value.alt}
+		#print "location.global_relative_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
+		data = {'frame_gl_rel_lat': value.lat, 'frame_gl_rel_lon': value.lon, 'frame_gl_rel_alt': value.alt}
 
 	elif attr_name=="location.global_frame":
 		#print "location.global_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		data = {'lat_gl': value.lat, 'lon_gl': value.lon, 'alt_gl': value.alt}
+		data = {'frame_gl_lat': value.lat, 'frame_gl_lon': value.lon, 'frame_gl_alt': value.alt}
 
 	elif attr_name=="location.local_frame":
-		#print "location.local_frame lat, lon, alt = {} {} {}".format(value.lat, value.lon, value.alt)
-		data = {'lat_loc': value.lat, 'lon_loc': value.lon, 'alt_loc': value.alt}
+		#print "location.local_frame north, east, down = {} {} {}".format(value.north, value.east, value.down)
+		data = {'frame_loc_north': round(value.north,3), 'frame_loc_east': round(value.east,3), 'frame_loc_down': round(value.down,3)}
 
 	elif attr_name=="location":
-		#print "location_wtf {}".format(dir(value))
-		#print "location_wtf {}".format(value)
+		#print "location_all {}".format(dir(value))
+		#print "location_all {}".format(value)
 		pass
 
 	elif attr_name=="heading":
@@ -119,11 +122,11 @@ def wildcard_callback(self, attr_name, value):
 	
 	elif attr_name=="airspeed":
 		#print "Airspeed: {}".format(value)
-		data = {'airspeed': value}
+		data = {'airspeed': round(value,3)}
 
 	elif attr_name=="groundspeed":
 		#print "Groundspeed: {}".format(value)
-		data = {'groundspeed': value}
+		data = {'groundspeed': round(value,3)}
 
 	elif attr_name=="channels":		
 		#print "Channels. 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
@@ -140,11 +143,6 @@ def wildcard_callback(self, attr_name, value):
 	elif attr_name=="battery":
 		#print "Battery. {}".format(value.voltage)
 		data = {'battery': value.voltage}
-
-	elif attr_name=="is_armable":
-		#print "is_armable: {}".format(value)
-		#print "is_armable: {}".format(dir(value))
-		pass
 
 	elif attr_name=="gps_0":
 		#print "gps_0. eph: {} epv: {} fix_type: {} satellites_visible: {}".format(value.eph, value.epv, value.fix_type, value.satellites_visible)
@@ -167,43 +165,210 @@ def wildcard_callback(self, attr_name, value):
 		#print "armed: {}".format(value)
 		data = {'armed': str(value)}
 
-	#TODO: is_armable, system_status
+	elif attr_name=="is_armable":
+		#print "is_armable: {}".format(value)
+		print "is_armable: {}".format(dir(value))
 
+	elif attr_name=="system_status":
+		#print "System status {}".format(value.state)
+		data = {'system_status': value.state}
 	else:
 		print "### NOT SENT:" + attr_name
 	if data:
 		send_telem(data)
+	
+########### Telem end ############
 
-def close(vehicle,sitl):
-	#Close vehicle object before exiting script
-	print "\n### Closing vehicle object ###"
-	vehicle.close()
 
-	# Shut down simulator if it was started.
+
+############# GUI #################
+
+class GUI_main(tk.Frame):
+	def __init__(self, root, vehicle, sitl, vehicle_controll, *args, **kwargs):
+		self.vehicle = vehicle
+		self.sitl = sitl
+		self.vehicle_controll = vehicle_controll		
+		print "Drone: GUI - Start"
+		tk.Frame.__init__(self, root, *args, **kwargs)
+		self.root = root
+		self.frame1 = tk.Frame(self.root)
+		self.root.title("drone GUI")
+		self.frame1.configure(background='white')
+		self.GUI_init(self.frame1)
+		self.frame1.grid(row=0, column=0)
+		self.root.after(0,self.drone_GUI_tick)
+
+	def GUI_init(self, frame):
+		print "Drone: GUI - Init objects"
+		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)		
+		#0
+		self.lbl_title = tk.Label(frame, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
+		self.lbl_title.grid(row=0, column=0, columnspan=6)
+		self.btn_stop = tk.Button(frame, text='Stop', width=25, command= self.on_btn_stop)
+		self.btn_stop.grid(row=0, column=6, columnspan=1)
+		#1
+		self.lbl_command = tk.Label(frame, text='Command:', fg='black',bg='white')
+		self.lbl_command.grid(row=1, column=0, columnspan=1)
+		self.ent_command = tk.Entry(frame)
+		self.ent_command.grid(row=1, column=1)
+		self.lbl_command_param1 = tk.Label(frame, text='param1:', fg='black',bg='white')
+		self.lbl_command_param1.grid(row=1, column=2, columnspan=1)
+		self.ent_command_param1 = tk.Entry(frame)
+		self.ent_command_param1.grid(row=1, column=3)
+		self.lbl_command_param2 = tk.Label(frame, text='param2:', fg='black',bg='white')
+		self.lbl_command_param2.grid(row=1, column=4, columnspan=1)
+		self.ent_command_param2 = tk.Entry(frame)
+		self.ent_command_param2.grid(row=1, column=5)
+		self.btn_send = tk.Button(frame, text='Send command', command=self.on_btn_send)
+		self.btn_send.grid(row=1, column=6, columnspan=1)
+		#2
+		self.lbl_sent = tk.Label(frame, fg='black', bg='white', text='')
+		self.lbl_sent.grid(row=2, column=0, columnspan=1)
+		#3
+		self.btn_listen_keys = tk.Button(frame, text='Listen for keys', width=25, command= self.on_btn_listen_keys)
+		self.btn_listen_keys.grid(row=3, column=0, columnspan=1)
+		self.lbl_listen_keys = tk.Label(frame, fg='black', bg='red', text='Listen keys - NO')
+		self.lbl_listen_keys.grid(row=3, column=1, columnspan=1)
+		#4
+
+		#self.root.bind("<Key>", self.key_callback)
+		self.counter = 0
+
+	def on_btn_send(self):
+		command = self.ent_command.get()
+		command_param1 = self.ent_command_param1.get()
+		command_param2 = self.ent_command_param2.get()
+		sent_command = "Sending: {" + command + " " + command_param1 + " " + command_param2 +"}"
+		self.lbl_sent.config(text = sent_command)
+		self.vehicle_controll.send_command(command, command_param1, command_param2)
+
+	def on_window_close(self):
+		print "Drone: Close all - GUI window close"
+		close_all(self.vehicle,self.sitl,self)
+
+	def on_btn_stop(self):
+		print "Drone: Close all - GUI button Stop"
+		close_all(self.vehicle,self.sitl,self)
+
+	def on_btn_listen_keys(self):
+		if self.lbl_listen_keys.cget('bg') == "green":
+			self.root.unbind("<Key>")
+			self.lbl_listen_keys.config(text = "Listen keys - NO", bg='red')
+		elif self.lbl_listen_keys.cget('bg') == "red":
+			self.root.bind("<Key>", self.key_callback)
+			self.lbl_listen_keys.config(text = "Listen keys - YES", bg='green')
+
+	def drone_GUI_close(self):
+		self.root.destroy()
+		self.root.quit()
+
+	def drone_GUI_tick(self):
+		self.root.after(200, self.drone_GUI_tick)
+
+	def key_callback(self, event):
+		if vehicle_controll is None:
+			print "Drone: GUI - Warning: vehicle controll is None. Run telem module first."
+			print "Drone: GUI - ", repr(event.char), " pressed"
+			return
+
+		#print "pressed", repr(event.char)
+		if (event.char=='z'):
+			print "Z pressed"
+			self.vehicle_controll.send_command("arm", 10)
+		if (event.char=='w'):
+			print "W pressed"
+			self.vehicle_controll.send_command("forward", 20, 1)
+		elif (event.char=='a'):
+			print "A pressed"
+			self.vehicle_controll.send_command("left", 20, 1)
+		elif (event.char=='s'):
+			print "S pressed"
+			self.vehicle_controll.send_command("backward", 20, 1)
+		elif (event.char=='d'):
+			print "D pressed"
+			self.vehicle_controll.send_command("right", 20, 1)
+		elif (event.char=='q'):
+			print "Q pressed"
+			self.vehicle_controll.send_command("yaw_left", 10)
+		elif (event.char=='e'):
+			print "E pressed"
+			self.vehicle_controll.send_command("yaw_right", 10)
+		elif (event.char=='l'):
+			print "L pressed"
+			self.vehicle_controll.send_command("land", None)
+		elif (event.char=='t'):
+			print "T pressed"
+			self.vehicle_controll.send_command("triangle", None)
+		elif (event.char=='y'):
+			print "Y pressed"
+			self.vehicle_controll.send_command("triangle2", None)
+		elif (event.char=='u'):
+			print "U pressed"
+			self.vehicle_controll.send_command("square", None)
+		elif (event.char=='i'):
+			print "I pressed"
+			self.vehicle_controll.send_command("square2", None)
+		elif (event.char=='p'):
+			print "P pressed"
+			self.vehicle_controll.send_command("diamond", None)
+
+######## GUI stuff end ########
+
+def run_GUI(vehicle, sitl, vehicle_controll):
+	root = tk.Tk()
+	GUI = GUI_main(root,vehicle,sitl,vehicle_controll)
+	try:
+		print "Drone: GUI - Enter the mainloop"
+		root.mainloop()
+	except(KeyboardInterrupt):
+		print "Drone: Close all - keyboard interrupt in GUI"
+		close_all(vehicle,sitl,GUI)
+
+def close_all(vehicle,sitl,GUI):
+	
 	if sitl is not None:
-		print("### Closing SITL ###")
+		print("Drone: Close all - SITL")
     		sitl.stop()
-	print("### Close Complete ###")
+
+	if telem_enabled:
+		print("Drone: Close all - Vehicle object")
+		vehicle.close()
+
+	if GUI_enabled:
+		print("Drone: Close all - GUI")
+		GUI.drone_GUI_close()
+
+	print "Drone: Close all - Complete"
 
 if __name__ == "__main__":
 	try:
-		#PORT_VIDEO = 3333
-		PORT_TELEM = 3334
+		GUI_enabled = 1
+		telem_enabled = 1
 
-		#socket_video = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-		socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		vehicle = None
+		sitl = None
+		GUI = None
+		vehicle_controll = None
 
-		HOST = 'localhost'
-		#HOST = '192.168.150.1'
-		print "Connect to FCU"
-		vehicle, sitl = connect2FCU()
-		print "Start to listen and SEND!"
-		vehicle.add_attribute_listener('*', wildcard_callback)
+		if (telem_enabled != 0) :
+			PORT_TELEM = 3334		
+			socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+			HOST = 'localhost'
+			#HOST = '192.168.150.1'
+			print "Connect to FCU"
+			vehicle, sitl = connect2FCU()
+			print "Start to listen and SEND!"
+			vehicle.add_attribute_listener('*', wildcard_callback)
+			vehicle_controll = drone_controll.vehicle_controll(vehicle)
 
-		while(1):
-			time.sleep(1)
+		if (GUI_enabled != 0) :
+			run_GUI(vehicle, sitl, vehicle_controll)
+		else:
+			while(1):
+				time.sleep(1)		
 	except KeyboardInterrupt:
-		close(vehicle,sitl)	
+		print "Drone: Close all - keyboard interrupt in main"		
+		close_all(vehicle,sitl,GUI)	
 else:
-	print("You are running drone_FCU_utils.py not as a main?")
+	print("You are running me not as a main?")
 
