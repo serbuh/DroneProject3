@@ -7,6 +7,7 @@ from dronekit import VehicleMode, LocationGlobal, LocationGlobalRelative
 from pymavlink import mavutil # Needed for command message definitions
 import math
 import time
+import sys, traceback
 
 class vehicle_controll:
 	vehicle = None
@@ -42,355 +43,177 @@ class vehicle_controll:
 	The example is completing. LAND at current location.
 	"""
 
-	def send_command(self, command, command_param):
-		if command=="arm":
-			print "Drone: drone controll - arm and takeoff to " + str(command_param) + " meters"
-			self.arm_and_takeoff(int(command_param))
-		elif command=="land":
-			print "Drone: drone controll - land here"
-			self.land_here()
-		else:
-			print "Drone: drone controll - Warning: command " + command + " does not exist!"
-
-	def land_here(self):
-		self.vehicle.mode = VehicleMode("LAND")
-
-	def move_forward(self, distance):
-#		print("Set groundspeed to 1m/s.")
-#		self.vehicle.groundspeed=1
-#		print("Position North 1")
-#		self.goto(distance, 0)
-		print("Velocity North for " + str(self.DURATION) + " sec")
-		self.send_ned_velocity(self.NORTH,0,0,self.DURATION)
-		self.send_ned_velocity(0,0,0,1)
-
-
-	def move_backward(self, distance):
-#		print("Set groundspeed to 1m/s.")
-#		self.vehicle.groundspeed=1
-#		print("Position South 1")
-#		self.goto(~distance, 0)
-		print("Velocity South for " + str(self.DURATION) + " sec")
-		self.send_ned_velocity(self.SOUTH,0,0,self.DURATION)
-		self.send_ned_velocity(0,0,0,1)
-
-	def move_left(self, distance):
-#		print("Set groundspeed to 1m/s.")
-#		self.vehicle.groundspeed=1
-#		print("Position West 1")
-#		self.goto(0, ~distance)
-		print("Velocity West for " + str(self.DURATION) + " sec")
-		self.send_ned_velocity(0,self.WEST,0,self.DURATION)
-		self.send_ned_velocity(0,0,0,1)
-
-
-	def move_right(self, distance):
-#		print("Set groundspeed to 1m/s.")
-#		self.vehicle.groundspeed=1
-#		print("Position East 1")
-#		self.goto(0, distance)
-		print("Velocity East for " + str(self.DURATION) + " sec")
-		self.send_ned_velocity(0,self.EAST,0,self.DURATION)
-		self.send_ned_velocity(0,0,0,1)
-
-	def yaw_left(self, angle):
-		print("Yaw left " + str(angle) + " relative (to previous yaw heading)")
-		self.condition_yaw(360-angle, relative=True)
-
-	def yaw_right(self, angle):
-		print("Yaw right " + str(angle) + " relative (to previous yaw heading)")
-		self.condition_yaw(angle, relative=True)
+	def send_command(self, *args):
+		try:
+			if args[0] == "arm":
+				self.arm_and_takeoff(int(args[1]))
+			elif args[0] == "land":
+				self.land_here()
+			elif args[0] == "forward":
+				self.move_forward(int(args[1]), int(args[2]))
+			elif args[0] == "backward":
+				self.move_backward(int(args[1]), int(args[2]))
+			elif args[0] == "left":
+				self.move_left(int(args[1]), int(args[2]))
+			elif args[0] == "right":
+				self.move_right(int(args[1]), int(args[2]))
+			elif args[0] == "yaw_left":
+				self.yaw_left(int(args[1]))
+			elif args[0] == "yaw_right":
+				self.yaw_right(int(args[1]))
+			elif args[0] == "triangle":
+				self.triangle()
+			elif args[0] == "triangle2":
+				self.triangle2()
+			elif args[0] == "square":
+				self.square()
+			elif args[0] == "square2":
+				self.square2()
+			elif args[0] == "diamond":
+				self.diamond()
+			else:
+				print "Drone: drone controll - Warning: command " + str(args[0]) + " does not exist!"
+		except:
+			traceback.print_exc()
+			print "Drone: drone controll - Exception: command {" + str(args[0]) + ", " + str(args[1]) + "} is not valid"
 
 	def arm_and_takeoff(self, aTargetAltitude):
-
-		"""
-		Arms vehicle and fly to aTargetAltitude.
-		"""
-		print "Basic pre-arm checks"
+		print "Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters"
+		print "Drone: drone controll - Arm: Basic pre-arm checks"
 		# Don't let the user try to arm until autopilot is ready
 		while not self.vehicle.is_armable:
-			print " Waiting for vehicle to initialise..."
+			print "Drone: drone controll - Arm: Waiting for vehicle to initialise..."
 			time.sleep(1)
 
-		print "Arming motors"
+		print "Drone: drone controll - Arm: Arming motors"
 		# Copter should arm in GUIDED mode
 		self.vehicle.mode = VehicleMode("GUIDED")
 		self.vehicle.armed = True
 
 		while not self.vehicle.armed:      
-			print " Waiting for arming..."
+			print "Drone: drone controll - Arm: Waiting for arming..."
 			time.sleep(1)
 
-		print "Taking off!"
+		print "Drone: drone controll - Arm: Taking off!"
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
 		#  after Vehicle.simple_takeoff will execute immediately).
 		while True:
-			print " Altitude: ", self.vehicle.location.global_relative_frame.alt      
+			print "Drone: drone controll - Arm: Altitude: ", self.vehicle.location.global_relative_frame.alt      
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
-				print "Reached target altitude"
+				print "Drone: drone controll - Arm: Reached target altitude"
 				break
 			time.sleep(1)
 
-	def triangle(self):
-		"""
-		Fly a triangular path using the standard Vehicle.simple_goto() method.
-
-		The method is called indirectly via a custom "goto" that allows the target position to be
-		specified as a distance in metres (North/East) from the current position, and which reports
-		the distance-to-target.
-		"""	
-
-		print("TRIANGLE path using standard Vehicle.simple_goto()")
-
-		print("Set groundspeed to 5m/s.")
-		self.vehicle.groundspeed=5
-
-		print("Position North 80 West 50")
-		self.goto(80, -50)
-
-		print("Position North 0 East 100")
-		self.goto(0, 100)
-
-		print("Position North -80 West 50")
-		self.goto(-80, -50)
+	def land_here(self):
+		print "Drone: drone controll - land here"
+		self.vehicle.mode = VehicleMode("LAND")
 
 
-	def triangle2(self):
-		"""
-		Fly a triangular path using the SET_POSITION_TARGET_GLOBAL_INT command and specifying
-		a target position (rather than controlling movement using velocity vectors). The command is
-		called from goto_position_target_global_int() (via `goto`).
-
-		The goto_position_target_global_int method is called indirectly from a custom "goto" that allows 
-		the target position to be specified as a distance in metres (North/East) from the current position, 
-		and which reports the distance-to-target.
-
-		The code also sets the speed (MAV_CMD_DO_CHANGE_SPEED). In AC3.2.1 Copter will accelerate to this speed 
-		near the centre of its journey and then decelerate as it reaches the target. 
-		In AC3.3 the speed changes immediately.
-		"""
-
-		print("TRIANGLE path using standard SET_POSITION_TARGET_GLOBAL_INT message and with varying speed.")
-		print("Position South 100 West 130")
-
-		print("Set groundspeed to 5m/s.")
-		self.vehicle.groundspeed = 5
-		self.goto(-100, -130, self.goto_position_target_global_int)
-
-		print("Set groundspeed to 15m/s (max).")
-		self.vehicle.groundspeed = 15
-		print("Position South 0 East 200")
-		self.goto(0, 260, self.goto_position_target_global_int)
-
-		print("Set airspeed to 10m/s (max).")
-		self.vehicle.airspeed = 10
-
-		print("Position North 100 West 130")
-		self.goto(100, -130, self.goto_position_target_global_int)
-
-
-	def square(self):
-		"""
-		Fly the vehicle in a 50m square path, using the SET_POSITION_TARGET_LOCAL_NED command 
-		and specifying a target position (rather than controlling movement using velocity vectors). 
-		The command is called from goto_position_target_local_ned() (via `goto`).
-
-		The position is specified in terms of the NED (North East Down) relative to the Home location.
-
-		WARNING: The "D" in NED means "Down". Using a positive D value will drive the vehicle into the ground!
-
-		The code sleeps for a time (DURATION) to give the vehicle time to reach each position (rather than 
-		sending commands based on proximity).
-
-		The code also sets the region of interest (MAV_CMD_DO_SET_ROI) via the `set_roi()` method. This points the 
-		camera gimbal at the the selected location (in this case it aligns the whole vehicle to point at the ROI).
-		"""	
-
-		print("SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
-		self.DURATION = 20 #Set duration for each segment.
-
-		print("North 50m, East 0m, 10m altitude for %s seconds" % self.DURATION)
-		self.goto_position_target_local_ned(50,0,-10)
-		print("Point ROI at current location (home position)") 
-		# NOTE that this has to be called after the goto command as first "move" command of a particular type
-		# "resets" ROI/YAW commands
-		self.set_roi(self.vehicle.location.global_relative_frame)
-		time.sleep(self.DURATION)
-
-		print("North 50m, East 50m, 10m altitude")
-		self.goto_position_target_local_ned(50,50,-10)
-		time.sleep(self.DURATION)
-
-		print("Point ROI at current location")
-		self.set_roi(self.vehicle.location.global_relative_frame)
-
-		print("North 0m, East 50m, 10m altitude")
-		self.goto_position_target_local_ned(0,50,-10)
-		time.sleep(self.DURATION)
-
-		print("North 0m, East 0m, 10m altitude")
-		self.goto_position_target_local_ned(0,0,-10)
-		time.sleep(self.DURATION)
-
-	def square2(self):
-		"""
-		Fly the vehicle in a SQUARE path using velocity vectors (the underlying code calls the 
-		SET_POSITION_TARGET_LOCAL_NED command with the velocity parameters enabled).
-
-		The thread sleeps for a time (DURATION) which defines the distance that will be travelled.
-
-		The code also sets the yaw (MAV_CMD_CONDITION_YAW) using the `set_yaw()` method in each segment
-		so that the front of the vehicle points in the direction of travel
-		"""
-
-		print("SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
-		self.DURATION = 20 #Set duration for each segment.
-
-		#Set up velocity vector to map to each direction.
-		# vx > 0 => fly North
-		# vx < 0 => fly South
-		self.NORTH = 2
-		self.SOUTH = -2
-
-		# Note for vy:
-		# vy > 0 => fly East
-		# vy < 0 => fly West
-		self.EAST = 2
-		self.WEST = -2
-
-		# Note for vz: 
-		# vz < 0 => ascend
-		# vz > 0 => descend
-		self.UP = -0.5
-		self.DOWN = 0.5
-
-
-		# Square path using velocity
-		print("SQUARE path using SET_POSITION_TARGET_LOCAL_NED and velocity parameters")
-
-		print("Yaw 180 absolute (South)")
-		self.condition_yaw(180)
-
-		print("Velocity South & up")
-		self.send_ned_velocity(self.SOUTH,0,self.UP,self.DURATION)
+	def move_forward(self, velocity, duration):
+		print "Drone: drone controll - move forward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.send_ned_velocity(velocity,0,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
-
-		print("Yaw 270 absolute (West)")
-		self.condition_yaw(270)
-
-		print("Velocity West & down")
-		self.send_ned_velocity(0,self.WEST,self.DOWN,self.DURATION)
+	def move_backward(self, velocity, duration):
+		print "Drone: drone controll - move backward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.send_ned_velocity(-velocity,0,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
-
-		print("Yaw 0 absolute (North)")
-		self.condition_yaw(0)
-
-		print("Velocity North")
-		self.send_ned_velocity(self.NORTH,0,0,self.DURATION)
+	def move_left(self, velocity, duration):
+		print "Drone: drone controll - move left, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.send_ned_velocity(0,-velocity,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
-
-		print("Yaw 90 absolute (East)")
-		self.condition_yaw(90)
-
-		print("Velocity East")
-		self.send_ned_velocity(0,self.EAST,0,self.DURATION)
+	def move_right(self, velocity, duration):
+		print "Drone: drone controll - move right, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.send_ned_velocity(0,velocity,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
+	def yaw_left(self, angle):
+		print("Drone: drone controll - Yaw left " + str(angle) + " relative (to previous yaw heading)")
+		self.condition_yaw(360-angle, relative=True)
 
-	def diamond(self):
+	def yaw_right(self, angle):
+		print("Drone: drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
+		self.condition_yaw(angle, relative=True)
+
+
+	def send_ned_velocity(self, velocity_x, velocity_y, velocity_z, duration):
 		"""
-		Fly the vehicle in a DIAMOND path using velocity vectors (the underlying code calls the 
-		SET_POSITION_TARGET_GLOBAL_INT command with the velocity parameters enabled).
+		Move vehicle in direction based on specified velocity vectors and
+		for the specified duration.
 
-		The thread sleeps for a time (DURATION) which defines the distance that will be travelled.
+		This uses the SET_POSITION_TARGET_LOCAL_NED command with a type mask enabling only 
+		velocity components 
+		(http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/#set_position_target_local_ned).
 
-		The code sets the yaw (MAV_CMD_CONDITION_YAW) using the `set_yaw()` method using relative headings
-		so that the front of the vehicle points in the direction of travel.
+		Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
+		with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
+		velocity persists until it is canceled. The code below should work on either version 
+		(sending the message multiple times does not cause problems).
 
-		At the end of the second segment the code sets a new home location to the current point.
+		See the above link for information on the type_mask (0=enable, 1=ignore). 
+		At time of writing, acceleration and yaw bits are ignored.
 		"""
-		
-		print("SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
-		self.DURATION = 20 #Set duration for each segment.
+		msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
+			0,       # time_boot_ms (not used)
+			0, 0,    # target system, target component
+#			mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+			mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
+			0b0000111111000111, # type_mask (only speeds enabled)
+			0, 0, 0, # x, y, z positions (not used)
+			velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
+			0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
 
-		#Set up velocity vector to map to each direction.
-		# vx > 0 => fly North
-		# vx < 0 => fly South
-		self.NORTH = 2
-		self.SOUTH = -2
-
-		# Note for vy:
-		# vy > 0 => fly East
-		# vy < 0 => fly West
-		self.EAST = 2
-		self.WEST = -2
-
-		# Note for vz: 
-		# vz < 0 => ascend
-		# vz > 0 => descend
-		self.UP = -0.5
-		self.DOWN = 0.5
-
-		print("DIAMOND path using SET_POSITION_TARGET_GLOBAL_INT and velocity parameters")
-		# vx, vy are parallel to North and East (independent of the vehicle orientation)
-
-		print("Yaw 225 absolute")
-		self.condition_yaw(225)
-
-		print("Velocity South, West and Up")
-		self.send_global_velocity(self.SOUTH,self.WEST,self.UP,self.DURATION)
-		self.send_global_velocity(0,0,0,1)
-
-		print("Yaw 90 relative (to previous yaw heading)")
-		self.condition_yaw(90,relative=True)
-
-		print("Velocity North, West and Down")
-		self.send_global_velocity(self.NORTH,self.WEST,self.DOWN,self.DURATION)
-		self.send_global_velocity(0,0,0,1)
-
-		print("Set new home location to current location")
-		self.vehicle.home_location=self.vehicle.location.global_frame
-		print "Get new home location"
-		#This reloads the home location in DroneKit and GCSs
-		cmds = self.vehicle.commands
-		cmds.download()
-		cmds.wait_ready()
-		print " Home Location: %s" % self.vehicle.home_location
+		# send command to vehicle on 1 Hz cycle
+#		for x in range(0,duration):
+#			self.vehicle.send_mavlink(msg)
+#			time.sleep(1)
+		for x in range(0,duration):
+			self.vehicle.send_mavlink(msg)
+			time.sleep(0.1)
 
 
-		print("Yaw 90 relative (to previous yaw heading)")
-		self.condition_yaw(90,relative=True)
+	def send_global_velocity(self, velocity_x, velocity_y, velocity_z, duration):
+		"""
+		Move vehicle in direction based on specified velocity vectors.
 
-		print("Velocity North and East")
-		self.send_global_velocity(self.NORTH,self.EAST,0,self.DURATION)
-		self.send_global_velocity(0,0,0,1)
+		This uses the SET_POSITION_TARGET_GLOBAL_INT command with type mask enabling only 
+		velocity components 
+		(http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/#set_position_target_global_int).
+
+		Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
+		with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
+		velocity persists until it is canceled. The code below should work on either version 
+		(sending the message multiple times does not cause problems).
+
+		See the above link for information on the type_mask (0=enable, 1=ignore). 
+		At time of writing, acceleration and yaw bits are ignored.
+		"""
+		msg = self.vehicle.message_factory.set_position_target_global_int_encode(
+			0,       # time_boot_ms (not used)
+			0, 0,    # target system, target component
+			mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
+			0b0000111111000111, # type_mask (only speeds enabled)
+			0, # lat_int - X Position in WGS84 frame in 1e7 * meters
+			0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
+			0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
+			# altitude above terrain if GLOBAL_TERRAIN_ALT_INT
+			velocity_x, # X velocity in NED frame in m/s
+			velocity_y, # Y velocity in NED frame in m/s
+			velocity_z, # Z velocity in NED frame in m/s
+			0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
+			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
+
+		# send command to vehicle on 1 Hz cycle
+		for x in range(0,duration):
+			self.vehicle.send_mavlink(msg)
+			time.sleep(1)
 
 
-		print("Yaw 90 relative (to previous yaw heading)")
-		self.condition_yaw(90,relative=True)
-
-		print("Velocity South and East")
-		self.send_global_velocity(self.SOUTH,self.EAST,0,self.DURATION)
-		self.send_global_velocity(0,0,0,1)
-
-
-	"""
-	Convenience functions for sending immediate/guided mode commands to control the Copter.
-
-	The set of commands demonstrated here include:
-	* MAV_CMD_CONDITION_YAW - set direction of the front of the Copter (latitude, longitude)
-	* MAV_CMD_DO_SET_ROI - set direction where the camera gimbal is aimed (latitude, longitude, altitude)
-	* MAV_CMD_DO_CHANGE_SPEED - set target speed in metres/second.
-
-
-	The full set of available commands are listed here:
-	http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/
-	"""
 
 	def condition_yaw(self, heading, relative=False):
 		"""
@@ -564,7 +387,6 @@ class vehicle_controll:
 		self.vehicle.send_mavlink(msg)
 
 
-
 	def goto_position_target_local_ned(self, north, east, down):
 		"""	
 		Send SET_POSITION_TARGET_LOCAL_NED command to request the vehicle fly to a specified 
@@ -638,82 +460,263 @@ class vehicle_controll:
 	* send_global_velocity - Sets velocity components using SET_POSITION_TARGET_GLOBAL_INT command
 	"""
 
-	def send_ned_velocity(self, velocity_x, velocity_y, velocity_z, duration):
+
+	def triangle(self):
 		"""
-		Move vehicle in direction based on specified velocity vectors and
-		for the specified duration.
+		Fly a triangular path using the standard Vehicle.simple_goto() method.
 
-		This uses the SET_POSITION_TARGET_LOCAL_NED command with a type mask enabling only 
-		velocity components 
-		(http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/#set_position_target_local_ned).
+		The method is called indirectly via a custom "goto" that allows the target position to be
+		specified as a distance in metres (North/East) from the current position, and which reports
+		the distance-to-target.
+		"""	
 
-		Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
-		with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
-		velocity persists until it is canceled. The code below should work on either version 
-		(sending the message multiple times does not cause problems).
+		print("Drone: drone controll - Triangle: TRIANGLE path using standard Vehicle.simple_goto()")
 
-		See the above link for information on the type_mask (0=enable, 1=ignore). 
-		At time of writing, acceleration and yaw bits are ignored.
+		print("Drone: drone controll - Triangle: Set groundspeed to 5m/s.")
+		self.vehicle.groundspeed=5
+
+		print("Drone: drone controll - Triangle: Position North 80 West 50")
+		self.goto(80, -50)
+
+		print("Drone: drone controll - Triangle: Position North 0 East 100")
+		self.goto(0, 100)
+
+		print("Drone: drone controll - Triangle: Position North -80 West 50")
+		self.goto(-80, -50)
+
+
+	def triangle2(self):
 		"""
-		msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
-			0,       # time_boot_ms (not used)
-			0, 0,    # target system, target component
-#			mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
-			mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
-			0b0000111111000111, # type_mask (only speeds enabled)
-			0, 0, 0, # x, y, z positions (not used)
-			velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
-			0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
-			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
+		Fly a triangular path using the SET_POSITION_TARGET_GLOBAL_INT command and specifying
+		a target position (rather than controlling movement using velocity vectors). The command is
+		called from goto_position_target_global_int() (via `goto`).
 
-		# send command to vehicle on 1 Hz cycle
-#		for x in range(0,duration):
-#			self.vehicle.send_mavlink(msg)
-#			time.sleep(1)
+		The goto_position_target_global_int method is called indirectly from a custom "goto" that allows 
+		the target position to be specified as a distance in metres (North/East) from the current position, 
+		and which reports the distance-to-target.
+
+		The code also sets the speed (MAV_CMD_DO_CHANGE_SPEED). In AC3.2.1 Copter will accelerate to this speed 
+		near the centre of its journey and then decelerate as it reaches the target. 
+		In AC3.3 the speed changes immediately.
+		"""
+
+		print("Drone: drone controll - Triangle2: TRIANGLE path using standard SET_POSITION_TARGET_GLOBAL_INT message and with varying speed.")
+		print("Drone: drone controll - Triangle2: Position South 100 West 130")
+
+		print("Drone: drone controll - Triangle2: Set groundspeed to 5m/s.")
+		self.vehicle.groundspeed = 5
+		self.goto(-100, -130, self.goto_position_target_global_int)
+
+		print("Drone: drone controll - Triangle2: Set groundspeed to 15m/s (max).")
+		self.vehicle.groundspeed = 15
+		print("Drone: drone controll - Triangle2: Position South 0 East 200")
+		self.goto(0, 260, self.goto_position_target_global_int)
+
+		print("Drone: drone controll - Triangle2: Set airspeed to 10m/s (max).")
+		self.vehicle.airspeed = 10
+
+		print("Drone: drone controll - Triangle2: Position North 100 West 130")
+		self.goto(100, -130, self.goto_position_target_global_int)
+
+
+	def square(self):
+		"""
+		Fly the vehicle in a 50m square path, using the SET_POSITION_TARGET_LOCAL_NED command 
+		and specifying a target position (rather than controlling movement using velocity vectors). 
+		The command is called from goto_position_target_local_ned() (via `goto`).
+
+		The position is specified in terms of the NED (North East Down) relative to the Home location.
+
+		WARNING: The "D" in NED means "Down". Using a positive D value will drive the vehicle into the ground!
+
+		The code sleeps for a time (DURATION) to give the vehicle time to reach each position (rather than 
+		sending commands based on proximity).
+
+		The code also sets the region of interest (MAV_CMD_DO_SET_ROI) via the `set_roi()` method. This points the 
+		camera gimbal at the the selected location (in this case it aligns the whole vehicle to point at the ROI).
+		"""	
+
+		print("Drone: drone controll - Square: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
+		self.DURATION = 20 #Set duration for each segment.
+
+		print("Drone: drone controll - Square: North 50m, East 0m, 10m altitude for %s seconds" % self.DURATION)
+		self.goto_position_target_local_ned(50,0,-10)
+		print("Drone: drone controll - Square: Point ROI at current location (home position)") 
+		# NOTE that this has to be called after the goto command as first "move" command of a particular type
+		# "resets" ROI/YAW commands
+		self.set_roi(self.vehicle.location.global_relative_frame)
+		time.sleep(self.DURATION)
+
+		print("Drone: drone controll - Square: North 50m, East 50m, 10m altitude")
+		self.goto_position_target_local_ned(50,50,-10)
+		time.sleep(self.DURATION)
+
+		print("Drone: drone controll - Square: Point ROI at current location")
+		self.set_roi(self.vehicle.location.global_relative_frame)
+
+		print("Drone: drone controll - Square: North 0m, East 50m, 10m altitude")
+		self.goto_position_target_local_ned(0,50,-10)
+		time.sleep(self.DURATION)
+
+		print("Drone: drone controll - Square: North 0m, East 0m, 10m altitude")
+		self.goto_position_target_local_ned(0,0,-10)
+		time.sleep(self.DURATION)
+
+	def square2(self):
+		"""
+		Fly the vehicle in a SQUARE path using velocity vectors (the underlying code calls the 
+		SET_POSITION_TARGET_LOCAL_NED command with the velocity parameters enabled).
+
+		The thread sleeps for a time (DURATION) which defines the distance that will be travelled.
+
+		The code also sets the yaw (MAV_CMD_CONDITION_YAW) using the `set_yaw()` method in each segment
+		so that the front of the vehicle points in the direction of travel
+		"""
+
+		print("Drone: drone controll - Square2: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
+		self.DURATION = 20 #Set duration for each segment.
+
+		#Set up velocity vector to map to each direction.
+		# vx > 0 => fly North
+		# vx < 0 => fly South
+		self.NORTH = 2
+		self.SOUTH = -2
+
+		# Note for vy:
+		# vy > 0 => fly East
+		# vy < 0 => fly West
+		self.EAST = 2
+		self.WEST = -2
+
+		# Note for vz: 
+		# vz < 0 => ascend
+		# vz > 0 => descend
+		self.UP = -0.5
+		self.DOWN = 0.5
+
+
+		# Square path using velocity
+		print("Drone: drone controll - Square2: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and velocity parameters")
+
+		print("Drone: drone controll - Square2: Yaw 180 absolute (South)")
+		self.condition_yaw(180)
+
+		print("Drone: drone controll - Square2: Velocity South & up")
+		self.send_ned_velocity(self.SOUTH,0,self.UP,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+
+		print("Drone: drone controll - Square2: Yaw 270 absolute (West)")
+		self.condition_yaw(270)
+
+		print("Drone: drone controll - Square2: Velocity West & down")
+		self.send_ned_velocity(0,self.WEST,self.DOWN,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+
+		print("Drone: drone controll - Square2: Yaw 0 absolute (North)")
+		self.condition_yaw(0)
+
+		print("Drone: drone controll - Square2: Velocity North")
+		self.send_ned_velocity(self.NORTH,0,0,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+
+		print("Drone: drone controll - Square2: Yaw 90 absolute (East)")
+		self.condition_yaw(90)
+
+		print("Drone: drone controll - Square2: Velocity East")
+		self.send_ned_velocity(0,self.EAST,0,self.DURATION)
+		self.send_ned_velocity(0,0,0,1)
+
+
+	def diamond(self):
+		"""
+		Fly the vehicle in a DIAMOND path using velocity vectors (the underlying code calls the 
+		SET_POSITION_TARGET_GLOBAL_INT command with the velocity parameters enabled).
+
+		The thread sleeps for a time (DURATION) which defines the distance that will be travelled.
+
+		The code sets the yaw (MAV_CMD_CONDITION_YAW) using the `set_yaw()` method using relative headings
+		so that the front of the vehicle points in the direction of travel.
+
+		At the end of the second segment the code sets a new home location to the current point.
+		"""
 		
-		self.vehicle.send_mavlink(msg)
-		time.sleep(0.1)
+		print("Drone: drone controll - Diamond: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
+		self.DURATION = 20 #Set duration for each segment.
+
+		#Set up velocity vector to map to each direction.
+		# vx > 0 => fly North
+		# vx < 0 => fly South
+		self.NORTH = 2
+		self.SOUTH = -2
+
+		# Note for vy:
+		# vy > 0 => fly East
+		# vy < 0 => fly West
+		self.EAST = 2
+		self.WEST = -2
+
+		# Note for vz: 
+		# vz < 0 => ascend
+		# vz > 0 => descend
+		self.UP = -0.5
+		self.DOWN = 0.5
+
+		print("Drone: drone controll - Diamond: DIAMOND path using SET_POSITION_TARGET_GLOBAL_INT and velocity parameters")
+		# vx, vy are parallel to North and East (independent of the vehicle orientation)
+
+		print("Drone: drone controll - Diamond: Yaw 225 absolute")
+		self.condition_yaw(225)
+
+		print("Drone: drone controll - Diamond: Velocity South, West and Up")
+		self.send_global_velocity(self.SOUTH,self.WEST,self.UP,self.DURATION)
+		self.send_global_velocity(0,0,0,1)
+
+		print("Drone: drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
+		self.condition_yaw(90,relative=True)
+
+		print("Drone: drone controll - Diamond: Velocity North, West and Down")
+		self.send_global_velocity(self.NORTH,self.WEST,self.DOWN,self.DURATION)
+		self.send_global_velocity(0,0,0,1)
+
+		print("Drone: drone controll - Diamond: Set new home location to current location")
+		self.vehicle.home_location=self.vehicle.location.global_frame
+		print "Drone: drone controll - Diamond: Get new home location"
+		#This reloads the home location in DroneKit and GCSs
+		cmds = self.vehicle.commands
+		cmds.download()
+		cmds.wait_ready()
+		print "Drone: drone controll - Diamond: Home Location: %s" % self.vehicle.home_location
 
 
-		
+		print("Drone: drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
+		self.condition_yaw(90,relative=True)
+
+		print("Drone: drone controll - Diamond: Velocity North and East")
+		self.send_global_velocity(self.NORTH,self.EAST,0,self.DURATION)
+		self.send_global_velocity(0,0,0,1)
 
 
+		print("Drone: drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
+		self.condition_yaw(90,relative=True)
+
+		print("Drone: drone controll - Diamond: Velocity South and East")
+		self.send_global_velocity(self.SOUTH,self.EAST,0,self.DURATION)
+		self.send_global_velocity(0,0,0,1)
 
 
-	def send_global_velocity(self, velocity_x, velocity_y, velocity_z, duration):
-		"""
-		Move vehicle in direction based on specified velocity vectors.
+	"""
+	Convenience functions for sending immediate/guided mode commands to control the Copter.
 
-		This uses the SET_POSITION_TARGET_GLOBAL_INT command with type mask enabling only 
-		velocity components 
-		(http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/#set_position_target_global_int).
+	The set of commands demonstrated here include:
+	* MAV_CMD_CONDITION_YAW - set direction of the front of the Copter (latitude, longitude)
+	* MAV_CMD_DO_SET_ROI - set direction where the camera gimbal is aimed (latitude, longitude, altitude)
+	* MAV_CMD_DO_CHANGE_SPEED - set target speed in metres/second.
 
-		Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
-		with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
-		velocity persists until it is canceled. The code below should work on either version 
-		(sending the message multiple times does not cause problems).
 
-		See the above link for information on the type_mask (0=enable, 1=ignore). 
-		At time of writing, acceleration and yaw bits are ignored.
-		"""
-		msg = self.vehicle.message_factory.set_position_target_global_int_encode(
-			0,       # time_boot_ms (not used)
-			0, 0,    # target system, target component
-			mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
-			0b0000111111000111, # type_mask (only speeds enabled)
-			0, # lat_int - X Position in WGS84 frame in 1e7 * meters
-			0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
-			0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
-			# altitude above terrain if GLOBAL_TERRAIN_ALT_INT
-			velocity_x, # X velocity in NED frame in m/s
-			velocity_y, # Y velocity in NED frame in m/s
-			velocity_z, # Z velocity in NED frame in m/s
-			0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
-			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
-
-		# send command to vehicle on 1 Hz cycle
-		for x in range(0,duration):
-			self.vehicle.send_mavlink(msg)
-			time.sleep(1)    
-
+	The full set of available commands are listed here:
+	http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/
+	"""
 

@@ -203,20 +203,24 @@ class GUI_main(tk.Frame):
 		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)		
 		#0
 		self.lbl_title = tk.Label(frame, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
-		self.lbl_title.grid(row=0, column=0, columnspan=4)
+		self.lbl_title.grid(row=0, column=0, columnspan=6)
 		self.btn_stop = tk.Button(frame, text='Stop', width=25, command= self.on_btn_stop)
-		self.btn_stop.grid(row=0, column=4, columnspan=1)
+		self.btn_stop.grid(row=0, column=6, columnspan=1)
 		#1
 		self.lbl_command = tk.Label(frame, text='Command:', fg='black',bg='white')
 		self.lbl_command.grid(row=1, column=0, columnspan=1)
 		self.ent_command = tk.Entry(frame)
 		self.ent_command.grid(row=1, column=1)
-		self.lbl_command_param = tk.Label(frame, text='param:', fg='black',bg='white')
-		self.lbl_command_param.grid(row=1, column=2, columnspan=1)
-		self.ent_command_param = tk.Entry(frame)
-		self.ent_command_param.grid(row=1, column=3)
+		self.lbl_command_param1 = tk.Label(frame, text='param1:', fg='black',bg='white')
+		self.lbl_command_param1.grid(row=1, column=2, columnspan=1)
+		self.ent_command_param1 = tk.Entry(frame)
+		self.ent_command_param1.grid(row=1, column=3)
+		self.lbl_command_param2 = tk.Label(frame, text='param2:', fg='black',bg='white')
+		self.lbl_command_param2.grid(row=1, column=4, columnspan=1)
+		self.ent_command_param2 = tk.Entry(frame)
+		self.ent_command_param2.grid(row=1, column=5)
 		self.btn_send = tk.Button(frame, text='Send command', command=self.on_btn_send)
-		self.btn_send.grid(row=1, column=4, columnspan=1)
+		self.btn_send.grid(row=1, column=6, columnspan=1)
 		#2
 		self.lbl_sent = tk.Label(frame, fg='black', bg='white', text='')
 		self.lbl_sent.grid(row=2, column=0, columnspan=1)
@@ -232,10 +236,11 @@ class GUI_main(tk.Frame):
 
 	def on_btn_send(self):
 		command = self.ent_command.get()
-		command_param = self.ent_command_param.get()
-		sent_command = "Sending: {" + command + " " + command_param + "}"
+		command_param1 = self.ent_command_param1.get()
+		command_param2 = self.ent_command_param2.get()
+		sent_command = "Sending: {" + command + " " + command_param1 + " " + command_param2 +"}"
 		self.lbl_sent.config(text = sent_command)
-		self.vehicle_controll.send_command(command, command_param)
+		self.vehicle_controll.send_command(command, command_param1, command_param2)
 
 	def on_window_close(self):
 		print "Drone: Close all - GUI window close"
@@ -268,45 +273,44 @@ class GUI_main(tk.Frame):
 
 		#print "pressed", repr(event.char)
 		if (event.char=='z'):
-			print "Z!"
-			#Arm and take of to altitude of 5 meters
+			print "Z pressed"
 			self.vehicle_controll.send_command("arm", 10)
 		if (event.char=='w'):
-			print "W!"
-			self.vehicle_controll.move_forward(20)
+			print "W pressed"
+			self.vehicle_controll.send_command("forward", 20, 1)
 		elif (event.char=='a'):
-			print "A!"
-			self.vehicle_controll.move_left(20)
+			print "A pressed"
+			self.vehicle_controll.send_command("left", 20, 1)
 		elif (event.char=='s'):
-			print "S!"
-			self.vehicle_controll.move_backward(20)
+			print "S pressed"
+			self.vehicle_controll.send_command("backward", 20, 1)
 		elif (event.char=='d'):
-			print "D!"
-			self.vehicle_controll.move_right(20)
+			print "D pressed"
+			self.vehicle_controll.send_command("right", 20, 1)
 		elif (event.char=='q'):
-			print "Q!"
-			self.vehicle_controll.yaw_left(10)
+			print "Q pressed"
+			self.vehicle_controll.send_command("yaw_left", 10)
 		elif (event.char=='e'):
-			print "E!"
-			self.vehicle_controll.yaw_right(10)
+			print "E pressed"
+			self.vehicle_controll.send_command("yaw_right", 10)
 		elif (event.char=='l'):
-			print "L!"
+			print "L pressed"
 			self.vehicle_controll.send_command("land", None)
 		elif (event.char=='t'):
-			print "T!"
-			self.vehicle_controll.triangle()
+			print "T pressed"
+			self.vehicle_controll.send_command("triangle", None)
 		elif (event.char=='y'):
-			print "Y!"
-			self.vehicle_controll.triangle2()
+			print "Y pressed"
+			self.vehicle_controll.send_command("triangle2", None)
 		elif (event.char=='u'):
-			print "U!"
-			self.vehicle_controll.square()
+			print "U pressed"
+			self.vehicle_controll.send_command("square", None)
 		elif (event.char=='i'):
-			print "I!"
-			self.vehicle_controll.square2()
+			print "I pressed"
+			self.vehicle_controll.send_command("square2", None)
 		elif (event.char=='p'):
-			print "P!"
-			self.vehicle_controll.diamond()
+			print "P pressed"
+			self.vehicle_controll.send_command("diamond", None)
 
 ######## GUI stuff end ########
 
