@@ -77,6 +77,10 @@ class vehicle_controll:
 			traceback.print_exc()
 			print "Drone: drone controll - Exception: command {" + str(args[0]) + ", " + str(args[1]) + "} is not valid"
 
+	def move_0(self):
+		print "Drone: drone controll - move to the current position (to allow the yaw controll)"
+		self.send_ned_velocity(0,0,0,1)
+
 	def arm_and_takeoff(self, aTargetAltitude):
 		print "Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters"
 		print "Drone: drone controll - Arm: Basic pre-arm checks"
@@ -103,6 +107,7 @@ class vehicle_controll:
 			print "Drone: drone controll - Arm: Altitude: ", self.vehicle.location.global_relative_frame.alt      
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
 				print "Drone: drone controll - Arm: Reached target altitude"
+				self.move_0()
 				break
 			time.sleep(1)
 

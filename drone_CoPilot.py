@@ -364,6 +364,7 @@ if __name__ == "__main__":
 		if (GUI_enabled != 0) :
 			run_GUI(vehicle, sitl, vehicle_controll)
 		else:
+			# if GUI disabled - here is the inf. loop
 			while(1):
 				time.sleep(1)		
 	except KeyboardInterrupt:
