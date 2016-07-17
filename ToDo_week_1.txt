@@ -1,0 +1,10 @@
+1) check sanity of controll (SITL, from the droneside)
+2) check controll from the GCS-side (UDP, SITL)
+3) upload droneside to Odroid
+4) drone assemble
+5) check Odroid+GCS (WiFi, UPD) (Arm check)
+6) human override mechanismus (goto stabilize mode)
+--------------------------------- Odroid <-> GCS (WiFi, UDP) -------------------------------
+6) sending video transmission via UDP
+--------------------------- Odroid <-> GCS (WiFi, UDP) with video -------------------------------
+
