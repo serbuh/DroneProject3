@@ -44,42 +44,47 @@ class vehicle_controll:
 	"""
 
 	def send_command(self, *args):
-		try:
-			if args[0] == "arm":
-				self.arm_and_takeoff(int(args[1]))
-			elif args[0] == "land":
-				self.land_here()
-			elif args[0] == "forward":
-				self.move_forward(int(args[1]), int(args[2]))
-			elif args[0] == "backward":
-				self.move_backward(int(args[1]), int(args[2]))
-			elif args[0] == "left":
-				self.move_left(int(args[1]), int(args[2]))
-			elif args[0] == "right":
-				self.move_right(int(args[1]), int(args[2]))
-			elif args[0] == "yaw_left":
-				self.yaw_left(int(args[1]))
-			elif args[0] == "yaw_right":
-				self.yaw_right(int(args[1]))
-			elif args[0] == "triangle":
-				self.triangle()
-			elif args[0] == "triangle2":
-				self.triangle2()
-			elif args[0] == "square":
-				self.square()
-			elif args[0] == "square2":
-				self.square2()
-			elif args[0] == "diamond":
-				self.diamond()
-			else:
-				print "Drone: drone controll - Warning: command " + str(args[0]) + " does not exist!"
-		except:
-			traceback.print_exc()
-			print "Drone: drone controll - Exception: command {" + str(args[0]) + ", " + str(args[1]) + "} is not valid"
+		if args[0] == "arm":
+			self.arm_and_takeoff(int(args[1]))
+		elif args[0] == "land":
+			self.land_here()
+		elif args[0] == "forward":
+			self.move_forward(int(args[1]), int(args[2]))
+		elif args[0] == "backward":
+			self.move_backward(int(args[1]), int(args[2]))
+		elif args[0] == "left":
+			self.move_left(int(args[1]), int(args[2]))
+		elif args[0] == "right":
+			self.move_right(int(args[1]), int(args[2]))
 
-	def move_0(self):
-		print "Drone: drone controll - move to the current position (to allow the yaw controll)"
-		self.send_ned_velocity(0,0,0,1)
+		elif args[0] == "forward_once":
+			self.move_forward_once(int(args[1]))
+		elif args[0] == "backward_once":
+			self.move_backward_once(int(args[1]))
+		elif args[0] == "left_once":
+			self.move_left_once(int(args[1]))
+		elif args[0] == "right_once":
+			self.move_right_once(int(args[1]))
+		elif args[0] == "move_0_once":
+			self.move_0_once()
+
+		elif args[0] == "yaw_left":
+			self.yaw_left(int(args[1]))
+		elif args[0] == "yaw_right":
+			self.yaw_right(int(args[1]))
+		elif args[0] == "triangle":
+			self.triangle()
+		elif args[0] == "triangle2":
+			self.triangle2()
+		elif args[0] == "square":
+			self.square()
+		elif args[0] == "square2":
+			self.square2()
+		elif args[0] == "diamond":
+			self.diamond()
+		else:
+			print "Drone: drone controll - Warning: command " + str(args[0]) + " does not exist!"
+
 
 	def arm_and_takeoff(self, aTargetAltitude):
 		print "Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters"
@@ -116,6 +121,31 @@ class vehicle_controll:
 		self.vehicle.mode = VehicleMode("LAND")
 
 
+	def move_0_once(self):
+		print "Drone: drone controll - move to the current position once"
+		self.send_ned_velocity_once(0,0,0)
+
+	def move_forward_once(self, velocity):
+		print "Drone: drone controll - Forward " + str(velocity) + " m/s"
+		self.send_ned_velocity_once(velocity,0,0)
+
+	def move_backward_once(self, velocity):
+		print "Drone: drone controll - Backward " + str(velocity) + " m/s"
+		self.send_ned_velocity_once(-velocity,0,0)
+
+	def move_left_once(self, velocity):
+		print "Drone: drone controll - Left " + str(velocity) + " m/s"
+		self.send_ned_velocity_once(0,-velocity,0)
+
+	def move_right_once(self, velocity):
+		print "Drone: drone controll - Right " + str(velocity) + " m/s"
+		self.send_ned_velocity_once(0,velocity,0)
+
+
+	def move_0(self):
+		print "Drone: drone controll - move to the current position (to allow the yaw controll)"
+		self.send_ned_velocity(0,0,0,1)
+
 	def move_forward(self, velocity, duration):
 		print "Drone: drone controll - move forward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
 		self.send_ned_velocity(velocity,0,0,duration)
@@ -145,6 +175,38 @@ class vehicle_controll:
 		self.condition_yaw(angle, relative=True)
 
 
+	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
+		"""
+		Move vehicle in direction based on specified velocity vectors and
+		for the specified duration.
+
+		This uses the SET_POSITION_TARGET_LOCAL_NED command with a type mask enabling only 
+		velocity components 
+		(http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/#set_position_target_local_ned).
+
+		Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
+		with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
+		velocity persists until it is canceled. The code below should work on either version 
+		(sending the message multiple times does not cause problems).
+
+		See the above link for information on the type_mask (0=enable, 1=ignore). 
+		At time of writing, acceleration and yaw bits are ignored.
+		"""
+		msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
+			0,       # time_boot_ms (not used)
+			0, 0,    # target system, target component
+			#mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+			mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
+			0b0000111111000111, # type_mask (only speeds enabled)
+			0, 0, 0, # x, y, z positions (not used)
+			velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
+			0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
+
+		# send single command to vehicle instantly
+		self.vehicle.send_mavlink(msg)
+
+
 	def send_ned_velocity(self, velocity_x, velocity_y, velocity_z, duration):
 		"""
 		Move vehicle in direction based on specified velocity vectors and
@@ -165,7 +227,7 @@ class vehicle_controll:
 		msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
 			0,       # time_boot_ms (not used)
 			0, 0,    # target system, target component
-#			mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+			#mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
 			mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
 			0b0000111111000111, # type_mask (only speeds enabled)
 			0, 0, 0, # x, y, z positions (not used)
@@ -174,9 +236,11 @@ class vehicle_controll:
 			0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
 
 		# send command to vehicle on 1 Hz cycle
-#		for x in range(0,duration):
-#			self.vehicle.send_mavlink(msg)
-#			time.sleep(1)
+		#for x in range(0,duration):
+		#	self.vehicle.send_mavlink(msg)
+		#	time.sleep(1)
+
+		# send command to vehicle on 10 Hz cycle
 		for x in range(0,duration):
 			self.vehicle.send_mavlink(msg)
 			time.sleep(0.1)
@@ -217,7 +281,6 @@ class vehicle_controll:
 		for x in range(0,duration):
 			self.vehicle.send_mavlink(msg)
 			time.sleep(1)
-
 
 
 	def condition_yaw(self, heading, relative=False):
