@@ -233,7 +233,8 @@ class GUI_main(tk.Frame):
 
 		#self.root.bind("<Key>", self.key_callback)
 		self.counter = 0
-		self.is_pressed = "not_listen"
+		self.send_move_0 = 0
+		self.key_pressed = None
 
 	def on_btn_send(self):
 		command = self.ent_command.get()
@@ -263,38 +264,34 @@ class GUI_main(tk.Frame):
 
 	def on_btn_send_position(self):
 		if self.btn_send_position.cget('bg') == "green":
-			self.is_pressed = "not_listen"
+			self.send_move_0 = 0
 			self.btn_send_position.config(text = "Send position - NO", activebackground='red', bg='red')
 		elif self.btn_send_position.cget('bg') == "red":
-			self.is_pressed = "listen"
+			self.send_move_0 = 1
 			self.btn_send_position.config(text = "Send position - YES", activebackground='green', bg='green')
+
 	def drone_GUI_close(self):
 		self.root.destroy()
 		self.root.quit()
 
-	def drone_GUI_tick(self):
-		if (self.is_pressed == "not_listen"):
-			pass
-			#print "Not listening"
-		elif (self.is_pressed == "listen"):
-			self.vehicle_controll.send_command("move_0_once")
-		elif (self.is_pressed == "W"):
+	def drone_GUI_tick(self):		
+		if (self.key_pressed == "W"):
 			self.vehicle_controll.send_command("forward_once", 1)
-		elif (self.is_pressed == "A"):
+		elif (self.key_pressed == "A"):
 			self.vehicle_controll.send_command("left_once", 1)
-		elif (self.is_pressed == "S"):
+		elif (self.key_pressed == "S"):
 			self.vehicle_controll.send_command("backward_once", 1)
-		elif (self.is_pressed == "D"):
+		elif (self.key_pressed == "D"):
 			self.vehicle_controll.send_command("right_once", 1)
+		elif (self.key_pressed == None):
+			if (self.send_move_0 == 1):
+				self.vehicle_controll.send_command("move_0_once")
 		else:
 			print "Drone: WTF am I doing here?"
 		self.root.after(100, self.drone_GUI_tick)
 
 	def key_release_callback(self, event):
-		if (self.is_pressed == "not_listen"):
-			pass
-		else:
-			self.is_pressed = "listen"
+		self.key_pressed = None
 
 	def key_callback(self, event):
 		if vehicle_controll is None:
@@ -307,20 +304,16 @@ class GUI_main(tk.Frame):
 			print "Z pressed"
 			self.vehicle_controll.send_command("arm", 10)
 		if (event.char=='w'):
-			#print "W pressed"
-			self.is_pressed = "W"
+			self.key_pressed = "W"
 			#self.vehicle_controll.send_command("forward", 20, 1)
 		elif (event.char=='a'):
-			#print "A pressed"
-			self.is_pressed = "A"
+			self.key_pressed = "A"
 			#self.vehicle_controll.send_command("left", 20, 1)
 		elif (event.char=='s'):
-			#print "S pressed"
-			self.is_pressed = "S"
+			self.key_pressed = "S"
 			#self.vehicle_controll.send_command("backward", 20, 1)
 		elif (event.char=='d'):
-			#print "D pressed"
-			self.is_pressed = "D"
+			self.key_pressed = "D"
 			#self.vehicle_controll.send_command("right", 20, 1)
 		elif (event.char=='q'):
 			print "Q pressed"
