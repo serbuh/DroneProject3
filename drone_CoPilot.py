@@ -187,7 +187,8 @@ class GUI_main(tk.Frame):
 	def __init__(self, root, vehicle, sitl, vehicle_controll, *args, **kwargs):
 		self.vehicle = vehicle
 		self.sitl = sitl
-		self.vehicle_controll = vehicle_controll		
+		self.vehicle_controll = vehicle_controll
+
 		print "Drone: GUI - Start"
 		tk.Frame.__init__(self, root, *args, **kwargs)
 		self.root = root
@@ -196,16 +197,16 @@ class GUI_main(tk.Frame):
 		self.frame1.configure(background='white')
 		self.GUI_init(self.frame1)
 		self.frame1.grid(row=0, column=0)
-		self.root.after(100,self.drone_GUI_tick)
+		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)
+		self.root.after(100,self.GUI_tick)
 
 	def GUI_init(self, frame):
 		print "Drone: GUI - Init objects"
-		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)		
 		#0
-		self.lbl_title = tk.Label(frame, text='Mission controllsky' ,font=('arial', 16, 'bold'), fg='red',bg='white')
+		self.lbl_title = tk.Label(frame, text='Mission controllsky - drone side' ,font=('arial', 16, 'bold'), fg='red',bg='white')
 		self.lbl_title.grid(row=0, column=0, columnspan=6)
-		self.btn_stop = tk.Button(frame, text='Stop', width=25, command= self.on_btn_stop)
-		self.btn_stop.grid(row=0, column=6, columnspan=1)
+		self.btn_close = tk.Button(frame, text='Close', width=25, command= self.on_btn_close)
+		self.btn_close.grid(row=0, column=6, columnspan=1)
 		#1
 		self.lbl_command = tk.Label(frame, text='Command:', fg='black',bg='white')
 		self.lbl_command.grid(row=1, column=0, columnspan=1)
@@ -248,8 +249,8 @@ class GUI_main(tk.Frame):
 		print "Drone: Close all - GUI window close"
 		close_all(self.vehicle,self.sitl,self)
 
-	def on_btn_stop(self):
-		print "Drone: Close all - GUI button Stop"
+	def on_btn_close(self):
+		print "Drone: Close all - GUI button Close"
 		close_all(self.vehicle,self.sitl,self)
 
 	def on_btn_listen_keys(self):
@@ -270,15 +271,15 @@ class GUI_main(tk.Frame):
 			self.send_move_0 = 1
 			self.btn_send_position.config(text = "Send position - YES", activebackground='green', bg='green')
 
-	def drone_GUI_close(self):
+	def GUI_close(self):
 		self.root.destroy()
 		self.root.quit()
 
-	def drone_GUI_tick(self):		
+	def GUI_tick(self):	
 		if (self.key_pressed == "W"):
-			self.vehicle_controll.send_command("forward_once", 1)
+			self.vehicle_controll.send_command("forward_once", 0.1)
 		elif (self.key_pressed == "A"):
-			self.vehicle_controll.send_command("left_once", 1)
+			self.vehicle_controll.send_command("left_once", 0.1)
 		elif (self.key_pressed == "S"):
 			self.vehicle_controll.send_command("backward_once", 1)
 		elif (self.key_pressed == "D"):
@@ -288,7 +289,7 @@ class GUI_main(tk.Frame):
 				self.vehicle_controll.send_command("move_0_once")
 		else:
 			print "Drone: WTF am I doing here?"
-		self.root.after(100, self.drone_GUI_tick)
+		self.root.after(100, self.GUI_tick)
 
 	def key_release_callback(self, event):
 		self.key_pressed = None
@@ -355,16 +356,16 @@ def run_GUI(vehicle, sitl, vehicle_controll):
 def close_all(vehicle,sitl,GUI):
 	
 	if sitl is not None:
-		print("Drone: Close all - SITL")
+		print "Drone: Close all - SITL"
     		sitl.stop()
 
 	if telem_enabled:
-		print("Drone: Close all - Vehicle object")
+		print "Drone: Close all - Vehicle object"
 		vehicle.close()
 
 	if GUI_enabled:
-		print("Drone: Close all - GUI")
-		GUI.drone_GUI_close()
+		print "Drone: Close all - GUI"
+		GUI.GUI_close()
 
 	print "Drone: Close all - Complete"
 
@@ -379,13 +380,14 @@ if __name__ == "__main__":
 		vehicle_controll = None
 
 		if (telem_enabled != 0) :
+			print "Drone: Main - open Telemetry socket"			
 			PORT_TELEM = 3334		
 			socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 			HOST = 'localhost'
 			#HOST = '192.168.150.1'
-			print "Connect to FCU"
+			print "Drone: Main - Connect to FCU"
 			vehicle, sitl = connect2FCU()
-			print "Start to listen and SEND!"
+			print "Drone: Main - Start to listen and send"
 			vehicle.add_attribute_listener('*', wildcard_callback)
 			vehicle_controll = drone_controll.vehicle_controll(vehicle)
 
@@ -394,10 +396,10 @@ if __name__ == "__main__":
 		else:
 			# if GUI disabled - here is the inf. loop
 			while(1):
-				time.sleep(1)		
+				time.sleep(1)	
 	except KeyboardInterrupt:
 		print "Drone: Close all - keyboard interrupt in main"		
-		close_all(vehicle,sitl,GUI)	
+		close_all(vehicle,sitl,GUI)
 else:
 	print("You are running me not as a main?")
 

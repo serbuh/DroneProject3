@@ -11,26 +11,6 @@ import sys, traceback
 
 class vehicle_controll:
 	vehicle = None
-	
-	DURATION = 1 #Set duration for each segment.
-
-	#Set up velocity vector to map to each direction.
-	# vx > 0 => fly North
-	# vx < 0 => fly South
-	NORTH = 1
-	SOUTH = -1
-
-	# Note for vy:
-	# vy > 0 => fly East
-	# vy < 0 => fly West
-	EAST = 1
-	WEST = -1
-
-	# Note for vz: 
-	# vz < 0 => ascend
-	# vz > 0 => descend
-	UP = -0.5
-	DOWN = 0.5
 
 	def __init__(self, vehicle):
 		self.vehicle = vehicle
@@ -38,10 +18,6 @@ class vehicle_controll:
 		self.vehicle.airspeed = 2
 		print("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
-		
-	"""
-	The example is completing. LAND at current location.
-	"""
 
 	def send_command(self, *args):
 		if args[0] == "arm":
