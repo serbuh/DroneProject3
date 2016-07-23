@@ -86,6 +86,10 @@ User space daemon for IEEE 802.11 AP management,
 IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator
 Copyright (c) 2002-2015, Jouni Malinen <j@w1.fi> and contributors
 ```
+If Odroid has on ip with lan cable connected, run
+```
+dhclient eth0
+```
 To install create_ap: http://askubuntu.com/a/701049
 ```
 git clone https://github.com/oblique/create_ap
