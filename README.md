@@ -36,7 +36,7 @@ pip install MAVProxy
 
 Connect additional GCS (MAVProxy)
 ```sh
-mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551
+mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map
 ```
 
 If module map is not loaded (fails to import cv) simply install that:
