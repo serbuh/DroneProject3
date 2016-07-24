@@ -1,6 +1,8 @@
 '''
-UDP server.
+UDP class.
+See use exapmle in the main.
 '''
+
 import socket
 import sys
 import time
@@ -26,6 +28,7 @@ class UDP():
 	def sock_create(self, host, port):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 		sock.bind((host, port))
 		return sock
 
@@ -75,13 +78,14 @@ class UDP():
 		print self.UDP_type + ": Close socket. Send port: " + str(self.port_send) + " Receive port: " + str(self.port_receive)
 
 if __name__ == '__main__':
+	print "UDP: WARNING. You ran the UDP class as a main. For test purposes only."
 	UDP_server = UDP(1, "0.0.0.0", 5000)
-	UDP_client = UDP(0, "0.0.0.0", 6000)
-
-	UDP_server.send_loop_thread("127.0.0.1", 6001)
-	UDP_client.receive_loop_thread()
-	UDP_client.send_loop_thread("127.0.0.1", 5001)
 	UDP_server.receive_loop_thread()
+	UDP_server.send_loop_thread("255.255.255.255", 6001)
+
+	UDP_client = UDP(0, "0.0.0.0", 6000)
+	UDP_client.receive_loop_thread()
+	UDP_client.send_loop_thread("255.255.255.255", 5001)
 
 	UDP_server.close_sockets()
 	UDP_client.close_sockets()
