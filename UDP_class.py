@@ -8,8 +8,7 @@ import sys
 import time
 import threading
 import struct
-
-import os
+import traceback
 
 class UDP():
 ### INIT ->
@@ -79,10 +78,11 @@ class UDP():
 		self.sock_send.sendto(data_send, addr_send)
 		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_send)
 
-	def send_msg(self, data):
+	def send_telem(self, data_dict):
+		data_str = str(data_dict)
 		addr_send = (self.host_sendto, self.port_sendto)
-		self.sock_send.sendto(data, addr_send)
-		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data)
+		self.sock_send.sendto(data_str, addr_send)
+		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_dict)
 
 ### -> SEND
 ### RECEIVE ->
@@ -103,7 +103,7 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
 				data_dict = eval(data_receive)
 				print data_dict
 
@@ -115,6 +115,8 @@ class UDP():
 			except socket.error:
 				print self.UDP_type + ": Timeout. No received messages"
 				continue
+			except:
+				traceback.print_exc()
 				
 				
 

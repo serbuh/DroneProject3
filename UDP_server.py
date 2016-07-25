@@ -8,7 +8,7 @@ if __name__ == "__main__":
 		UDP_server.receive_loop_telem_thread(None)
 		msg = raw_input("Enter msg:")
 		while msg != 'q':
-			UDP_server.send_msg(msg)
+			UDP_server.send_telem(msg)
 			msg = raw_input("Enter msg:")
 
 	except KeyboardInterrupt:
