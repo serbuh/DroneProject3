@@ -104,7 +104,7 @@ class UDP():
 				data_receive, addr = self.sock_receive.recvfrom(1024)
 				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
 				data_dict = eval(data_receive)
-				print data_dict
+				#print data_dict
 
 				for rec_key, rec_val in data_dict.iteritems():
 					if val_dict.has_key(rec_key):
@@ -116,8 +116,7 @@ class UDP():
 				continue
 			except:
 				traceback.print_exc()
-				
-				
+	
 
 	def receive_loop_telem_thread(self, val_dict):
 		print self.UDP_type + ": Start receive telemetry thread. Listening to: " + str(self.port_receive)
