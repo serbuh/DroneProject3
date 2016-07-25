@@ -4,6 +4,7 @@ import UDP_class as UDP
 import json
 import Tkinter as tk
 import random
+import traceback
 
 
 ######## GUI stuff ########
