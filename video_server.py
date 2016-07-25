@@ -12,7 +12,7 @@ import threading
 HOST = '127.0.0.1'
 PORT = 3333
 
-close_event = threading.Event()	
+#close_event = threading.Event()	
 
 
 def showImage(title , frame , wait = False ):	
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 		#frame = cv2.resize(redBallTracking(frame),(180, 120))		
 		frame = cv2.resize(redBallTracking(frame),(640, 480))
 		frame = cv2.resize(frame,(640,480))
-		showImage("Server",frame)		
+		#showImage("Server",frame)		
 		try:
 			#showImage("Server",frame)
 			frame = frame.flatten()
@@ -69,8 +69,8 @@ if __name__ == "__main__":
 				print "Start Recieve Thread!"
 				sendThread.start()		
 			#if cv2.waitKey(1) & 0xFF == ord('q'):
-			if close_event.is_set():						
-				break
+			#if close_event.is_set():						
+			#	break
 		except KeyboardInterrupt:
 			cv2.waitKey(0)			
 			run_event.clear()			
