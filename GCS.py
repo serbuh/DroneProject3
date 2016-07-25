@@ -1,13 +1,9 @@
 import threading
 import time
-import GCS_UDP_client as UDP
+import UDP_class as UDP
 import json
 import Tkinter as tk
 import random
-
-HOST = 'localhost'
-TELEM_PORT = 3334
-VIDEO_PORT = 3333
 
 
 ######## GUI stuff ########
@@ -118,7 +114,7 @@ class GUI_main(tk.Frame):
 
 	def on_btn_close(self):
 		print "GCS: Close all - GUI button Close"		
-		close_all(run_event, get_telem, telem_client, self)
+		close_all(UDP_client, self)
 
 	def on_btn_send(self):
 		pass
@@ -150,7 +146,7 @@ class GUI_main(tk.Frame):
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
-		close_all(run_event, get_telem, telem_client, self)
+		close_all(UDP_client, self)
 
 	def GUI_init_2labels(self, frame, key, label1_text, row1 ,column1):
 		row2 = row1
@@ -238,16 +234,12 @@ def run_GUI(val_dict):
 		root.mainloop()
 	except(KeyboardInterrupt , SystemExit):
 		print "GCS: Close all - keyboard interrupt in GUI"
-		close_all(run_event, get_telem, telem_client, GUI)
+		close_all(UDP_client, GUI)
 
-def close_all(run_event, get_telem, telem_client, GUI):
+def close_all(UDP_client, GUI):
 	
-	print "GSC: Close all - Send event to all running threads to close"
-	run_event.clear()
-	get_telem_thread.join()
-	
-	print "GCS: Close all - get_telem_thread"
-	telem_client.close_client()
+	print "GCS: Close all - Telemetry"
+	UDP_client.close_UDP()
 	
 	print "GCS: Close all - GUI"
 	GUI.GUI_close()
@@ -259,17 +251,6 @@ def dict_init_fields():
 	for key, val in val_dict.iteritems():
 		val_dict[key] = dict.fromkeys(['value', 'lbl_val', 'lbl_name'])
 
-def get_telem(telem_client, run_event):
-	while run_event.is_set():
-		data = telem_client.receive()
-		#TODO change eval(str(dict)) to smth
-		data_dict = eval(data)
-		#print data_dict
-		for rec_key, rec_val in data_dict.iteritems():
-			if val_dict.has_key(rec_key):
-				val_dict[rec_key]['value'] = rec_val
-			else:
-				print 'GCS WARNING: Trying to update not existing item in val_dict: ' + str(rec_key) + ' Message ' + str(rec_val)
 
 
 if __name__ == "__main__":
@@ -281,20 +262,15 @@ if __name__ == "__main__":
 		dict_init_fields()
 
 		print "GSC: Main - Start Telem"
-		telem_client = UDP.GCS_UDP_client()
-		telem_client.connect(HOST,TELEM_PORT)
+		UDP_client = UDP.UDP(0, "0.0.0.0", 6000, "255.255.255.255", 5001)
 
-		run_event = threading.Event()
-		run_event.set()
-	
-		print "GSC: Main - Start get_telem_thread"
-		get_telem_thread = threading.Thread(target=get_telem, args=[telem_client,run_event])
-		get_telem_thread.start()
+		print "GSC: Main - Start receive Telem thread"
+		UDP_client.receive_loop_telem_thread(val_dict)
 	
 		run_GUI(val_dict)
 
 	except KeyboardInterrupt:
 		print "GCS: Close all - keyboard interrupt in main"		
-		close_all(run_event, get_telem, telem_client, self)
+		close_all(UDP_client, self)
 else:
 	print("You are running me not as a main?")

@@ -9,7 +9,7 @@ import Tkinter as tk
 
 def send_telem(data_dict):	
 	data_str = str(data_dict)
-	#print "SENDING: " + data_str
+	#print "SENDING: " + data_str + "TO: " + str(HOST) + " " + str(PORT_TELEM)
 	socket_telem.sendto(data_str, (HOST,PORT_TELEM))
 	
 def connect2FCU():
@@ -277,9 +277,9 @@ class GUI_main(tk.Frame):
 
 	def GUI_tick(self):	
 		if (self.key_pressed == "W"):
-			self.vehicle_controll.send_command("forward_once", 0.1)
+			self.vehicle_controll.send_command("forward_once", 1)
 		elif (self.key_pressed == "A"):
-			self.vehicle_controll.send_command("left_once", 0.1)
+			self.vehicle_controll.send_command("left_once", 1)
 		elif (self.key_pressed == "S"):
 			self.vehicle_controll.send_command("backward_once", 1)
 		elif (self.key_pressed == "D"):
@@ -381,9 +381,9 @@ if __name__ == "__main__":
 
 		if (telem_enabled != 0) :
 			print "Drone: Main - open Telemetry socket"			
-			PORT_TELEM = 3334		
+			PORT_TELEM = 6001		
 			socket_telem = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-			HOST = 'localhost'
+			HOST = '127.0.0.1'
 			#HOST = '192.168.150.1'
 			print "Drone: Main - Connect to FCU"
 			vehicle, sitl = connect2FCU()
