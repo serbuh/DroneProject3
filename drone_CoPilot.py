@@ -11,10 +11,11 @@ import traceback
 	
 
 class GUI_main(tk.Frame):
-	def __init__(self, root, vehicle, sitl, vehicle_controll, *args, **kwargs):
+	def __init__(self, root, vehicle, sitl, vehicle_controll, close_all, *args, **kwargs):
 		self.vehicle = vehicle
 		self.sitl = sitl
 		self.vehicle_controll = vehicle_controll
+		self.close_all = close_all
 
 		print "Drone: GUI - Start"
 		tk.Frame.__init__(self, root, *args, **kwargs)
@@ -200,7 +201,7 @@ class drone_CoPilot():
 
 	def run_GUI(self):
 		self.root = tk.Tk()
-		self.GUI = GUI_main(self.root, self.vehicle, self.sitl, self.vehicle_controll)
+		self.GUI = GUI_main(self.root, self.vehicle, self.sitl, self.vehicle_controll, self.close_all)
 		try:
 			print "Drone: GUI - Enter the mainloop"
 			self.root.mainloop()
@@ -289,9 +290,13 @@ class drone_CoPilot():
 			print "Drone: Close all - SITL"
 	    		self.sitl.stop()
 
+		print "Drone: Close all - Unbind Pixhawk telem callback"
+		self.vehicle.remove_attribute_listener('*', self.wildcard_callback)
+
 		if self.Telem_enabled is True:
 			print "Drone: Close all - Vehicle object"
 			self.vehicle.close()
+			print "Drone: Close all - UDP socket"
 			self.UDP_server.close_UDP()
 
 		if self.GUI_enabled:

@@ -7,7 +7,6 @@ import random
 import traceback
 
 
-######## GUI stuff ########
 class GUI_main(tk.Frame):
 	def __init__(self, root, val_dict, *args, **kwargs):
 		self.val_dict = val_dict
@@ -224,8 +223,6 @@ class GUI_main(tk.Frame):
 			val['lbl_val'].config(text=str(val['value']))
 			#val_dict['roll']['lbl_val'].config(text=str(val_dict['roll']['value']))
 
-
-######## GUI stuff end ########
 
 def run_GUI(val_dict):
 	root = tk.Tk()
