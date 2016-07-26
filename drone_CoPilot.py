@@ -210,8 +210,13 @@ class drone_CoPilot():
 			self.close_all()
 
 	def no_GUI(self):
-		while(1):
-			time.sleep(1)	
+		try:
+			print "Drone: Enter the infinite loop"
+			while(1):
+				time.sleep(1)	
+		except(KeyboardInterrupt):
+			print "Drone: Close all - keyboard interrupt in infinite loop"
+			self.close_all()
 
 	def connect2FCU(self):
 		#Set up option parsing to get connection string	
@@ -286,10 +291,6 @@ class drone_CoPilot():
 
 	def close_all(self):
 	
-		if self.sitl is not None:
-			print "Drone: Close all - SITL"
-	    		self.sitl.stop()
-
 		print "Drone: Close all - Unbind Pixhawk telem callback"
 		self.vehicle.remove_attribute_listener('*', self.wildcard_callback)
 
@@ -298,6 +299,10 @@ class drone_CoPilot():
 			self.vehicle.close()
 			print "Drone: Close all - UDP socket"
 			self.UDP_server.close_UDP()
+
+		if self.sitl is not None:
+			print "Drone: Close all - SITL"
+	    		self.sitl.stop()
 
 		if self.GUI_enabled:
 			print "Drone: Close all - GUI"
@@ -404,7 +409,7 @@ class drone_CoPilot():
 
 if __name__ == "__main__":
 	print "Drone: Start."
-	GUI_enabled = True
+	GUI_enabled = False
 	Telem_enabled = True
 	drone_CoPilot(GUI_enabled, Telem_enabled)
 else:
