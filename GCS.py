@@ -8,7 +8,8 @@ import traceback
 
 
 class GUI_main(tk.Frame):
-	def __init__(self, root, val_dict, *args, **kwargs):
+	def __init__(self, root, val_dict, close_all, *args, **kwargs):
+		self.close_all = close_all		
 		self.val_dict = val_dict
 
 		print "GCS: GUI - Start"
@@ -114,7 +115,7 @@ class GUI_main(tk.Frame):
 
 	def on_btn_close(self):
 		print "GCS: Close all - GUI button Close"		
-		close_all(UDP_client, self)
+		self.close_all()
 
 	def on_btn_send(self):
 		pass
@@ -146,7 +147,7 @@ class GUI_main(tk.Frame):
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
-		close_all(UDP_client, self)
+		self.close_all()
 
 	def GUI_init_2labels(self, frame, key, label1_text, row1 ,column1):
 		row2 = row1
@@ -224,51 +225,54 @@ class GUI_main(tk.Frame):
 			#val_dict['roll']['lbl_val'].config(text=str(val_dict['roll']['value']))
 
 
-def run_GUI(val_dict):
-	root = tk.Tk()
-	GUI = GUI_main(root, val_dict)
-	try:
-		print "GSC: GUI - Enter the mainloop"
-		root.mainloop()
-	except(KeyboardInterrupt , SystemExit):
-		print "GCS: Close all - keyboard interrupt in GUI"
-		close_all(UDP_client, GUI)
+class GCS():
+	def __init__(self):
+		try:
+			self.GUI = None
+			#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
+			self.val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status'])
+			# Init all val_dict fields
+			self.dict_init_fields()
 
-def close_all(UDP_client, GUI):
+			print "GSC: Open socket for Telemetry and user commands"
+			self.UDP_client = UDP.UDP(0, "0.0.0.0", 6000, "255.255.255.255", 5001)
+			
+			print "GSC: Start receive Telem thread"
+			self.UDP_client.receive_loop_telem_thread(self.val_dict)
 	
-	print "GCS: Close all - Telemetry"
-	UDP_client.close_UDP()
+			self.run_GUI()
+
+		except KeyboardInterrupt:
+			print "GCS: Close all - keyboard interrupt in main"		
+			self.close_all()
+
+
+	def dict_init_fields(self):
+		for key, val in self.val_dict.iteritems():
+			self.val_dict[key] = dict.fromkeys(['value', 'lbl_val', 'lbl_name'])
+
+	def run_GUI(self):
+		self.root = tk.Tk()
+		self.GUI = GUI_main(self.root, self.val_dict, self.close_all)
+		try:
+			print "GSC: GUI - Enter the mainloop"
+			self.root.mainloop()
+		except(KeyboardInterrupt , SystemExit):
+			print "GCS: Close all - keyboard interrupt in GUI/console"
+			self.close_all()
+
+	def close_all(self):
 	
-	print "GCS: Close all - GUI"
-	GUI.GUI_close()
+		print "GCS: Close all - Telemetry"
+		self.UDP_client.close_UDP()
+	
+		print "GCS: Close all - GUI"
+		self.GUI.GUI_close()
 
-	print "GCS: Close all - Complete"
-
-
-def dict_init_fields():
-	for key, val in val_dict.iteritems():
-		val_dict[key] = dict.fromkeys(['value', 'lbl_val', 'lbl_name'])
-
+		print "GCS: Close all - Complete"
 
 
 if __name__ == "__main__":
-	try:
-		GUI = None
-		#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-		val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status'])
-		# Init all val_dict fields
-		dict_init_fields()
-
-		print "GSC: Main - Start Telem"
-		UDP_client = UDP.UDP(0, "0.0.0.0", 6000, "255.255.255.255", 5001)
-
-		print "GSC: Main - Start receive Telem thread"
-		UDP_client.receive_loop_telem_thread(val_dict)
-	
-		run_GUI(val_dict)
-
-	except KeyboardInterrupt:
-		print "GCS: Close all - keyboard interrupt in main"		
-		close_all(UDP_client, self)
+		GCS = GCS()
 else:
 	print("You are running me not as a main?")
