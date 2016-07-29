@@ -15,9 +15,9 @@ class UDP():
 	def __init__(self, is_server, host, port_send, host_sendto, port_sendto):
 		self.is_server = is_server
 		if (is_server == 1):
-			self.UDP_type = "UDP Server"
+			self.UDP_type = "UDP Server (drone)"
 		else:
-			self.UDP_type = "UDP Client"
+			self.UDP_type = "UDP Client (GCS)"
 
 		self.host = host
 		self.port_send = port_send
@@ -63,13 +63,12 @@ class UDP():
 			data_send = str(counter)
 			counter = counter + 1
 			self.sock_send.sendto(data_send, addr_send)
-			print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_send)
+			#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_send)
 			time.sleep(1)
 
 	def send_loop_thread(self, host, port):
 		print self.UDP_type + ": Start send thread. Sending to: " + str(host) + ":" + str(port)
 		self.send_thread = threading.Thread(target=self.send_loop, args=(host, port, self.event_stop_send))
-		#self.send_thread.daemon = True
 		self.send_thread.start()
 
 	def send_once(self, data):
@@ -77,7 +76,7 @@ class UDP():
 		self.sock_send.sendto(data, addr_send)
 		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data)
 
-	def send_telem(self, data_dict):
+	def send_dict(self, data_dict):
 		data_str = str(data_dict)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
@@ -86,16 +85,23 @@ class UDP():
 ### -> SEND
 ### RECEIVE ->
 
-	def receive_loop_msg(self, stop_receive_event):
+	def receive_loop_msg(self, stop_receive_event, vehicle_controll):
 		while not stop_receive_event.is_set():
-			data_receive, addr = self.sock_receive.recvfrom(1024)
-			print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+			try:
+				data_receive, addr = self.sock_receive.recvfrom(1024)
+				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				data_dict = eval(data_receive)
+				#print data_dict
+				vehicle_controll.send_command_dict(data_dict)
+			except socket.error:
+				print self.UDP_type + ": Timeout. No received user commands"
+				continue
+			except:
+				traceback.print_exc()
 
-
-	def receive_loop_msg_thread(self):
+	def receive_loop_msg_thread(self, vehicle_controll):
 		print self.UDP_type + ": Start receive thread. Listening to: " + str(self.port_receive)
-		#self.receive_thread = threading.Thread(target=self.receive_loop)
-		self.receive_thread = threading.Thread(target=self.receive_loop_msg, args=(self.event_stop_receive,))
+		self.receive_thread = threading.Thread(target=self.receive_loop_msg, args=(self.event_stop_receive, vehicle_controll))
 		self.receive_thread.start()
 
 	def receive_loop_telem(self, stop_receive_event, val_dict):

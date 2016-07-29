@@ -8,9 +8,10 @@ import traceback
 
 
 class GUI_main(tk.Frame):
-	def __init__(self, root, val_dict, close_all, *args, **kwargs):
-		self.close_all = close_all		
+	def __init__(self, root, val_dict, UDP_client, close_all, *args, **kwargs):
 		self.val_dict = val_dict
+		self.UDP_client = UDP_client
+		self.close_all = close_all
 
 		print "GCS: GUI - Start"
 		tk.Frame.__init__(self, root, *args, **kwargs)
@@ -162,52 +163,54 @@ class GUI_main(tk.Frame):
 		self.key_pressed = None
 
 	def key_callback(self, event):
-		#print "pressed", repr(event.char)
+		#print repr(event.char)	+ "Pressed"
 		if (event.char=='z'):
-			print "Z pressed"
-			#self.vehicle_controll.send_command("arm", 10)
+			self.UDP_client.send_dict({'arm': int(10)})
 		if (event.char=='w'):
-			self.key_pressed = "W"
-			#self.vehicle_controll.send_command("forward", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='a'):
-			self.key_pressed = "A"
-			#self.vehicle_controll.send_command("left", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='s'):
-			self.key_pressed = "S"
-			#self.vehicle_controll.send_command("backward", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='d'):
-			self.key_pressed = "D"
-			#self.vehicle_controll.send_command("right", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='q'):
-			print "Q pressed"
-			#self.vehicle_controll.send_command("yaw_left", 10)
+			self.UDP_client.send_dict({'yaw_left': int(10)})
 		elif (event.char=='e'):
-			print "E pressed"
-			#self.vehicle_controll.send_command("yaw_right", 10)
+			self.UDP_client.send_dict({'yaw_right': int(10)})
 		elif (event.char=='l'):
-			print "L pressed"
-			#self.vehicle_controll.send_command("land", None)
+			self.UDP_client.send_dict({'land': None})
 		elif (event.char=='t'):
-			print "T pressed"
-			#self.vehicle_controll.send_command("triangle", None)
+			self.UDP_client.send_dict({'triangle': None})
 		elif (event.char=='y'):
-			print "Y pressed"
-			#self.vehicle_controll.send_command("triangle2", None)
+			self.UDP_client.send_dict({'triangle2': None})
 		elif (event.char=='u'):
-			print "U pressed"
-			#self.vehicle_controll.send_command("square", None)
+			self.UDP_client.send_dict({'square': None})
 		elif (event.char=='i'):
-			print "I pressed"
-			#self.vehicle_controll.send_command("square2", None)
+			self.UDP_client.send_dict({'square2': None})
 		elif (event.char=='p'):
-			print "P pressed"
-			#self.vehicle_controll.send_command("diamond", None)
+			self.UDP_client.send_dict({'diamond': None})
 
 	def GUI_close(self):
 		self.root.destroy()
 		self.root.quit()
 
 	def GUI_tick(self):
+		if (self.key_pressed == 'w'):
+			print "W pressed"
+			self.UDP_client.send_dict({'forward_once': int(1)})
+		elif (self.key_pressed == 'a'):
+			self.UDP_client.send_dict({'left_once': int(1)})
+		elif (self.key_pressed == 's'):
+			self.UDP_client.send_dict({'backward_once': int(1)})
+		elif (self.key_pressed == 'd'):
+			self.UDP_client.send_dict({'right_once': int(1)})
+		elif (self.key_pressed == None):
+			print "None pressed"
+			if (self.send_move_0 == 1):
+				self.UDP_client.send_dict({'move_0_once': ()})
+		else:
+			print "Drone: WTF am I doing here?"
 		self.GUI_dict_refresh_values()
 		self.root.after(100, self.GUI_tick)
 
@@ -253,7 +256,7 @@ class GCS():
 
 	def run_GUI(self):
 		self.root = tk.Tk()
-		self.GUI = GUI_main(self.root, self.val_dict, self.close_all)
+		self.GUI = GUI_main(self.root, self.val_dict, self.UDP_client, self.close_all)
 		try:
 			print "GSC: GUI - Enter the mainloop"
 			self.root.mainloop()

@@ -61,6 +61,48 @@ class vehicle_controll:
 		else:
 			print "Drone: drone controll - Warning: command " + str(args[0]) + " does not exist!"
 
+	def send_command_dict(self, command_dict):
+		#print command_dict.items()[0][0]
+		if command_dict.items()[0][0] == "arm":
+			self.arm_and_takeoff(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "land":
+			self.land_here()
+		elif command_dict.items()[0][0] == "forward":
+			self.move_forward(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
+		elif command_dict.items()[0][0] == "backward":
+			self.move_backward(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
+		elif command_dict.items()[0][0] == "left":
+			self.move_left(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
+		elif command_dict.items()[0][0] == "right":
+			self.move_right(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
+
+		elif command_dict.items()[0][0] == "forward_once":
+			self.move_forward_once(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "backward_once":
+			self.move_backward_once(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "left_once":
+			self.move_left_once(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "right_once":
+			self.move_right_once(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "move_0_once":
+			self.move_0_once()
+
+		elif command_dict.items()[0][0] == "yaw_left":
+			self.yaw_left(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "yaw_right":
+			self.yaw_right(int(command_dict.items()[0][1]))
+		elif command_dict.items()[0][0] == "triangle":
+			self.triangle()
+		elif command_dict.items()[0][0] == "triangle2":
+			self.triangle2()
+		elif command_dict.items()[0][0] == "square":
+			self.square()
+		elif command_dict.items()[0][0] == "square2":
+			self.square2()
+		elif command_dict.items()[0][0] == "diamond":
+			self.diamond()
+		else:
+			print "Drone: drone controll - Warning: command " + str(command_dict.items()[0][0]) + " does not exist!"
 
 	def arm_and_takeoff(self, aTargetAltitude):
 		print "Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters"

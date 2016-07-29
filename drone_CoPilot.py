@@ -104,13 +104,13 @@ class GUI_main(tk.Frame):
 		self.root.quit()
 
 	def GUI_tick(self):	
-		if (self.key_pressed == "W"):
+		if (self.key_pressed == 'w'):
 			self.vehicle_controll.send_command("forward_once", 1)
-		elif (self.key_pressed == "A"):
+		elif (self.key_pressed == 'a'):
 			self.vehicle_controll.send_command("left_once", 1)
-		elif (self.key_pressed == "S"):
+		elif (self.key_pressed == 's'):
 			self.vehicle_controll.send_command("backward_once", 1)
-		elif (self.key_pressed == "D"):
+		elif (self.key_pressed == 'd'):
 			self.vehicle_controll.send_command("right_once", 1)
 		elif (self.key_pressed == None):
 			if (self.send_move_0 == 1):
@@ -121,6 +121,7 @@ class GUI_main(tk.Frame):
 
 	def key_release_callback(self, event):
 		self.key_pressed = None
+		print "None"
 
 	def key_callback(self, event):
 		if self.vehicle_controll is None:
@@ -130,19 +131,18 @@ class GUI_main(tk.Frame):
 
 		#print "pressed", repr(event.char)
 		if (event.char=='z'):
-			print "Z pressed"
 			self.vehicle_controll.send_command("arm", 10)
 		if (event.char=='w'):
-			self.key_pressed = "W"
+			self.key_pressed = event.char
 			#self.vehicle_controll.send_command("forward", 20, 1)
 		elif (event.char=='a'):
-			self.key_pressed = "A"
+			self.key_pressed = event.char
 			#self.vehicle_controll.send_command("left", 20, 1)
 		elif (event.char=='s'):
-			self.key_pressed = "S"
+			self.key_pressed = event.char
 			#self.vehicle_controll.send_command("backward", 20, 1)
 		elif (event.char=='d'):
-			self.key_pressed = "D"
+			self.key_pressed = event.char
 			#self.vehicle_controll.send_command("right", 20, 1)
 		elif (event.char=='q'):
 			print "Q pressed"
@@ -181,13 +181,15 @@ class drone_CoPilot():
 			self.vehicle_controll = None
 			self.UDP_server = None
 			if (self.Telem_enabled is True) :
-				print "Drone: open Telemetry socket"
-				self.UDP_server = UDP.UDP(1, "0.0.0.0", 5000, "255.255.255.255", 6001)
 				print "Drone: Connect to FCU"
 				self.vehicle, self.sitl = self.connect2FCU()
 				print "Drone: Start to listen for telemetry from the drone"
 				self.vehicle.add_attribute_listener('*', self.wildcard_callback)
 				self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle)
+				print "Drone: open Telemetry socket"
+				self.UDP_server = UDP.UDP(1, "0.0.0.0", 5000, "255.255.255.255", 6001)
+				print "Drone: Start receive commands thread"
+				self.UDP_server.receive_loop_msg_thread(self.vehicle_controll)
 		
 			if (GUI_enabled is True):
 				self.run_GUI()
@@ -290,13 +292,13 @@ class drone_CoPilot():
 		return vehicle, sitl
 
 	def close_all(self):
-	
-		print "Drone: Close all - Unbind Pixhawk telem callback"
-		self.vehicle.remove_attribute_listener('*', self.wildcard_callback)
-
-		if self.Telem_enabled is True:
+		if self.vehicle is not None:
+			print "Drone: Close all - Unbind Pixhawk telem callback"
+			self.vehicle.remove_attribute_listener('*', self.wildcard_callback)
 			print "Drone: Close all - Vehicle object"
 			self.vehicle.close()
+
+		if self.Telem_enabled is True:
 			print "Drone: Close all - UDP socket"
 			self.UDP_server.close_UDP()
 
@@ -403,7 +405,7 @@ class drone_CoPilot():
 		if data:
 			#print str(data)
 			try:
-				self.UDP_server.send_telem(data)
+				self.UDP_server.send_dict(data)
 			except:
 				traceback.print_exc()
 
