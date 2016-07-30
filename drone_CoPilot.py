@@ -171,25 +171,31 @@ class GUI_main(tk.Frame):
 
 
 class drone_CoPilot():
-	def __init__(self, GUI_enabled, Telem_enabled):
+	def __init__(self, GUI_enabled, Report_enabled):
 		try:
 			self.GUI_enabled = GUI_enabled
-			self.Telem_enabled = Telem_enabled
+			self.Report_enabled = Report_enabled
 			self.vehicle = None
 			self.sitl = None
 			self.GUI = None
 			self.vehicle_controll = None
-			self.UDP_server = None
-			if (self.Telem_enabled is True) :
-				print "Drone: Connect to FCU"
-				self.vehicle, self.sitl = self.connect2FCU()
-				print "Drone: Start to listen for telemetry from the drone"
-				self.vehicle.add_attribute_listener('*', self.wildcard_callback)
-				self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle)
-				print "Drone: open Telemetry socket"
-				self.UDP_server = UDP.UDP(1, "0.0.0.0", 5000, "255.255.255.255", 6001)
-				print "Drone: Start receive commands thread"
-				self.UDP_server.receive_loop_msg_thread(self.vehicle_controll)
+			self.UDP_server_Telem_Cmd = None
+			self.UDP_server_Report = None
+			print "Drone: Connect to FCU"
+			self.vehicle, self.sitl = self.connect2FCU()
+
+			if (Report_enabled is True):
+				print "Drone: open Report socket"
+				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, "255.255.255.255", 6101)
+			self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle, self.UDP_server_Report)
+
+			print "Drone: open Telemetry, commands socket"
+			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, "255.255.255.255", 6001)
+			print "Drone: Start receive commands thread"
+			self.UDP_server_Telem_Cmd.receive_loop_msg_thread(self.vehicle_controll)
+
+			print "Drone: Start to listen for telemetry from the drone"
+			self.vehicle.add_attribute_listener('*', self.wildcard_callback)
 		
 			if (GUI_enabled is True):
 				self.run_GUI()
@@ -298,9 +304,9 @@ class drone_CoPilot():
 			print "Drone: Close all - Vehicle object"
 			self.vehicle.close()
 
-		if self.Telem_enabled is True:
-			print "Drone: Close all - UDP socket"
-			self.UDP_server.close_UDP()
+		print "Drone: Close all - UDP socket"
+		self.UDP_server_Telem_Cmd.close_UDP()
+		self.UDP_server_Report.close_UDP()
 
 		if self.sitl is not None:
 			print "Drone: Close all - SITL"
@@ -405,15 +411,15 @@ class drone_CoPilot():
 		if data:
 			#print str(data)
 			try:
-				self.UDP_server.send_dict(data)
+				self.UDP_server_Telem_Cmd.send_dict(data)
 			except:
 				traceback.print_exc()
 
 if __name__ == "__main__":
 	print "Drone: Start."
 	GUI_enabled = False
-	Telem_enabled = True
-	drone_CoPilot(GUI_enabled, Telem_enabled)
+	Report_enabled = True
+	drone_CoPilot(GUI_enabled, Report_enabled)
 else:
 	print("You are running me not as a main?")
 

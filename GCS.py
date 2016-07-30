@@ -197,7 +197,7 @@ class GUI_main(tk.Frame):
 
 	def GUI_tick(self):
 		if (self.key_pressed == 'w'):
-			print "W pressed"
+			#print "W pressed"
 			self.UDP_client.send_dict({'forward_once': int(1)})
 		elif (self.key_pressed == 'a'):
 			self.UDP_client.send_dict({'left_once': int(1)})
@@ -206,7 +206,8 @@ class GUI_main(tk.Frame):
 		elif (self.key_pressed == 'd'):
 			self.UDP_client.send_dict({'right_once': int(1)})
 		elif (self.key_pressed == None):
-			print "None pressed"
+			#print "None pressed"
+			#TODO eliminate None when pressed
 			if (self.send_move_0 == 1):
 				self.UDP_client.send_dict({'move_0_once': ()})
 		else:
@@ -238,10 +239,14 @@ class GCS():
 			self.dict_init_fields()
 
 			print "GSC: Open socket for Telemetry and user commands"
-			self.UDP_client = UDP.UDP(0, "0.0.0.0", 6000, "255.255.255.255", 5001)
+			self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, "255.255.255.255", 5001)
+			print "GSC: Open socket for drone Report"
+			self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, "255.255.255.255", 5101)
 			
 			print "GSC: Start receive Telem thread"
 			self.UDP_client.receive_loop_telem_thread(self.val_dict)
+			print "GSC: Start receive Report thread"
+			self.UDP_client_Report.receive_loop_report_thread()
 	
 			self.run_GUI()
 
@@ -266,8 +271,10 @@ class GCS():
 
 	def close_all(self):
 	
-		print "GCS: Close all - Telemetry"
+		print "GCS: Close all - Telemetry/commands"
 		self.UDP_client.close_UDP()
+		print "GCS: Close all - Drone Report"
+		self.UDP_client_Report.close_UDP()
 	
 		print "GCS: Close all - GUI"
 		self.GUI.GUI_close()
