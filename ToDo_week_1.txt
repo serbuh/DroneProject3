@@ -1,8 +1,8 @@
 done - (1) check sanity of controll (SITL, from the droneside)
 done - (2) controll from the GCS-side (UDP, SITL)
 done - (3) report from the drone via separate UDP channel
+done - (4) added simple arm/disarm commands
 4) add abort command for arm
-5) add only arm command
 3) upload droneside to Odroid
 	a) Odroid connectivity (LAN (internet), WiFi (hotspot))
 	b) dronekit and other packeges

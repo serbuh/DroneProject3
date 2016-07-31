@@ -89,6 +89,7 @@ class GUI_main(tk.Frame):
 		self.btn_send.grid(row=1, column=0, columnspan=1)
 		self.ent_command = tk.Entry(frame2)
 		self.ent_command.grid(row=1, column=1)
+		self.ent_command.bind('<Return>', self.on_ent_command_enter)   
 		# framw2 - row 2
 		#self.lbl_command_param1 = tk.Label(frame2, text='param1:', fg='black',bg='white')
 		#self.lbl_command_param1.grid(row=2, column=0, columnspan=1)
@@ -115,10 +116,14 @@ class GUI_main(tk.Frame):
 		print "GCS: Close all - GUI button Close"
 		self.close_all()
 
+	def on_ent_command_enter(self, event):
+		self.on_btn_send()
+		self.ent_command.delete(0, tk.END)
+
 	def on_btn_send(self):
 		command = self.ent_command.get().split(' ')
 		self.UDP_client.send_cmd(command)
-		print "GCS: Command sent: " + str(command)
+		#print "GCS: Command sent: " + str(command)
 
 	def on_btn_listen_keys(self):
 		if self.btn_listen_keys.cget('bg') == "green":

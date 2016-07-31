@@ -26,8 +26,12 @@ class vehicle_controll:
 			self.UDP_server_Report.send_report(msg)
 
 	def send_command_list(self, cmd):
-		if cmd[0] == "arm":
+		if cmd[0] == "arm" and len(cmd) == 1:
+			self.arm()
+		elif cmd[0] == "arm" and len(cmd) == 2:
 			self.arm_and_takeoff(int(cmd[1]))
+		elif cmd[0] == "disarm":
+			self.disarm()
 		elif cmd[0] == "land":
 			self.land_here()
 
@@ -60,26 +64,46 @@ class vehicle_controll:
 			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
 
-	def arm_and_takeoff(self, aTargetAltitude):
-		self.report("Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters")
+	def arm(self):
+		self.report("Drone: drone controll - Arm.")
 		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
 		#TODO add abort mechanism
 		while not self.vehicle.is_armable:
-			self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
+			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm: Arming motors")
+		self.report("Drone: drone controll - Arm: MODE=GUIDED")
 		# Copter should arm in GUIDED mode
 		self.vehicle.mode = VehicleMode("GUIDED")
+		self.report("Drone: drone controll - Arm: Arming motors")
+		self.vehicle.armed = True
+
+	def disarm(self):
+		self.report("Drone: drone controll - Disarm: Disarming motors")
+		self.vehicle.armed = False
+
+	def arm_and_takeoff(self, aTargetAltitude):
+		self.report("Drone: drone controll - Arm and take off to " + str(aTargetAltitude) + " meters")
+		self.report("Drone: drone controll - Arm and take off: Basic pre-arm checks")
+		# Don't let the user try to arm until autopilot is ready
+		#TODO add abort mechanism
+		while not self.vehicle.is_armable:
+			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
+			time.sleep(1)
+
+		self.report("Drone: drone controll - Arm and take off: MODE=GUIDED")
+		# Copter should arm in GUIDED mode
+		self.vehicle.mode = VehicleMode("GUIDED")
+		self.report("Drone: drone controll - Arm and take off: Arming motors")
 		self.vehicle.armed = True
 
 		#TODO add abort mechanism
 		while not self.vehicle.armed:      
-			self.report("Drone: drone controll - Arm: Waiting for arming...")
+			self.report("Drone: drone controll - Arm and take off: Waiting for arming...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm: Taking off!")
+		self.report("Drone: drone controll - Arm and take off: Taking off!")
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
@@ -87,9 +111,9 @@ class vehicle_controll:
 		#TODO add abort mechanism
 
 		while True:
-			self.report("Drone: drone controll - Arm: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
+			self.report("Drone: drone controll - Arm and take off: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
-				self.report("Drone: drone controll - Arm: Reached target altitude")
+				self.report("Drone: drone controll - Arm and take off: Reached target altitude")
 				self.move_0()
 				break
 			time.sleep(1)
