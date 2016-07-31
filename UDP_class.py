@@ -76,11 +76,15 @@ class UDP():
 		self.sock_send.sendto(data, addr_send)
 		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data)
 
-	def send_dict(self, data_dict):
+	def send_telem(self, data_dict):
 		data_str = str(data_dict)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
-		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_dict)
+
+	def send_cmd(self, data_list):
+		data_str = str(data_list)
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data_str, addr_send)
 	
 	def send_report(self, data):
 		data_str = str(data)
@@ -90,14 +94,15 @@ class UDP():
 ### -> SEND
 ### RECEIVE ->
 
-	def receive_loop_msg(self, stop_receive_event, vehicle_controll):
+	def receive_loop_cmd(self, stop_receive_event, vehicle_controll):
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
 				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
-				data_dict = eval(data_receive)
-				#print data_dict
-				vehicle_controll.send_command_dict(data_dict)
+				data_list = eval(data_receive)
+				#print data_receive, type(data_receive)
+				#print data_list, type(data_list)
+				vehicle_controll.send_command_list(data_list)
 			except socket.error:
 				#print self.UDP_type + ": Timeout. No received user commands"
 				continue
@@ -153,9 +158,9 @@ class UDP():
 		self.receive_thread = threading.Thread(target=self.receive_loop_report, args=(self.event_stop_receive,))
 		self.receive_thread.start()
 
-	def receive_loop_msg_thread(self, vehicle_controll):
+	def receive_loop_cmd_thread(self, vehicle_controll):
 		print self.UDP_type + ": Start receive Commands thread. Listening to: " + str(self.port_receive)
-		self.receive_thread = threading.Thread(target=self.receive_loop_msg, args=(self.event_stop_receive, vehicle_controll))
+		self.receive_thread = threading.Thread(target=self.receive_loop_cmd, args=(self.event_stop_receive, vehicle_controll))
 		self.receive_thread.start()
 
 	def receive_loop_telem_thread(self, val_dict):

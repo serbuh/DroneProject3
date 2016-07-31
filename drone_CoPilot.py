@@ -121,7 +121,6 @@ class GUI_main(tk.Frame):
 
 	def key_release_callback(self, event):
 		self.key_pressed = None
-		print "None"
 
 	def key_callback(self, event):
 		if self.vehicle_controll is None:
@@ -192,7 +191,7 @@ class drone_CoPilot():
 			print "Drone: open Telemetry, commands socket"
 			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, "255.255.255.255", 6001)
 			print "Drone: Start receive commands thread"
-			self.UDP_server_Telem_Cmd.receive_loop_msg_thread(self.vehicle_controll)
+			self.UDP_server_Telem_Cmd.receive_loop_cmd_thread(self.vehicle_controll)
 
 			print "Drone: Start to listen for telemetry from the drone"
 			self.vehicle.add_attribute_listener('*', self.wildcard_callback)
@@ -297,27 +296,6 @@ class drone_CoPilot():
 		'''		
 		return vehicle, sitl
 
-	def close_all(self):
-		if self.vehicle is not None:
-			print "Drone: Close all - Unbind Pixhawk telem callback"
-			self.vehicle.remove_attribute_listener('*', self.wildcard_callback)
-			print "Drone: Close all - Vehicle object"
-			self.vehicle.close()
-
-		print "Drone: Close all - UDP socket"
-		self.UDP_server_Telem_Cmd.close_UDP()
-		self.UDP_server_Report.close_UDP()
-
-		if self.sitl is not None:
-			print "Drone: Close all - SITL"
-	    		self.sitl.stop()
-
-		if self.GUI_enabled:
-			print "Drone: Close all - GUI"
-			self.GUI.GUI_close()
-
-		print "Drone: Close all - Complete"
-
 	def wildcard_callback(self, vehicle, attr_name, value):
 		#print "(%s): %s" % (attr_name,value)
 		data = None
@@ -411,9 +389,31 @@ class drone_CoPilot():
 		if data:
 			#print str(data)
 			try:
-				self.UDP_server_Telem_Cmd.send_dict(data)
+				self.UDP_server_Telem_Cmd.send_telem(data)
 			except:
 				traceback.print_exc()
+
+	def close_all(self):
+		if self.vehicle is not None:
+			print "Drone: Close all - Unbind Pixhawk telem callback"
+			self.vehicle.remove_attribute_listener('*', self.wildcard_callback)
+			print "Drone: Close all - Vehicle object"
+			self.vehicle.close()
+
+		print "Drone: Close all - UDP socket"
+		self.UDP_server_Telem_Cmd.close_UDP()
+		self.UDP_server_Report.close_UDP()
+
+		if self.sitl is not None:
+			print "Drone: Close all - SITL"
+	    		self.sitl.stop()
+
+		if self.GUI_enabled:
+			print "Drone: Close all - GUI"
+			self.GUI.GUI_close()
+
+		print "Drone: Close all - Complete"
+
 
 if __name__ == "__main__":
 	print "Drone: Start."

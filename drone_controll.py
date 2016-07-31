@@ -15,9 +15,9 @@ class vehicle_controll:
 	def __init__(self, vehicle, UDP_server_Report):
 		self.vehicle = vehicle
 		self.UDP_server_Report = UDP_server_Report
-		print("Set airspeed to 2m/s, (10m/s max).")
+		self.report("Set airspeed to 2m/s, (10m/s max).")
 		self.vehicle.airspeed = 2
-		print("Set groundspeed to 2m/s, (15m/s max).")
+		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
 
 	def report(self, msg):
@@ -25,95 +25,46 @@ class vehicle_controll:
 		if (self.UDP_server_Report is not None):
 			self.UDP_server_Report.send_report(msg)
 
-	def send_command(self, *args):
-		if args[0] == "arm":
-			self.arm_and_takeoff(int(args[1]))
-		elif args[0] == "land":
+	def send_command_list(self, cmd):
+		if cmd[0] == "arm":
+			self.arm_and_takeoff(int(cmd[1]))
+		elif cmd[0] == "land":
 			self.land_here()
-		elif args[0] == "forward":
-			self.move_forward(int(args[1]), int(args[2]))
-		elif args[0] == "backward":
-			self.move_backward(int(args[1]), int(args[2]))
-		elif args[0] == "left":
-			self.move_left(int(args[1]), int(args[2]))
-		elif args[0] == "right":
-			self.move_right(int(args[1]), int(args[2]))
 
-		elif args[0] == "forward_once":
-			self.move_forward_once(int(args[1]))
-		elif args[0] == "backward_once":
-			self.move_backward_once(int(args[1]))
-		elif args[0] == "left_once":
-			self.move_left_once(int(args[1]))
-		elif args[0] == "right_once":
-			self.move_right_once(int(args[1]))
-		elif args[0] == "move_0_once":
+		elif cmd[0] == "forward_once":
+			self.move_forward_once(int(cmd[1]))
+		elif cmd[0] == "backward_once":
+			self.move_backward_once(int(cmd[1]))
+		elif cmd[0] == "left_once":
+			self.move_left_once(int(cmd[1]))
+		elif cmd[0] == "right_once":
+			self.move_right_once(int(cmd[1]))
+		elif cmd[0] == "move_0_once":
 			self.move_0_once()
 
-		elif args[0] == "yaw_left":
-			self.yaw_left(int(args[1]))
-		elif args[0] == "yaw_right":
-			self.yaw_right(int(args[1]))
-		elif args[0] == "triangle":
+		elif cmd[0] == "yaw_left":
+			self.yaw_left(int(cmd[1]))
+		elif cmd[0] == "yaw_right":
+			self.yaw_right(int(cmd[1]))
+		elif cmd[0] == "triangle":
 			self.triangle()
-		elif args[0] == "triangle2":
+		elif cmd[0] == "triangle2":
 			self.triangle2()
-		elif args[0] == "square":
+		elif cmd[0] == "square":
 			self.square()
-		elif args[0] == "square2":
+		elif cmd[0] == "square2":
 			self.square2()
-		elif args[0] == "diamond":
+		elif cmd[0] == "diamond":
 			self.diamond()
 		else:
-			print "Drone: drone controll - Warning: command " + str(args[0]) + " does not exist!"
+			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
-	def send_command_dict(self, command_dict):
-		#self.report(command_dict)
-		if command_dict.items()[0][0] == "arm":
-			self.arm_and_takeoff(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "land":
-			self.land_here()
-		elif command_dict.items()[0][0] == "forward":
-			self.move_forward(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
-		elif command_dict.items()[0][0] == "backward":
-			self.move_backward(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
-		elif command_dict.items()[0][0] == "left":
-			self.move_left(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
-		elif command_dict.items()[0][0] == "right":
-			self.move_right(int(command_dict.items()[0][1]), int(command_dict.items()[0][2]))
-
-		elif command_dict.items()[0][0] == "forward_once":
-			self.move_forward_once(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "backward_once":
-			self.move_backward_once(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "left_once":
-			self.move_left_once(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "right_once":
-			self.move_right_once(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "move_0_once":
-			self.move_0_once()
-
-		elif command_dict.items()[0][0] == "yaw_left":
-			self.yaw_left(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "yaw_right":
-			self.yaw_right(int(command_dict.items()[0][1]))
-		elif command_dict.items()[0][0] == "triangle":
-			self.triangle()
-		elif command_dict.items()[0][0] == "triangle2":
-			self.triangle2()
-		elif command_dict.items()[0][0] == "square":
-			self.square()
-		elif command_dict.items()[0][0] == "square2":
-			self.square2()
-		elif command_dict.items()[0][0] == "diamond":
-			self.diamond()
-		else:
-			self.report("Drone: drone controll - Warning: command " + str(command_dict.items()[0][0]) + " does not exist!")
 
 	def arm_and_takeoff(self, aTargetAltitude):
 		self.report("Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters")
 		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
+		#TODO add abort mechanism
 		while not self.vehicle.is_armable:
 			self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
 			time.sleep(1)
@@ -123,6 +74,7 @@ class vehicle_controll:
 		self.vehicle.mode = VehicleMode("GUIDED")
 		self.vehicle.armed = True
 
+		#TODO add abort mechanism
 		while not self.vehicle.armed:      
 			self.report("Drone: drone controll - Arm: Waiting for arming...")
 			time.sleep(1)
@@ -132,6 +84,8 @@ class vehicle_controll:
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
 		#  after Vehicle.simple_takeoff will execute immediately).
+		#TODO add abort mechanism
+
 		while True:
 			self.report("Drone: drone controll - Arm: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
@@ -532,9 +486,9 @@ class vehicle_controll:
 		while self.vehicle.mode.name=="GUIDED": #Stop action if we are no longer in guided mode.
 			#print "DEBUG: mode: %s" % self.vehicle.mode.name
 			remainingDistance=self.get_distance_metres(self.vehicle.location.global_relative_frame, targetLocation)
-			print "Distance to target: ", remainingDistance
+			self.report("Distance to target: " + remainingDistance)
 			if remainingDistance<=targetDistance*0.01: #Just below target, in case of undershoot.
-				print "Reached target"
+				self.report("Reached target")
 				break;
 			time.sleep(2)
 

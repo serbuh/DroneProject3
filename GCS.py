@@ -5,6 +5,7 @@ import json
 import Tkinter as tk
 import random
 import traceback
+import re
 
 
 class GUI_main(tk.Frame):
@@ -83,56 +84,47 @@ class GUI_main(tk.Frame):
 		# framw2 - row 0
 		self.lbl_title = tk.Label(frame2, text='Mission controllsky - GCS' ,font=('arial', 16, 'bold'), fg='red',bg='white')
 		self.lbl_title.grid(row=0, column=0, columnspan=6)
-		self.btn_close = tk.Button(frame2, text='Close all', width=25, command= self.on_btn_close)
-		self.btn_close.grid(row=0, column=6, columnspan=1)
 		# framw2 - row 1
-		self.lbl_command = tk.Label(frame2, text='Command:', fg='black',bg='white')
-		self.lbl_command.grid(row=1, column=0, columnspan=1)
+		self.btn_send = tk.Button(frame2, text='Send command', command=self.on_btn_send)
+		self.btn_send.grid(row=1, column=0, columnspan=1)
 		self.ent_command = tk.Entry(frame2)
 		self.ent_command.grid(row=1, column=1)
-		self.lbl_command_param1 = tk.Label(frame2, text='param1:', fg='black',bg='white')
-		self.lbl_command_param1.grid(row=1, column=2, columnspan=1)
-		self.ent_command_param1 = tk.Entry(frame2)
-		self.ent_command_param1.grid(row=1, column=3)
-		self.lbl_command_param2 = tk.Label(frame2, text='param2:', fg='black',bg='white')
-		self.lbl_command_param2.grid(row=1, column=4, columnspan=1)
-		self.ent_command_param2 = tk.Entry(frame2)
-		self.ent_command_param2.grid(row=1, column=5)
-		self.btn_send = tk.Button(frame2, text='Send command', command=self.on_btn_send)
-		self.btn_send.grid(row=1, column=6, columnspan=1)
 		# framw2 - row 2
-		self.lbl_sent = tk.Label(frame2, fg='black', bg='white', text='')
-		self.lbl_sent.grid(row=2, column=0, columnspan=1)
-		# framw2 - row 3
+		#self.lbl_command_param1 = tk.Label(frame2, text='param1:', fg='black',bg='white')
+		#self.lbl_command_param1.grid(row=2, column=0, columnspan=1)
+		#self.ent_command_param1 = tk.Entry(frame2)
+		#self.ent_command_param1.grid(row=2, column=1)
+		# framw2 - row 2
+		#self.lbl_command_param2 = tk.Label(frame2, text='param2:', fg='black',bg='white')
+		#self.lbl_command_param2.grid(row=3, column=0, columnspan=1)
+		#self.ent_command_param2 = tk.Entry(frame2)
+		#self.ent_command_param2.grid(row=3, column=1)
+		# framw2 - row 2
 		self.btn_listen_keys = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
-		self.btn_listen_keys.grid(row=3, column=0, columnspan=1)
-		self.btn_send_position = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Send position - NO', width=25, command= self.on_btn_send_position)
-		self.btn_send_position.grid(row=3, column=1, columnspan=1)
-		# framw2 - row 4
+		self.btn_listen_keys.grid(row=2, column=0, columnspan=1)
+		self.btn_send_position = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Send zero position - NO', width=25, command= self.on_btn_send_position)
+		self.btn_send_position.grid(row=2, column=1, columnspan=1)
+		# framw2 - row 5
+		#self.btn_close = tk.Button(frame2, text='Close all', width=25, command= self.on_btn_close)
+		#self.btn_close.grid(row=5, column=0, columnspan=1)
 
-		self.counter = 0
 		self.send_move_0 = 0
 		self.key_pressed = None
 
 	def on_btn_close(self):
-		print "GCS: Close all - GUI button Close"		
+		print "GCS: Close all - GUI button Close"
 		self.close_all()
 
 	def on_btn_send(self):
-		pass
-		#TODO
-		#command = self.ent_command.get()
-		#command_param1 = self.ent_command_param1.get()
-		#command_param2 = self.ent_command_param2.get()
-		#sent_command = "Sending: {" + command + " " + command_param1 + " " + command_param2 +"}"
-		#self.lbl_sent.config(text = sent_command)
-		#self.vehicle_controll.send_command(command, command_param1, command_param2)
+		command = self.ent_command.get().split(' ')
+		self.UDP_client.send_cmd(command)
+		print "GCS: Command sent: " + str(command)
 
 	def on_btn_listen_keys(self):
 		if self.btn_listen_keys.cget('bg') == "green":
 			self.root.unbind("<Key>")
 			self.root.unbind("<KeyRelease>")
-			self.lbl_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
+			self.btn_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
 		elif self.btn_listen_keys.cget('bg') == "red":
 			self.root.bind("<Key>", self.key_callback)
 			self.root.bind("<KeyRelease>", self.key_release_callback)
@@ -141,10 +133,10 @@ class GUI_main(tk.Frame):
 	def on_btn_send_position(self):
 		if self.btn_send_position.cget('bg') == "green":
 			self.send_move_0 = 0
-			self.btn_send_position.config(text = "Send position - NO", activebackground='red', bg='red')
+			self.btn_send_position.config(text = "Send zero position - NO", activebackground='red', bg='red')
 		elif self.btn_send_position.cget('bg') == "red":
 			self.send_move_0 = 1
-			self.btn_send_position.config(text = "Send position - YES", activebackground='green', bg='green')
+			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green', bg='green')
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
@@ -160,12 +152,13 @@ class GUI_main(tk.Frame):
 		self.val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)
 
 	def key_release_callback(self, event):
-		self.key_pressed = None
+		#self.key_pressed = None
+		pass
 
 	def key_callback(self, event):
 		#print repr(event.char)	+ "Pressed"
 		if (event.char=='z'):
-			self.UDP_client.send_dict({'arm': int(10)})
+			self.UDP_client.send_cmd(['arm', int(10)])
 		if (event.char=='w'):
 			self.key_pressed = event.char
 		elif (event.char=='a'):
@@ -175,21 +168,21 @@ class GUI_main(tk.Frame):
 		elif (event.char=='d'):
 			self.key_pressed = event.char
 		elif (event.char=='q'):
-			self.UDP_client.send_dict({'yaw_left': int(10)})
+			self.UDP_client.send_cmd(['yaw_left', int(10)])
 		elif (event.char=='e'):
-			self.UDP_client.send_dict({'yaw_right': int(10)})
+			self.UDP_client.send_cmd(['yaw_right', int(10)])
 		elif (event.char=='l'):
-			self.UDP_client.send_dict({'land': None})
+			self.UDP_client.send_cmd(['land'])
 		elif (event.char=='t'):
-			self.UDP_client.send_dict({'triangle': None})
+			self.UDP_client.send_cmd(['triangle'])
 		elif (event.char=='y'):
-			self.UDP_client.send_dict({'triangle2': None})
+			self.UDP_client.send_cmd(['triangle2'])
 		elif (event.char=='u'):
-			self.UDP_client.send_dict({'square': None})
+			self.UDP_client.send_cmd(['square'])
 		elif (event.char=='i'):
-			self.UDP_client.send_dict({'square2': None})
+			self.UDP_client.send_cmd(['square2'])
 		elif (event.char=='p'):
-			self.UDP_client.send_dict({'diamond': None})
+			self.UDP_client.send_cmd(['diamond'])
 
 	def GUI_close(self):
 		self.root.destroy()
@@ -197,21 +190,22 @@ class GUI_main(tk.Frame):
 
 	def GUI_tick(self):
 		if (self.key_pressed == 'w'):
-			#print "W pressed"
-			self.UDP_client.send_dict({'forward_once': int(1)})
+			self.UDP_client.send_cmd(['forward_once', int(1)])
 		elif (self.key_pressed == 'a'):
-			self.UDP_client.send_dict({'left_once': int(1)})
+			self.UDP_client.send_cmd(['left_once', int(1)])
 		elif (self.key_pressed == 's'):
-			self.UDP_client.send_dict({'backward_once': int(1)})
+			self.UDP_client.send_cmd(['backward_once', int(1)])
 		elif (self.key_pressed == 'd'):
-			self.UDP_client.send_dict({'right_once': int(1)})
+			self.UDP_client.send_cmd(['right_once', int(1)])
 		elif (self.key_pressed == None):
 			#print "None pressed"
-			#TODO eliminate None when pressed
 			if (self.send_move_0 == 1):
-				self.UDP_client.send_dict({'move_0_once': ()})
+				self.UDP_client.send_cmd(['move_0_once'])
 		else:
 			print "Drone: WTF am I doing here?"
+		# zero the pressed key. It will be renewed when auto press will be activated
+		self.key_pressed = None
+		
 		self.GUI_dict_refresh_values()
 		self.root.after(100, self.GUI_tick)
 
