@@ -4,7 +4,7 @@ import argparse
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='GCS module')
-	parser.add_argument('drone_ip')
+	parser.add_argument('--drone_ip')
 	args = parser.parse_args()
 	if not args.drone_ip:
 		drone_ip = "255.255.255.255"

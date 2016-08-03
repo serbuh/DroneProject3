@@ -237,17 +237,17 @@ class GCS():
 			# Init all val_dict fields
 			self.dict_init_fields()
 
-			parser = argparse.ArgumentParser(description='GCS module')
-			parser.add_argument('ip')
-			args = parser.parse_args()
-			if not args.ip:
-				server_ip = "255.255.255.255"
+			self.parser = argparse.ArgumentParser(description='GCS module')
+			self.parser.add_argument('--drone_ip')
+			self.args = self.parser.parse_args()
+			if not self.args.drone_ip:
+				self.drone_ip = "255.255.255.255"
 			else:
-				server_ip = args.ip
+				self.drone_ip = self.args.drone_ip
 			print "GSC: Open socket for Telemetry and user commands"
-			self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, server_ip, 5001)
+			self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, self.drone_ip, 5001)
 			print "GSC: Open socket for drone Report"
-			self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, server_ip, 5101)
+			self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, self.drone_ip, 5101)
 			
 			print "GSC: Start receive Telem thread"
 			self.UDP_client.receive_loop_telem_thread(self.val_dict)

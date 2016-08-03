@@ -179,16 +179,30 @@ class drone_CoPilot():
 			self.vehicle_controll = None
 			self.UDP_server_Telem_Cmd = None
 			self.UDP_server_Report = None
+
+			#Set up option parsing to get connection string	
+			self.parser = argparse.ArgumentParser(description='HUD module')
+			self.parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
+			self.parser.add_argument('--gcs_ip')
+			self.args = self.parser.parse_args()
+
 			print "Drone: Connect to FCU"
 			self.vehicle, self.sitl = self.connect2FCU()
 
+			if not self.args.gcs_ip:
+				# default - broadcast ip
+				self.gcs_ip = "255.255.255.255"
+			else:
+				self.gcs_ip = self.args.gcs_ip
+
 			if (Report_enabled is True):
 				print "Drone: open Report socket"
-				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, "255.255.255.255", 6101)
+				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, self.gcs_ip, 6101)
+
 			self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle, self.UDP_server_Report)
 
 			print "Drone: open Telemetry, commands socket"
-			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, "255.255.255.255", 6001)
+			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, self.gcs_ip, 6001)
 			print "Drone: Start receive commands thread"
 			self.UDP_server_Telem_Cmd.receive_loop_cmd_thread(self.vehicle_controll)
 
@@ -225,13 +239,9 @@ class drone_CoPilot():
 			self.close_all()
 
 	def connect2FCU(self):
-		#Set up option parsing to get connection string	
-		parser = argparse.ArgumentParser(description='HUD module')
-		parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
-		args = parser.parse_args()
-		connection_string = args.connect
+		connection_string = self.args.connect
 		sitl=None
-		if not args.connect:
+		if not self.args.connect:
 	    		print "The connect string was not specified. Running SITL!"
 			from dronekit_sitl import SITL
 			sitl = SITL()
