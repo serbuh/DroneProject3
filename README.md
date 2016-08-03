@@ -27,14 +27,14 @@ sudo pip install pyserial
 
 Connect Odroid to Pixhawk via (1) Telem or (2) USB
 ```sh
-sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600
-sudo python drone_CoPilot.py --connect /dev/ttyACM0
+sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x
+sudo python drone_CoPilot.py --connect /dev/ttyACM0 --gcs_ip 192.168.x.x
 ```
 
 Connect GCS to Odroid
 ```sh
-sudo python GCS.py --connect /dev/ttyUSB0,57600
-sudo python GCS.py --connect /dev/ttyACM0
+sudo python GCS.py --connect /dev/ttyUSB0,57600 --drone_ip 192.168.x.x
+sudo python GCS.py --connect /dev/ttyACM0 --drone_ip 192.168.x.x
 ```
 
 Install MAVProxy:
