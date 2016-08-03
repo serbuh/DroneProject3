@@ -243,7 +243,7 @@ class GCS():
 			if not args.ip:
 				server_ip = "255.255.255.255"
 			else:
-				client_ip = args.ip
+				server_ip = args.ip
 			print "GSC: Open socket for Telemetry and user commands"
 			self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, server_ip, 5001)
 			print "GSC: Open socket for drone Report"
