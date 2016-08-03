@@ -121,18 +121,20 @@ create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
 ```
 To create a service (AP on boot), copy create_ap.service from git repository (https://github.com/oblique/create_ap) to /etc/systemd/system/create_ap.service then edit it. This instructions is from http://www.runeaudio.com/forum/hostapd-configuration-wifi-hotspot-setup-t567.html
 
-tutorial link: https://www.youtube.com/watch?v=Hl-Q7RPOn18 
 
-**ESC Calibration sequence**
-1. Remove props
-2. Turn on RC
-3. Throttle to MAX
-4. Connect battery
-5. Notice LED pattern (Blue,Red,Green)
-6. Disconnect battery
-7. Re-connect battery
-8. Press the safety switch
-9. Wait for single beep
-10. Throttle to MIN
-11. Wait for three beeps
-12. Disconnect battery
+
+**ESC Calibration sequence**  
+1. Remove props  
+2. Turn on RC  
+3. Throttle to MAX  
+4. Connect battery  
+5. Notice LED pattern (Blue,Red,Green)  
+6. Disconnect battery  
+7. Re-connect battery  
+8. Press the safety switch  
+9. Wait for single beep  
+10. Throttle to MIN  
+11. Wait for three beeps  
+12. Disconnect battery  
+  
+tutorial link: https://www.youtube.com/watch?v=Hl-Q7RPOn18
