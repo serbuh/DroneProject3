@@ -31,6 +31,12 @@ sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600
 sudo python drone_CoPilot.py --connect /dev/ttyACM0
 ```
 
+Connect GCS to Odroid
+```sh
+sudo python GCS.py --connect /dev/ttyUSB0,57600
+sudo python GCS.py --connect /dev/ttyACM0
+```
+
 Install MAVProxy:
 ```sh
 sudo pip install MAVProxy
@@ -130,4 +136,3 @@ tutorial link: https://www.youtube.com/watch?v=Hl-Q7RPOn18
 10. Throttle to MIN
 11. Wait for three beeps
 12. Disconnect battery
-
