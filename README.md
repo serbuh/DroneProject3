@@ -20,24 +20,39 @@ sudo python setup.py install
 sudo apt-get install python-tk
 ```
 
-Connect via Telem with the following connection string:
+Install serial:
 ```sh
-sudo python drone_UDP_server.py --connect /dev/ttyUSB0,57600
+sudo pip install pyserial
 ```
 
-Connect via USB with the following connection string:
+Connect Odroid to Pixhawk via (1) Telem or (2) USB
 ```sh
-sudo python drone_UDP_server.py --connect /dev/ttyACM0
+sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600
+sudo python drone_CoPilot.py --connect /dev/ttyACM0
 ```
+
+Connect GCS to Odroid
+```sh
+sudo python GCS.py --connect /dev/ttyUSB0,57600
+sudo python GCS.py --connect /dev/ttyACM0
+```
+
 Install MAVProxy:
 ```sh
-pip install MAVProxy
+sudo pip install MAVProxy
 ```
 
-Connect additional GCS (MAVProxy)
+Connect MAVProxy as an additional GCS
 ```sh
 mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map
 ```
+
+Connect MAVProxy from Odroid to Pixhawk via (1) Telem or (2) USB
+```sh
+mavproxy.py --master=/dev/ttyACM0 --baudrate 115200
+mavproxy.py --master=/dev/ttyUSB0 --baudrate 57600
+```
+
 
 If module map is not loaded (fails to import cv) simply install that:
 ```sh
@@ -105,3 +120,21 @@ WPA + WPA2 passphrase:
 create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
 ```
 To create a service (AP on boot), copy create_ap.service from git repository (https://github.com/oblique/create_ap) to /etc/systemd/system/create_ap.service then edit it. This instructions is from http://www.runeaudio.com/forum/hostapd-configuration-wifi-hotspot-setup-t567.html
+
+
+
+**ESC Calibration sequence**  
+1. Remove props  
+2. Turn on RC  
+3. Throttle to MAX  
+4. Connect battery  
+5. Notice LED pattern (Blue,Red,Green)  
+6. Disconnect battery  
+7. Re-connect battery  
+8. Press the safety switch  
+9. Wait for single beep  
+10. Throttle to MIN  
+11. Wait for three beeps  
+12. Disconnect battery  
+  
+tutorial link: https://www.youtube.com/watch?v=Hl-Q7RPOn18
