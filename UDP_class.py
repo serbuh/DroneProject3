@@ -80,11 +80,13 @@ class UDP():
 		data_str = str(data_dict)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
+		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
 
 	def send_cmd(self, data_list):
 		data_str = str(data_list)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
+		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
 	
 	def send_report(self, data):
 		data_str = str(data)
@@ -98,13 +100,13 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
 				data_list = eval(data_receive)
 				#print data_receive, type(data_receive)
 				#print data_list, type(data_list)
 				vehicle_controll.send_command_list(data_list)
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received user commands"
+				print self.UDP_type + ": Timeout. No received user commands"
 				continue
 			except:
 				traceback.print_exc()
@@ -113,7 +115,7 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
 				data_dict = eval(data_receive)
 				#print data_dict
 
@@ -123,7 +125,7 @@ class UDP():
 					else:
 						print 'GCS WARNING: Trying to update not existing item in val_dict: ' + str(rec_key) + ' Message ' + str(rec_val)
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received telem messages"
+				print self.UDP_type + ": Timeout. No received telem messages"
 				continue
 			except:
 				traceback.print_exc()

@@ -6,9 +6,8 @@ import time
 import argparse
 import json
 import drone_controll
-import Tkinter as tk
 import traceback
-	
+import Tkinter as tk
 
 class GUI_main(tk.Frame):
 	def __init__(self, root, vehicle, sitl, vehicle_controll, close_all, *args, **kwargs):
