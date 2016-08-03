@@ -20,24 +20,33 @@ sudo python setup.py install
 sudo apt-get install python-tk
 ```
 
-Connect via Telem with the following connection string:
+Install serial:
 ```sh
-sudo python drone_UDP_server.py --connect /dev/ttyUSB0,57600
+sudo pip install pyserial
 ```
 
-Connect via USB with the following connection string:
+Connect Odroid to Pixhawk via (1) Telem or (2) USB
 ```sh
-sudo python drone_UDP_server.py --connect /dev/ttyACM0
+sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600
+sudo python drone_CoPilot.py --connect /dev/ttyACM0
 ```
+
 Install MAVProxy:
 ```sh
-pip install MAVProxy
+sudo pip install MAVProxy
 ```
 
-Connect additional GCS (MAVProxy)
+Connect MAVProxy as an additional GCS
 ```sh
 mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map
 ```
+
+Connect MAVProxy from Odroid to Pixhawk via (1) Telem or (2) USB
+```sh
+mavproxy.py --master=/dev/ttyACM0 --baudrate 115200
+mavproxy.py --master=/dev/ttyUSB0 --baudrate 57600
+```
+
 
 If module map is not loaded (fails to import cv) simply install that:
 ```sh
