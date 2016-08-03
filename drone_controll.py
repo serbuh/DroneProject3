@@ -12,142 +12,167 @@ import sys, traceback
 class vehicle_controll:
 	vehicle = None
 
-	def __init__(self, vehicle):
+	def __init__(self, vehicle, UDP_server_Report):
 		self.vehicle = vehicle
-		print("Set airspeed to 2m/s, (10m/s max).")
+		self.UDP_server_Report = UDP_server_Report
+		self.report("Set airspeed to 2m/s, (10m/s max).")
 		self.vehicle.airspeed = 2
-		print("Set groundspeed to 2m/s, (15m/s max).")
+		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
 
-	def send_command(self, *args):
-		if args[0] == "arm":
-			self.arm_and_takeoff(int(args[1]))
-		elif args[0] == "land":
-			self.land_here()
-		elif args[0] == "forward":
-			self.move_forward(int(args[1]), int(args[2]))
-		elif args[0] == "backward":
-			self.move_backward(int(args[1]), int(args[2]))
-		elif args[0] == "left":
-			self.move_left(int(args[1]), int(args[2]))
-		elif args[0] == "right":
-			self.move_right(int(args[1]), int(args[2]))
+	def report(self, msg):
+		print str(msg)
+		if (self.UDP_server_Report is not None):
+			self.UDP_server_Report.send_report(msg)
 
-		elif args[0] == "forward_once":
-			self.move_forward_once(int(args[1]))
-		elif args[0] == "backward_once":
-			self.move_backward_once(int(args[1]))
-		elif args[0] == "left_once":
-			self.move_left_once(int(args[1]))
-		elif args[0] == "right_once":
-			self.move_right_once(int(args[1]))
-		elif args[0] == "move_0_once":
+	def send_command_list(self, cmd):
+		if cmd[0] == "arm" and len(cmd) == 1:
+			self.arm()
+		elif cmd[0] == "arm" and len(cmd) == 2:
+			self.arm_and_takeoff(int(cmd[1]))
+		elif cmd[0] == "disarm":
+			self.disarm()
+		elif cmd[0] == "land":
+			self.land_here()
+
+		elif cmd[0] == "forward_once":
+			self.move_forward_once(int(cmd[1]))
+		elif cmd[0] == "backward_once":
+			self.move_backward_once(int(cmd[1]))
+		elif cmd[0] == "left_once":
+			self.move_left_once(int(cmd[1]))
+		elif cmd[0] == "right_once":
+			self.move_right_once(int(cmd[1]))
+		elif cmd[0] == "move_0_once":
 			self.move_0_once()
 
-		elif args[0] == "yaw_left":
-			self.yaw_left(int(args[1]))
-		elif args[0] == "yaw_right":
-			self.yaw_right(int(args[1]))
-		elif args[0] == "triangle":
+		elif cmd[0] == "yaw_left":
+			self.yaw_left(int(cmd[1]))
+		elif cmd[0] == "yaw_right":
+			self.yaw_right(int(cmd[1]))
+		elif cmd[0] == "triangle":
 			self.triangle()
-		elif args[0] == "triangle2":
+		elif cmd[0] == "triangle2":
 			self.triangle2()
-		elif args[0] == "square":
+		elif cmd[0] == "square":
 			self.square()
-		elif args[0] == "square2":
+		elif cmd[0] == "square2":
 			self.square2()
-		elif args[0] == "diamond":
+		elif cmd[0] == "diamond":
 			self.diamond()
 		else:
-			print "Drone: drone controll - Warning: command " + str(args[0]) + " does not exist!"
+			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
 
-	def arm_and_takeoff(self, aTargetAltitude):
-		print "Drone: drone controll - Arm: arm and takeoff to " + str(aTargetAltitude) + " meters"
-		print "Drone: drone controll - Arm: Basic pre-arm checks"
+	def arm(self):
+		self.report("Drone: drone controll - Arm.")
+		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
+		#TODO add abort mechanism
 		while not self.vehicle.is_armable:
-			print "Drone: drone controll - Arm: Waiting for vehicle to initialise..."
+			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
 			time.sleep(1)
 
-		print "Drone: drone controll - Arm: Arming motors"
+		self.report("Drone: drone controll - Arm: MODE=GUIDED")
 		# Copter should arm in GUIDED mode
 		self.vehicle.mode = VehicleMode("GUIDED")
+		self.report("Drone: drone controll - Arm: Arming motors")
 		self.vehicle.armed = True
 
-		while not self.vehicle.armed:      
-			print "Drone: drone controll - Arm: Waiting for arming..."
+	def disarm(self):
+		self.report("Drone: drone controll - Disarm: Disarming motors")
+		self.vehicle.armed = False
+
+	def arm_and_takeoff(self, aTargetAltitude):
+		self.report("Drone: drone controll - Arm and take off to " + str(aTargetAltitude) + " meters")
+		self.report("Drone: drone controll - Arm and take off: Basic pre-arm checks")
+		# Don't let the user try to arm until autopilot is ready
+		#TODO add abort mechanism
+		while not self.vehicle.is_armable:
+			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
 			time.sleep(1)
 
-		print "Drone: drone controll - Arm: Taking off!"
+		self.report("Drone: drone controll - Arm and take off: MODE=GUIDED")
+		# Copter should arm in GUIDED mode
+		self.vehicle.mode = VehicleMode("GUIDED")
+		self.report("Drone: drone controll - Arm and take off: Arming motors")
+		self.vehicle.armed = True
+
+		#TODO add abort mechanism
+		while not self.vehicle.armed:      
+			self.report("Drone: drone controll - Arm and take off: Waiting for arming...")
+			time.sleep(1)
+
+		self.report("Drone: drone controll - Arm and take off: Taking off!")
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
 		#  after Vehicle.simple_takeoff will execute immediately).
+		#TODO add abort mechanism
+
 		while True:
-			print "Drone: drone controll - Arm: Altitude: ", self.vehicle.location.global_relative_frame.alt      
+			self.report("Drone: drone controll - Arm and take off: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
-				print "Drone: drone controll - Arm: Reached target altitude"
+				self.report("Drone: drone controll - Arm and take off: Reached target altitude")
 				self.move_0()
 				break
 			time.sleep(1)
 
 	def land_here(self):
-		print "Drone: drone controll - land here"
+		self.report("Drone: drone controll - land here")
 		self.vehicle.mode = VehicleMode("LAND")
 
-
 	def move_0_once(self):
-		print "Drone: drone controll - move to the current position once"
+		self.report("Drone: drone controll - move to the current position once")
 		self.send_ned_velocity_once(0,0,0)
 
 	def move_forward_once(self, velocity):
-		print "Drone: drone controll - Forward " + str(velocity) + " m/s"
+		self.report("Drone: drone controll - Forward " + str(velocity) + " m/s")
 		self.send_ned_velocity_once(velocity,0,0)
 
 	def move_backward_once(self, velocity):
-		print "Drone: drone controll - Backward " + str(velocity) + " m/s"
+		self.report("Drone: drone controll - Backward " + str(velocity) + " m/s")
 		self.send_ned_velocity_once(-velocity,0,0)
 
 	def move_left_once(self, velocity):
-		print "Drone: drone controll - Left " + str(velocity) + " m/s"
+		self.report("Drone: drone controll - Left " + str(velocity) + " m/s")
 		self.send_ned_velocity_once(0,-velocity,0)
 
 	def move_right_once(self, velocity):
-		print "Drone: drone controll - Right " + str(velocity) + " m/s"
+		self.report("Drone: drone controll - Right " + str(velocity) + " m/s")
 		self.send_ned_velocity_once(0,velocity,0)
 
 
 	def move_0(self):
-		print "Drone: drone controll - move to the current position (to allow the yaw controll)"
+		self.report("Drone: drone controll - move to the current position (to allow the yaw controll)")
 		self.send_ned_velocity(0,0,0,1)
 
 	def move_forward(self, velocity, duration):
-		print "Drone: drone controll - move forward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.report("Drone: drone controll - move forward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
 		self.send_ned_velocity(velocity,0,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
 	def move_backward(self, velocity, duration):
-		print "Drone: drone controll - move backward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.report("Drone: drone controll - move backward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
 		self.send_ned_velocity(-velocity,0,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
 	def move_left(self, velocity, duration):
-		print "Drone: drone controll - move left, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.report("Drone: drone controll - move left, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
 		self.send_ned_velocity(0,-velocity,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
 	def move_right(self, velocity, duration):
-		print "Drone: drone controll - move right, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec"
+		self.report("Drone: drone controll - move right, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
 		self.send_ned_velocity(0,velocity,0,duration)
 		self.send_ned_velocity(0,0,0,1)
 
 	def yaw_left(self, angle):
-		print("Drone: drone controll - Yaw left " + str(angle) + " relative (to previous yaw heading)")
+		self.report("Drone: drone controll - Yaw left " + str(angle) + " relative (to previous yaw heading)")
 		self.condition_yaw(360-angle, relative=True)
 
 	def yaw_right(self, angle):
-		print("Drone: drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
+		self.report("Drone: drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
 		self.condition_yaw(angle, relative=True)
 
 
@@ -485,9 +510,9 @@ class vehicle_controll:
 		while self.vehicle.mode.name=="GUIDED": #Stop action if we are no longer in guided mode.
 			#print "DEBUG: mode: %s" % self.vehicle.mode.name
 			remainingDistance=self.get_distance_metres(self.vehicle.location.global_relative_frame, targetLocation)
-			print "Distance to target: ", remainingDistance
+			self.report("Distance to target: " + remainingDistance)
 			if remainingDistance<=targetDistance*0.01: #Just below target, in case of undershoot.
-				print "Reached target"
+				self.report("Reached target")
 				break;
 			time.sleep(2)
 

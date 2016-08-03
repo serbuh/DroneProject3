@@ -1,19 +1,18 @@
 import threading
 import time
-import GCS_UDP_client as UDP
+import UDP_class as UDP
 import json
 import Tkinter as tk
 import random
-
-HOST = 'localhost'
-TELEM_PORT = 3334
-VIDEO_PORT = 3333
+import traceback
+import re
 
 
-######## GUI stuff ########
 class GUI_main(tk.Frame):
-	def __init__(self, root, val_dict, *args, **kwargs):
+	def __init__(self, root, val_dict, UDP_client, close_all, *args, **kwargs):
 		self.val_dict = val_dict
+		self.UDP_client = UDP_client
+		self.close_all = close_all
 
 		print "GCS: GUI - Start"
 		tk.Frame.__init__(self, root, *args, **kwargs)
@@ -85,56 +84,52 @@ class GUI_main(tk.Frame):
 		# framw2 - row 0
 		self.lbl_title = tk.Label(frame2, text='Mission controllsky - GCS' ,font=('arial', 16, 'bold'), fg='red',bg='white')
 		self.lbl_title.grid(row=0, column=0, columnspan=6)
-		self.btn_close = tk.Button(frame2, text='Close all', width=25, command= self.on_btn_close)
-		self.btn_close.grid(row=0, column=6, columnspan=1)
 		# framw2 - row 1
-		self.lbl_command = tk.Label(frame2, text='Command:', fg='black',bg='white')
-		self.lbl_command.grid(row=1, column=0, columnspan=1)
+		self.btn_send = tk.Button(frame2, text='Send command', command=self.on_btn_send)
+		self.btn_send.grid(row=1, column=0, columnspan=1)
 		self.ent_command = tk.Entry(frame2)
 		self.ent_command.grid(row=1, column=1)
-		self.lbl_command_param1 = tk.Label(frame2, text='param1:', fg='black',bg='white')
-		self.lbl_command_param1.grid(row=1, column=2, columnspan=1)
-		self.ent_command_param1 = tk.Entry(frame2)
-		self.ent_command_param1.grid(row=1, column=3)
-		self.lbl_command_param2 = tk.Label(frame2, text='param2:', fg='black',bg='white')
-		self.lbl_command_param2.grid(row=1, column=4, columnspan=1)
-		self.ent_command_param2 = tk.Entry(frame2)
-		self.ent_command_param2.grid(row=1, column=5)
-		self.btn_send = tk.Button(frame2, text='Send command', command=self.on_btn_send)
-		self.btn_send.grid(row=1, column=6, columnspan=1)
+		self.ent_command.bind('<Return>', self.on_ent_command_enter)   
 		# framw2 - row 2
-		self.lbl_sent = tk.Label(frame2, fg='black', bg='white', text='')
-		self.lbl_sent.grid(row=2, column=0, columnspan=1)
-		# framw2 - row 3
+		#self.lbl_command_param1 = tk.Label(frame2, text='param1:', fg='black',bg='white')
+		#self.lbl_command_param1.grid(row=2, column=0, columnspan=1)
+		#self.ent_command_param1 = tk.Entry(frame2)
+		#self.ent_command_param1.grid(row=2, column=1)
+		# framw2 - row 2
+		#self.lbl_command_param2 = tk.Label(frame2, text='param2:', fg='black',bg='white')
+		#self.lbl_command_param2.grid(row=3, column=0, columnspan=1)
+		#self.ent_command_param2 = tk.Entry(frame2)
+		#self.ent_command_param2.grid(row=3, column=1)
+		# framw2 - row 2
 		self.btn_listen_keys = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
-		self.btn_listen_keys.grid(row=3, column=0, columnspan=1)
-		self.btn_send_position = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Send position - NO', width=25, command= self.on_btn_send_position)
-		self.btn_send_position.grid(row=3, column=1, columnspan=1)
-		# framw2 - row 4
+		self.btn_listen_keys.grid(row=2, column=0, columnspan=1)
+		self.btn_send_position = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Send zero position - NO', width=25, command= self.on_btn_send_position)
+		self.btn_send_position.grid(row=2, column=1, columnspan=1)
+		# framw2 - row 5
+		#self.btn_close = tk.Button(frame2, text='Close all', width=25, command= self.on_btn_close)
+		#self.btn_close.grid(row=5, column=0, columnspan=1)
 
-		self.counter = 0
 		self.send_move_0 = 0
 		self.key_pressed = None
 
 	def on_btn_close(self):
-		print "GCS: Close all - GUI button Close"		
-		close_all(run_event, get_telem, telem_client, self)
+		print "GCS: Close all - GUI button Close"
+		self.close_all()
+
+	def on_ent_command_enter(self, event):
+		self.on_btn_send()
+		self.ent_command.delete(0, tk.END)
 
 	def on_btn_send(self):
-		pass
-		#TODO
-		#command = self.ent_command.get()
-		#command_param1 = self.ent_command_param1.get()
-		#command_param2 = self.ent_command_param2.get()
-		#sent_command = "Sending: {" + command + " " + command_param1 + " " + command_param2 +"}"
-		#self.lbl_sent.config(text = sent_command)
-		#self.vehicle_controll.send_command(command, command_param1, command_param2)
+		command = self.ent_command.get().split(' ')
+		self.UDP_client.send_cmd(command)
+		#print "GCS: Command sent: " + str(command)
 
 	def on_btn_listen_keys(self):
 		if self.btn_listen_keys.cget('bg') == "green":
 			self.root.unbind("<Key>")
 			self.root.unbind("<KeyRelease>")
-			self.lbl_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
+			self.btn_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
 		elif self.btn_listen_keys.cget('bg') == "red":
 			self.root.bind("<Key>", self.key_callback)
 			self.root.bind("<KeyRelease>", self.key_release_callback)
@@ -143,14 +138,14 @@ class GUI_main(tk.Frame):
 	def on_btn_send_position(self):
 		if self.btn_send_position.cget('bg') == "green":
 			self.send_move_0 = 0
-			self.btn_send_position.config(text = "Send position - NO", activebackground='red', bg='red')
+			self.btn_send_position.config(text = "Send zero position - NO", activebackground='red', bg='red')
 		elif self.btn_send_position.cget('bg') == "red":
 			self.send_move_0 = 1
-			self.btn_send_position.config(text = "Send position - YES", activebackground='green', bg='green')
+			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green', bg='green')
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
-		close_all(run_event, get_telem, telem_client, self)
+		self.close_all()
 
 	def GUI_init_2labels(self, frame, key, label1_text, row1 ,column1):
 		row2 = row1
@@ -162,55 +157,60 @@ class GUI_main(tk.Frame):
 		self.val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)
 
 	def key_release_callback(self, event):
-		self.key_pressed = None
+		#self.key_pressed = None
+		pass
 
 	def key_callback(self, event):
-		#print "pressed", repr(event.char)
+		#print repr(event.char)	+ "Pressed"
 		if (event.char=='z'):
-			print "Z pressed"
-			#self.vehicle_controll.send_command("arm", 10)
+			self.UDP_client.send_cmd(['arm', int(10)])
 		if (event.char=='w'):
-			self.key_pressed = "W"
-			#self.vehicle_controll.send_command("forward", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='a'):
-			self.key_pressed = "A"
-			#self.vehicle_controll.send_command("left", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='s'):
-			self.key_pressed = "S"
-			#self.vehicle_controll.send_command("backward", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='d'):
-			self.key_pressed = "D"
-			#self.vehicle_controll.send_command("right", 20, 1)
+			self.key_pressed = event.char
 		elif (event.char=='q'):
-			print "Q pressed"
-			#self.vehicle_controll.send_command("yaw_left", 10)
+			self.UDP_client.send_cmd(['yaw_left', int(10)])
 		elif (event.char=='e'):
-			print "E pressed"
-			#self.vehicle_controll.send_command("yaw_right", 10)
+			self.UDP_client.send_cmd(['yaw_right', int(10)])
 		elif (event.char=='l'):
-			print "L pressed"
-			#self.vehicle_controll.send_command("land", None)
+			self.UDP_client.send_cmd(['land'])
 		elif (event.char=='t'):
-			print "T pressed"
-			#self.vehicle_controll.send_command("triangle", None)
+			self.UDP_client.send_cmd(['triangle'])
 		elif (event.char=='y'):
-			print "Y pressed"
-			#self.vehicle_controll.send_command("triangle2", None)
+			self.UDP_client.send_cmd(['triangle2'])
 		elif (event.char=='u'):
-			print "U pressed"
-			#self.vehicle_controll.send_command("square", None)
+			self.UDP_client.send_cmd(['square'])
 		elif (event.char=='i'):
-			print "I pressed"
-			#self.vehicle_controll.send_command("square2", None)
+			self.UDP_client.send_cmd(['square2'])
 		elif (event.char=='p'):
-			print "P pressed"
-			#self.vehicle_controll.send_command("diamond", None)
+			self.UDP_client.send_cmd(['diamond'])
 
 	def GUI_close(self):
 		self.root.destroy()
 		self.root.quit()
 
 	def GUI_tick(self):
+		if (self.key_pressed == 'w'):
+			self.UDP_client.send_cmd(['forward_once', int(1)])
+		elif (self.key_pressed == 'a'):
+			self.UDP_client.send_cmd(['left_once', int(1)])
+		elif (self.key_pressed == 's'):
+			self.UDP_client.send_cmd(['backward_once', int(1)])
+		elif (self.key_pressed == 'd'):
+			self.UDP_client.send_cmd(['right_once', int(1)])
+		elif (self.key_pressed == None):
+			#print "None pressed"
+			if (self.send_move_0 == 1):
+				self.UDP_client.send_cmd(['move_0_once'])
+		else:
+			print "Drone: WTF am I doing here?"
+		# zero the pressed key. It will be renewed when auto press will be activated
+		self.key_pressed = None
+		
 		self.GUI_dict_refresh_values()
 		self.root.after(100, self.GUI_tick)
 
@@ -228,73 +228,60 @@ class GUI_main(tk.Frame):
 			#val_dict['roll']['lbl_val'].config(text=str(val_dict['roll']['value']))
 
 
-######## GUI stuff end ########
+class GCS():
+	def __init__(self):
+		try:
+			self.GUI = None
+			#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
+			self.val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status'])
+			# Init all val_dict fields
+			self.dict_init_fields()
 
-def run_GUI(val_dict):
-	root = tk.Tk()
-	GUI = GUI_main(root, val_dict)
-	try:
-		print "GSC: GUI - Enter the mainloop"
-		root.mainloop()
-	except(KeyboardInterrupt , SystemExit):
-		print "GCS: Close all - keyboard interrupt in GUI"
-		close_all(run_event, get_telem, telem_client, GUI)
-
-def close_all(run_event, get_telem, telem_client, GUI):
+			print "GSC: Open socket for Telemetry and user commands"
+			self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, "255.255.255.255", 5001)
+			print "GSC: Open socket for drone Report"
+			self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, "255.255.255.255", 5101)
+			
+			print "GSC: Start receive Telem thread"
+			self.UDP_client.receive_loop_telem_thread(self.val_dict)
+			print "GSC: Start receive Report thread"
+			self.UDP_client_Report.receive_loop_report_thread()
 	
-	print "GSC: Close all - Send event to all running threads to close"
-	run_event.clear()
-	get_telem_thread.join()
+			self.run_GUI()
+
+		except KeyboardInterrupt:
+			print "GCS: Close all - keyboard interrupt in main"		
+			self.close_all()
+
+
+	def dict_init_fields(self):
+		for key, val in self.val_dict.iteritems():
+			self.val_dict[key] = dict.fromkeys(['value', 'lbl_val', 'lbl_name'])
+
+	def run_GUI(self):
+		self.root = tk.Tk()
+		self.GUI = GUI_main(self.root, self.val_dict, self.UDP_client, self.close_all)
+		try:
+			print "GSC: GUI - Enter the mainloop"
+			self.root.mainloop()
+		except(KeyboardInterrupt , SystemExit):
+			print "GCS: Close all - keyboard interrupt in GUI/console"
+			self.close_all()
+
+	def close_all(self):
 	
-	print "GCS: Close all - get_telem_thread"
-	telem_client.close_client()
+		print "GCS: Close all - Telemetry/commands"
+		self.UDP_client.close_UDP()
+		print "GCS: Close all - Drone Report"
+		self.UDP_client_Report.close_UDP()
 	
-	print "GCS: Close all - GUI"
-	GUI.GUI_close()
+		print "GCS: Close all - GUI"
+		self.GUI.GUI_close()
 
-	print "GCS: Close all - Complete"
-
-
-def dict_init_fields():
-	for key, val in val_dict.iteritems():
-		val_dict[key] = dict.fromkeys(['value', 'lbl_val', 'lbl_name'])
-
-def get_telem(telem_client, run_event):
-	while run_event.is_set():
-		data = telem_client.receive()
-		#TODO change eval(str(dict)) to smth
-		data_dict = eval(data)
-		#print data_dict
-		for rec_key, rec_val in data_dict.iteritems():
-			if val_dict.has_key(rec_key):
-				val_dict[rec_key]['value'] = rec_val
-			else:
-				print 'GCS WARNING: Trying to update not existing item in val_dict: ' + str(rec_key) + ' Message ' + str(rec_val)
+		print "GCS: Close all - Complete"
 
 
 if __name__ == "__main__":
-	try:
-		GUI = None
-		#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-		val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status'])
-		# Init all val_dict fields
-		dict_init_fields()
-
-		print "GSC: Main - Start Telem"
-		telem_client = UDP.GCS_UDP_client()
-		telem_client.connect(HOST,TELEM_PORT)
-
-		run_event = threading.Event()
-		run_event.set()
-	
-		print "GSC: Main - Start get_telem_thread"
-		get_telem_thread = threading.Thread(target=get_telem, args=[telem_client,run_event])
-		get_telem_thread.start()
-	
-		run_GUI(val_dict)
-
-	except KeyboardInterrupt:
-		print "GCS: Close all - keyboard interrupt in main"		
-		close_all(run_event, get_telem, telem_client, self)
+		GCS = GCS()
 else:
 	print("You are running me not as a main?")
