@@ -35,8 +35,10 @@ class UDP():
 		self.send_thread = None
 		self.receive_thread = None
 
-		#self.receive_loop_thread()
-		#self.send_loop_thread(host_sendto,port_sendto)
+		print self.UDP_type + ": ===================================================="
+		print self.UDP_type + ": Recieving at: " + str(self.host) + ":" + str(self.port_receive)
+		print self.UDP_type + ": Sending to:   " + str(self.host_sendto) + ":" + str(self.port_sendto) + " from " + str(self.port_send)
+		print self.UDP_type + ": ===================================================="
 
 	def sock_create(self, host, port):
 		print self.UDP_type + ": Open Socket. Host: " + str(host) + " Port: " + str(port)
