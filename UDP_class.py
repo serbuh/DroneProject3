@@ -80,10 +80,15 @@ class UDP():
 		data_str = str(data_dict)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
-		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
 
 	def send_cmd(self, data_list):
 		data_str = str(data_list)
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data_str, addr_send)
+		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+
+	def send_generic(self, data_str):
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
 		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
@@ -106,7 +111,7 @@ class UDP():
 				#print data_list, type(data_list)
 				vehicle_controll.send_command_list(data_list)
 			except socket.error:
-				print self.UDP_type + ": Timeout. No received user commands"
+				#print self.UDP_type + ": Timeout. No received user commands"
 				continue
 			except:
 				traceback.print_exc()
@@ -125,7 +130,7 @@ class UDP():
 					else:
 						print 'GCS WARNING: Trying to update not existing item in val_dict: ' + str(rec_key) + ' Message ' + str(rec_val)
 			except socket.error:
-				print self.UDP_type + ": Timeout. No received telem messages"
+				#print self.UDP_type + ": Timeout. No received telem messages"
 				continue
 			except:
 				traceback.print_exc()
@@ -155,6 +160,18 @@ class UDP():
 			except:
 				traceback.print_exc()
 
+	def receive_loop_generic(self, stop_receive_event):
+		while not stop_receive_event.is_set():
+			try:
+				data_receive, addr = self.sock_receive.recvfrom(1024)
+				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+
+			except socket.error:
+				#print self.UDP_type + ": Timeout. No received report messages"
+				continue
+			except:
+				traceback.print_exc()
+
 	def receive_loop_report_thread(self):
 		print self.UDP_type + ": Start receive Drone Reports thread. Listening to: " + str(self.port_receive)
 		self.receive_thread = threading.Thread(target=self.receive_loop_report, args=(self.event_stop_receive,))
@@ -173,6 +190,11 @@ class UDP():
 	def receive_loop_video_thread(self,queue):
 		print self.UDP_type + ": Start receive video thread. Listening to: " + str(self.port_receive)	
 		self.receive_thread = threading.Thread(target=self.receive_loop_video, args=(self.event_stop_receive, queue))
+		self.receive_thread.start()
+
+	def receive_loop_generic_thread(self):
+		print self.UDP_type + ": Start receive thread (Generic). Listening to: " + str(self.port_receive)
+		self.receive_thread = threading.Thread(target=self.receive_loop_generic, args=(self.event_stop_receive,))
 		self.receive_thread.start()
 
 	def receive_once(self):
