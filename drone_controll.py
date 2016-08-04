@@ -12,9 +12,10 @@ import sys, traceback
 class vehicle_controll:
 	vehicle = None
 
-	def __init__(self, vehicle, UDP_server_Report):
+	def __init__(self, vehicle, UDP_server_Report, UDP_server_Telem_Cmd):
 		self.vehicle = vehicle
 		self.UDP_server_Report = UDP_server_Report
+		self.UDP_server_Telem_Cmd = UDP_server_Telem_Cmd
 		self.report("Set airspeed to 2m/s, (10m/s max).")
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
@@ -40,6 +41,9 @@ class vehicle_controll:
 			self.stabilize()
 		elif cmd[0] == "loiter":
 			self.loiter()
+
+		elif cmd[0] == "is_armable":
+			self.is_armable()
 
 		elif cmd[0] == "forward_once":
 			self.move_forward_once(int(cmd[1]))
@@ -196,6 +200,10 @@ class vehicle_controll:
 		self.report("Drone: drone controll - LOITER")
 		self.vehicle.mode = VehicleMode("LOITER")
 
+
+	def is_armable(self):
+		data = {'is_armable_induced': str(self.vehicle.is_armable)}
+		self.UDP_server_Telem_Cmd.send_telem(data)
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
 		"""

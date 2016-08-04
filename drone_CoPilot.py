@@ -199,10 +199,11 @@ class drone_CoPilot():
 				print "Drone: open Report socket"
 				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, self.gcs_ip, 6101)
 
-			self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle, self.UDP_server_Report)
-
 			print "Drone: open Telemetry, commands socket"
 			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, self.gcs_ip, 6001)
+
+			self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle, self.UDP_server_Report, self.UDP_server_Telem_Cmd)
+
 			print "Drone: Start receive commands thread"
 			self.UDP_server_Telem_Cmd.receive_loop_cmd_thread(self.vehicle_controll)
 
@@ -388,7 +389,7 @@ class drone_CoPilot():
 
 		elif attr_name=="is_armable":
 			#print "is_armable: {}".format(value)
-			print "is_armable: {}".format(dir(value))
+			print "### is_armable: {}".format(dir(value))
 
 		elif attr_name=="system_status":
 			#print "System status {}".format(value.state)
