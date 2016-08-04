@@ -44,6 +44,12 @@ class vehicle_controll:
 
 		elif cmd[0] == "is_armable":
 			self.is_armable()
+		elif cmd[0] == "ekf_ok":
+			self.ekf_ok()
+		elif cmd[0] == "system_state":
+			self.system_state()
+		elif cmd[0] == "check_state":
+			self.check_state()
 
 		elif cmd[0] == "forward_once":
 			self.move_forward_once(int(cmd[1]))
@@ -200,10 +206,23 @@ class vehicle_controll:
 		self.report("Drone: drone controll - LOITER")
 		self.vehicle.mode = VehicleMode("LOITER")
 
+	def check_state(self):
+		self.is_armable()
+		self.ekf_ok()
+		self.system_status()
 
 	def is_armable(self):
 		data = {'is_armable_induced': str(self.vehicle.is_armable)}
 		self.UDP_server_Telem_Cmd.send_telem(data)
+
+	def ekf_ok(self):
+		data = {'ekf_ok': str(self.vehicle.ekf_ok)}
+		self.UDP_server_Telem_Cmd.send_telem(data)
+
+	def system_status(self):
+		data = {'system_status': str(self.vehicle.system_status.state)}
+		self.UDP_server_Telem_Cmd.send_telem(data)
+
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
 		"""

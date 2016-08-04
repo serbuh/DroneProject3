@@ -45,13 +45,13 @@ class GUI_main(tk.Frame):
 		self.GUI_init_2labels(frame1, 'gimbal_yaw', label1_text='Gimbal yaw: ', row1=11, column1=1)
 
 
-		self.GUI_init_2labels(frame1, 'gps_0_HDOP', label1_text='HDOP: ', row1=1, column1=3)
-		self.GUI_init_2labels(frame1, 'gps_0_VDOP', label1_text='VDOP: ', row1=2, column1=3)
-		self.GUI_init_2labels(frame1, 'gps_0_fix', label1_text='GPS fix: ', row1=3, column1=3)
+		self.GUI_init_2labels(frame1, 'battery', label1_text='Battery: ', row1=1, column1=3)
+		self.GUI_init_2labels(frame1, 'gps_0_HDOP', label1_text='HDOP: ', row1=2, column1=3)
+		self.GUI_init_2labels(frame1, 'gps_0_VDOP', label1_text='VDOP: ', row1=3, column1=3)
 		self.GUI_init_2labels(frame1, 'gps_0_satellites', label1_text='Satellites: ', row1=4, column1=3)
-		self.GUI_init_2labels(frame1, 'ekf_ok', label1_text='EKF OK: ', row1=5, column1=3)
-		self.GUI_init_2labels(frame1, 'last_heartbeat', label1_text='Last heartbeat: ', row1=6, column1=3)
-		self.GUI_init_2labels(frame1, 'battery', label1_text='Battery: ', row1=7, column1=3)
+		self.GUI_init_2labels(frame1, 'gps_0_fix', label1_text='GPS fix: ', row1=5, column1=3)
+		self.GUI_init_2labels(frame1, 'ekf_ok', label1_text='EKF OK: ', row1=6, column1=3)
+		self.GUI_init_2labels(frame1, 'system_status', label1_text='System status: ', row1=7, column1=3)
 		self.GUI_init_2labels(frame1, 'is_armable_induced', label1_text='Is Armable: ', row1=8, column1=3)
 
 		self.GUI_init_2labels(frame1, 'ch1', label1_text='Ch1: ', row1=1, column1=5)
@@ -79,7 +79,8 @@ class GUI_main(tk.Frame):
 		self.GUI_init_2labels(frame1, 'groundspeed', label1_text='Groundspeed: ', row1=16, column1=1)	
 		self.GUI_init_2labels(frame1, 'mode', label1_text='Mode: ', row1=17, column1=1)
 		self.GUI_init_2labels(frame1, 'armed', label1_text='Armed: ', row1=18, column1=1)
-		self.GUI_init_2labels(frame1, 'system_status', label1_text='System status: ', row1=19, column1=1)
+		self.GUI_init_2labels(frame1, 'last_heartbeat', label1_text='Last heartbeat: ', row1=19, column1=1)
+
 
 		# frame 2 - row 0
 		self.lbl_title = tk.Label(frame2, text='Mission controllsky - GCS' ,font=('arial', 16, 'bold'), fg='red',bg='white')
@@ -91,8 +92,8 @@ class GUI_main(tk.Frame):
 		self.ent_command.grid(row=1, column=1)
 		self.ent_command.bind('<Return>', self.on_ent_command_enter)
 		# frame 2 - row 2,3
-		self.btn_is_armable = tk.Button(frame2, fg='black', text='Check if armable', command= self.on_btn_is_armable)
-		self.btn_is_armable.grid(row=3, column=0, columnspan=1)
+		self.btn_check_state = tk.Button(frame2, fg='black', text='Armable, EKF, System', command= self.on_btn_check_state)
+		self.btn_check_state.grid(row=3, column=0, columnspan=1)
 		# frame 2 - row 4
 		self.btn_listen_keys = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
 		self.btn_listen_keys.grid(row=4, column=0, columnspan=1)
@@ -129,8 +130,8 @@ class GUI_main(tk.Frame):
 	def on_btn_loiter(self):
 		self.UDP_client.send_cmd(['loiter'])
 
-	def on_btn_is_armable(self):
-		self.UDP_client.send_cmd(['is_armable'])
+	def on_btn_check_state(self):
+		self.UDP_client.send_cmd(['check_state'])
 
 	def on_btn_close(self):
 		print "GCS: Close all - GUI button Close"
