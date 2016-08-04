@@ -33,7 +33,13 @@ class vehicle_controll:
 		elif cmd[0] == "disarm":
 			self.disarm()
 		elif cmd[0] == "land":
-			self.land_here()
+			self.land()
+		elif cmd[0] == "rtl":
+			self.rtl()
+		elif cmd[0] == "stabilize":
+			self.stabilize()
+		elif cmd[0] == "loiter":
+			self.loiter()
 
 		elif cmd[0] == "forward_once":
 			self.move_forward_once(int(cmd[1]))
@@ -118,9 +124,7 @@ class vehicle_controll:
 				break
 			time.sleep(1)
 
-	def land_here(self):
-		self.report("Drone: drone controll - land here")
-		self.vehicle.mode = VehicleMode("LAND")
+
 
 	def move_0_once(self):
 		self.report("Drone: drone controll - move to the current position once")
@@ -174,6 +178,23 @@ class vehicle_controll:
 	def yaw_right(self, angle):
 		self.report("Drone: drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
 		self.condition_yaw(angle, relative=True)
+
+
+	def land(self):
+		self.report("Drone: drone controll - LAND")
+		self.vehicle.mode = VehicleMode("LAND")
+
+	def rtl(self):
+		self.report("Drone: drone controll - RTL")
+		self.vehicle.mode = VehicleMode("RTL")
+
+	def stabilize(self):
+		self.report("Drone: drone controll - STABILIZE")
+		self.vehicle.mode = VehicleMode("STABILIZE")
+
+	def loiter(self):
+		self.report("Drone: drone controll - LOITER")
+		self.vehicle.mode = VehicleMode("LOITER")
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):

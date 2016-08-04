@@ -24,8 +24,8 @@ class GUI_main(tk.Frame):
 		self.frame2 = tk.Frame(self.root)
 		self.frame2.configure(background='white')
 		self.GUI_init(self.frame1,self.frame2)
-		self.frame1.grid(row=0, column=0)
-		self.frame2.grid(row=1, column=0)
+		self.frame1.grid(row=1, column=0)
+		self.frame2.grid(row=0, column=0)
 		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)
 		self.root.after(100,self.GUI_tick)
 
@@ -81,36 +81,50 @@ class GUI_main(tk.Frame):
 		self.GUI_init_2labels(frame1, 'armed', label1_text='Armed: ', row1=18, column1=1)
 		self.GUI_init_2labels(frame1, 'system_status', label1_text='System status: ', row1=19, column1=1)
 
-		# framw2 - row 0
+		# frame 2 - row 0
 		self.lbl_title = tk.Label(frame2, text='Mission controllsky - GCS' ,font=('arial', 16, 'bold'), fg='red',bg='white')
 		self.lbl_title.grid(row=0, column=0, columnspan=6)
-		# framw2 - row 1
+		# frame 2 - row 1
 		self.btn_send = tk.Button(frame2, text='Send command', command=self.on_btn_send)
 		self.btn_send.grid(row=1, column=0, columnspan=1)
 		self.ent_command = tk.Entry(frame2)
 		self.ent_command.grid(row=1, column=1)
-		self.ent_command.bind('<Return>', self.on_ent_command_enter)   
-		# framw2 - row 2
-		#self.lbl_command_param1 = tk.Label(frame2, text='param1:', fg='black',bg='white')
-		#self.lbl_command_param1.grid(row=2, column=0, columnspan=1)
-		#self.ent_command_param1 = tk.Entry(frame2)
-		#self.ent_command_param1.grid(row=2, column=1)
-		# framw2 - row 2
-		#self.lbl_command_param2 = tk.Label(frame2, text='param2:', fg='black',bg='white')
-		#self.lbl_command_param2.grid(row=3, column=0, columnspan=1)
-		#self.ent_command_param2 = tk.Entry(frame2)
-		#self.ent_command_param2.grid(row=3, column=1)
-		# framw2 - row 2
+		self.ent_command.bind('<Return>', self.on_ent_command_enter)
+		# frame 2 - row 2
 		self.btn_listen_keys = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
 		self.btn_listen_keys.grid(row=2, column=0, columnspan=1)
 		self.btn_send_position = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Send zero position - NO', width=25, command= self.on_btn_send_position)
 		self.btn_send_position.grid(row=2, column=1, columnspan=1)
-		# framw2 - row 5
+		# frame 2 - row 3
+		self.lbl_failsafe = tk.Label(frame2, text='Save the drone:', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_failsafe.grid(row=3, column=0, columnspan=3)
+		# frame 2 - row 4
+		self.btn_land = tk.Button(frame2, fg='black', activebackground='green2', text='Land', width=25, command= self.on_btn_land)
+		self.btn_land.grid(row=4, column=0, columnspan=1)
+		self.btn_rtl = tk.Button(frame2, fg='black', activebackground='green2', text='RTL', width=25, command= self.on_btn_rtl)
+		self.btn_rtl.grid(row=4, column=1, columnspan=1)
+		self.btn_stabilize = tk.Button(frame2, fg='black', activebackground='green2', text='Stabilize', width=25, command= self.on_btn_stabilize)
+		self.btn_stabilize.grid(row=5, column=0, columnspan=1)
+		self.btn_loiter = tk.Button(frame2, fg='black', activebackground='green2', text='Loiter', width=25, command= self.on_btn_loiter)
+		self.btn_loiter.grid(row=5, column=1, columnspan=1)
+
 		#self.btn_close = tk.Button(frame2, text='Close all', width=25, command= self.on_btn_close)
 		#self.btn_close.grid(row=5, column=0, columnspan=1)
 
 		self.send_move_0 = 0
 		self.key_pressed = None
+
+	def on_btn_land(self):
+		self.UDP_client.send_cmd(['land'])
+
+	def on_btn_rtl(self):
+		self.UDP_client.send_cmd(['rtl'])
+
+	def on_btn_stabilize(self):
+		self.UDP_client.send_cmd(['stabilize'])
+
+	def on_btn_loiter(self):
+		self.UDP_client.send_cmd(['loiter'])
 
 	def on_btn_close(self):
 		print "GCS: Close all - GUI button Close"
@@ -126,22 +140,22 @@ class GUI_main(tk.Frame):
 		#print "GCS: Command sent: " + str(command)
 
 	def on_btn_listen_keys(self):
-		if self.btn_listen_keys.cget('bg') == "green":
+		if self.btn_listen_keys.cget('bg') == "green3":
 			self.root.unbind("<Key>")
 			self.root.unbind("<KeyRelease>")
 			self.btn_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
 		elif self.btn_listen_keys.cget('bg') == "red":
 			self.root.bind("<Key>", self.key_callback)
 			self.root.bind("<KeyRelease>", self.key_release_callback)
-			self.btn_listen_keys.config(text = "Listen keys - YES", activebackground='green', bg='green')
+			self.btn_listen_keys.config(text = "Listen keys - YES", activebackground='green3', bg='green3')
 
 	def on_btn_send_position(self):
-		if self.btn_send_position.cget('bg') == "green":
+		if self.btn_send_position.cget('bg') == "green3":
 			self.send_move_0 = 0
 			self.btn_send_position.config(text = "Send zero position - NO", activebackground='red', bg='red')
 		elif self.btn_send_position.cget('bg') == "red":
 			self.send_move_0 = 1
-			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green', bg='green')
+			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green3', bg='green3')
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
