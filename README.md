@@ -25,16 +25,21 @@ Install serial:
 sudo pip install pyserial
 ```
 
+**Connect Odroid**  
+1. Connect to qtcopter Wi-Fi  
+2. ```ssh odroid@192.168.12.1``` (password: odroid)  
+3. ```cd DroneProject3/```  
+
 Connect Odroid to Pixhawk via (1) Telem or (2) USB
 ```sh
-sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600
-sudo python drone_CoPilot.py --connect /dev/ttyACM0
+sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x
+sudo python drone_CoPilot.py --connect /dev/ttyACM0 --gcs_ip 192.168.x.x
 ```
 
 Connect GCS to Odroid
 ```sh
-sudo python GCS.py --connect /dev/ttyUSB0,57600
-sudo python GCS.py --connect /dev/ttyACM0
+sudo python GCS.py --connect /dev/ttyUSB0,57600 --drone_ip 192.168.x.x
+sudo python GCS.py --connect /dev/ttyACM0 --drone_ip 192.168.x.x
 ```
 
 Install MAVProxy:
@@ -52,7 +57,6 @@ Connect MAVProxy from Odroid to Pixhawk via (1) Telem or (2) USB
 mavproxy.py --master=/dev/ttyACM0 --baudrate 115200
 mavproxy.py --master=/dev/ttyUSB0 --baudrate 57600
 ```
-
 
 If module map is not loaded (fails to import cv) simply install that:
 ```sh
