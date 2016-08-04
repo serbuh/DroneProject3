@@ -52,7 +52,9 @@ class GUI_main(tk.Frame):
 		self.GUI_init_2labels(frame1, 'gps_0_fix', label1_text='GPS fix: ', row1=5, column1=3)
 		self.GUI_init_2labels(frame1, 'ekf_ok', label1_text='EKF OK: ', row1=6, column1=3)
 		self.GUI_init_2labels(frame1, 'system_status', label1_text='System status: ', row1=7, column1=3)
-		self.GUI_init_2labels(frame1, 'is_armable_induced', label1_text='Is Armable: ', row1=8, column1=3)
+		self.GUI_init_2labels(frame1, 'is_armable_on_demand', label1_text='Is Armable: ', row1=8, column1=3)
+		self.GUI_init_2labels(frame1, 'mode', label1_text='Mode: ', row1=9, column1=3)
+		self.GUI_init_2labels(frame1, 'armed', label1_text='Armed: ', row1=10, column1=3)
 
 		self.GUI_init_2labels(frame1, 'ch1', label1_text='Ch1: ', row1=1, column1=5)
 		self.GUI_init_2labels(frame1, 'ch2', label1_text='Ch2: ', row1=2, column1=5)
@@ -77,9 +79,7 @@ class GUI_main(tk.Frame):
 
 		self.GUI_init_2labels(frame1, 'airspeed', label1_text='Airspeed: ', row1=15, column1=1)
 		self.GUI_init_2labels(frame1, 'groundspeed', label1_text='Groundspeed: ', row1=16, column1=1)	
-		self.GUI_init_2labels(frame1, 'mode', label1_text='Mode: ', row1=17, column1=1)
-		self.GUI_init_2labels(frame1, 'armed', label1_text='Armed: ', row1=18, column1=1)
-		self.GUI_init_2labels(frame1, 'last_heartbeat', label1_text='Last heartbeat: ', row1=19, column1=1)
+		self.GUI_init_2labels(frame1, 'last_heartbeat', label1_text='Last heartbeat: ', row1=17, column1=1)
 
 
 		# frame 2 - row 0
@@ -92,8 +92,10 @@ class GUI_main(tk.Frame):
 		self.ent_command.grid(row=1, column=1)
 		self.ent_command.bind('<Return>', self.on_ent_command_enter)
 		# frame 2 - row 2,3
-		self.btn_check_state = tk.Button(frame2, fg='black', text='Armable, EKF, System', command= self.on_btn_check_state)
+		self.btn_check_state = tk.Button(frame2, fg='black', text='Check state', command= self.on_btn_check_state)
 		self.btn_check_state.grid(row=3, column=0, columnspan=1)
+		self.btn_check_firmware = tk.Button(frame2, fg='black', text='Check Firmware', command= self.on_btn_check_firmware)
+		self.btn_check_firmware.grid(row=3, column=1, columnspan=1)
 		# frame 2 - row 4
 		self.btn_listen_keys = tk.Button(frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
 		self.btn_listen_keys.grid(row=4, column=0, columnspan=1)
@@ -132,6 +134,9 @@ class GUI_main(tk.Frame):
 
 	def on_btn_check_state(self):
 		self.UDP_client.send_cmd(['check_state'])
+
+	def on_btn_check_firmware(self):
+		self.UDP_client.send_cmd(['check_firmware'])
 
 	def on_btn_close(self):
 		print "GCS: Close all - GUI button Close"
@@ -254,7 +259,7 @@ class GCS():
 		try:
 			self.GUI = None
 			#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-			self.val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status', 'is_armable_induced'])
+			self.val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status', 'is_armable_on_demand'])
 			# Init all val_dict fields
 			self.dict_init_fields()
 

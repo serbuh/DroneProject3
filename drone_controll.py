@@ -50,6 +50,8 @@ class vehicle_controll:
 			self.system_state()
 		elif cmd[0] == "check_state":
 			self.check_state()
+		elif cmd[0] == "check_firmware":
+			self.check_firmware()
 
 		elif cmd[0] == "forward_once":
 			self.move_forward_once(int(cmd[1]))
@@ -206,22 +208,42 @@ class vehicle_controll:
 		self.report("Drone: drone controll - LOITER")
 		self.vehicle.mode = VehicleMode("LOITER")
 
+
+	def is_armable(self):
+		self.UDP_server_Telem_Cmd.send_telem({'is_armable_on_demand': str(self.vehicle.is_armable)})
+
+	def ekf_ok(self):
+		self.UDP_server_Telem_Cmd.send_telem({'ekf_ok': str(self.vehicle.ekf_ok)})
+
+	def system_status(self):
+		self.UDP_server_Telem_Cmd.send_telem({'system_status': str(self.vehicle.system_status.state)})
+
+	def mode(self):
+		self.UDP_server_Telem_Cmd.send_telem({'mode': str(self.vehicle.mode.name)})
+	
+	def armed(self):
+		self.UDP_server_Telem_Cmd.send_telem({'armed': str(self.vehicle.armed)})
+
+
 	def check_state(self):
 		self.is_armable()
 		self.ekf_ok()
 		self.system_status()
+		self.mode()
+		self.armed()		
 
-	def is_armable(self):
-		data = {'is_armable_induced': str(self.vehicle.is_armable)}
-		self.UDP_server_Telem_Cmd.send_telem(data)
-
-	def ekf_ok(self):
-		data = {'ekf_ok': str(self.vehicle.ekf_ok)}
-		self.UDP_server_Telem_Cmd.send_telem(data)
-
-	def system_status(self):
-		data = {'system_status': str(self.vehicle.system_status.state)}
-		self.UDP_server_Telem_Cmd.send_telem(data)
+	def check_firmware(self):
+		#TODO firmware check fields		
+		'''
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver': str(self.vehicle.version)})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_major': str(self.vehicle.version.major)})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_minor': str(self.vehicle.version.minor)})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_patch': str(self.vehicle.version.patch)})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_type': str(self.vehicle.version.release_type())})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_ver': str(self.vehicle.version.release_version())})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_stable_release': str(self.vehicle.version.is_stable())})
+		'''
+		pass
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
