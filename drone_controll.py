@@ -233,17 +233,13 @@ class vehicle_controll:
 		self.armed()		
 
 	def check_firmware(self):
-		#TODO firmware check fields		
-		'''
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver': str(self.vehicle.version)})
-		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_major': str(self.vehicle.version.major)})
-		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_minor': str(self.vehicle.version.minor)})
-		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_patch': str(self.vehicle.version.patch)})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_major': str(self.vehicle.version.major)})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_minor': str(self.vehicle.version.minor)})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_patch': str(self.vehicle.version.patch)})
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_type': str(self.vehicle.version.release_type())})
-		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_ver': str(self.vehicle.version.release_version())})
-		self.UDP_server_Telem_Cmd.send_telem({'firmware_stable_release': str(self.vehicle.version.is_stable())})
-		'''
-		pass
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_ver': str(self.vehicle.version.release_version())})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_stable': str(self.vehicle.version.is_stable())})
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
