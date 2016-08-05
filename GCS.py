@@ -24,13 +24,19 @@ class GUI_main(tk.Frame):
 		self.frame1.configure(background='black')
 		self.frame2 = tk.Frame(self.root)
 		self.frame2.configure(background='white')
+
+		self.test_frame = tk.Frame(self.root)
+		self.test_frame.configure(background='white')
+
 		self.firmware_frame = tk.Frame(self.root)
 		self.firmware_frame.configure(background='black')
 		self.firmware_hide = True
+		self.test_frame_hide = True
 		self.GUI_init()
 
 		self.frame1.grid(row=1, column=0)
 		self.frame2.grid(row=0, column=0)
+		#self.test_frame.grid(row=0, column=1)
 		#self.firmware_frame.grid(row=2, column=0)
 
 
@@ -93,32 +99,54 @@ class GUI_main(tk.Frame):
 		# frame 2 - row 0
 		self.lbl_title = tk.Label(self.frame2, text='Mission controllsky - GCS' ,font=('arial', 16, 'bold'), fg='red',bg='white')
 		self.lbl_title.grid(row=0, column=0, columnspan=6)
+
 		# frame 2 - row 1
-		self.btn_send = tk.Button(self.frame2, text='Send command', command=self.on_btn_send)
+		self.btn_send = tk.Button(self.frame2, text='Send command ->', width=15, command=self.on_btn_send)
 		self.btn_send.grid(row=1, column=0, columnspan=1)
+
 		self.ent_command = tk.Entry(self.frame2)
 		self.ent_command.grid(row=1, column=1)
 		self.ent_command.bind('<Return>', self.on_ent_command_enter)
-		# frame 2 - row 2,3
-		self.btn_check_state = tk.Button(self.frame2, fg='black', text='Check state', command= self.on_btn_check_state)
-		self.btn_check_state.grid(row=3, column=0, columnspan=1)
-		self.btn_check_firmware = tk.Button(self.frame2, fg='black', text='Check Firmware', command= self.on_btn_check_firmware)
-		self.btn_check_firmware.grid(row=3, column=1, columnspan=1)
+
+		# frame 2 - row 2, 3
+		self.btn_check_state = tk.Button(self.frame2, fg='black', text='Check state', width=15, command= self.on_btn_check_state)
+		self.btn_check_state.grid(row=2, column=0, columnspan=1)
+
+		if (self.firmware_hide == True):
+			text_btn_check_firmware = "Show firmware"
+		else:
+			text_btn_check_firmware = "Hide firmware"
+		self.btn_check_firmware = tk.Button(self.frame2, fg='black', text=text_btn_check_firmware, width=15, command= self.on_btn_check_firmware)
+		self.btn_check_firmware.grid(row=2, column=1, columnspan=1)
+
+		if (self.test_frame_hide == True):
+			text_btn_test_frame = "Show test frame"
+		else:
+			text_btn_test_frame = "Hide test frame"
+		self.btn_test_frame = tk.Button(self.frame2, fg='black', text=text_btn_test_frame, width=15, command= self.on_btn_test_frame)
+		self.btn_test_frame.grid(row=3, column=0, columnspan=1)
+
 		# frame 2 - row 4
 		self.btn_listen_keys = tk.Button(self.frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
 		self.btn_listen_keys.grid(row=4, column=0, columnspan=1)
+
 		self.btn_send_position = tk.Button(self.frame2, fg='black', activebackground='red', bg='red', text='Send zero position - NO', width=25, command= self.on_btn_send_position)
 		self.btn_send_position.grid(row=4, column=1, columnspan=1)
+
 		# frame 2 - row 5
 		self.lbl_failsafe = tk.Label(self.frame2, text='Save the drone:', font=('arial', 12, 'bold'), fg='red',bg='white')
 		self.lbl_failsafe.grid(row=5, column=0, columnspan=3)
+
 		# frame 2 - row 6,7
 		self.btn_land = tk.Button(self.frame2, fg='black', activebackground='green2', text='Land', width=25, command= self.on_btn_land)
 		self.btn_land.grid(row=6, column=0, columnspan=1)
+
 		self.btn_rtl = tk.Button(self.frame2, fg='black', activebackground='green2', text='RTL', width=25, command= self.on_btn_rtl)
 		self.btn_rtl.grid(row=6, column=1, columnspan=1)
+
 		self.btn_stabilize = tk.Button(self.frame2, fg='black', activebackground='green2', text='Stabilize', width=25, command= self.on_btn_stabilize)
 		self.btn_stabilize.grid(row=7, column=0, columnspan=1)
+
 		self.btn_loiter = tk.Button(self.frame2, fg='black', activebackground='green2', text='Loiter', width=25, command= self.on_btn_loiter)
 		self.btn_loiter.grid(row=7, column=1, columnspan=1)
 
@@ -134,6 +162,20 @@ class GUI_main(tk.Frame):
 		#self.GUI_init_2labels(self.firmware_frame, 'firmware_ver_release_ver', label1_text='Realease version: ', row1=23, column1=1)
 		self.GUI_init_2labels(self.firmware_frame, 'firmware_ver_release_stable', label1_text='Release stable?: ', row1=24, column1=1)
 		
+
+		# test frame
+		self.lbl_test_frame = tk.Label(self.test_frame, text='Test frame', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_test_frame.grid(row=0, column=0, columnspan=1)
+
+		self.btn_test1 = tk.Button(self.test_frame, fg='black', text='Test 1', command= self.on_btn_test1)
+		self.btn_test1.grid(row=1, column=0, columnspan=1)
+
+		self.btn_test2 = tk.Button(self.test_frame, fg='black', text='Test 2', command= self.on_btn_test2)
+		self.btn_test2.grid(row=2, column=0, columnspan=1)
+
+		self.btn_test3 = tk.Button(self.test_frame, fg='black', text='Test 3', command= self.on_btn_test3)
+		self.btn_test3.grid(row=3, column=0, columnspan=1)
+
 		self.send_move_0 = 0
 		self.key_pressed = None
 
@@ -157,9 +199,11 @@ class GUI_main(tk.Frame):
 			self.firmware_frame.grid(row=2, column=0)
 			self.UDP_client.send_cmd(['check_firmware'])
 			self.firmware_hide = False
+			self.btn_check_firmware.config(text = "Hide firmware")
 		else:
-			self.firmware_frame.grid_forget()
+			self.firmware_frame.grid_remove()
 			self.firmware_hide = True
+			self.btn_check_firmware.config(text = "Show firmware")
 
 	def on_btn_close(self):
 		print "GCS: Close all - GUI button Close"
@@ -191,6 +235,25 @@ class GUI_main(tk.Frame):
 		elif self.btn_send_position.cget('bg') == "red":
 			self.send_move_0 = 1
 			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green3', bg='green3')
+
+	def on_btn_test_frame(self):
+		if (self.test_frame_hide == True):
+			self.test_frame.grid(row=0, column=1)
+			self.test_frame_hide = False
+			self.btn_test_frame.config(text = "Hide Test frame")
+		else:
+			self.test_frame.grid_remove()
+			self.test_frame_hide = True
+			self.btn_test_frame.config(text = "Show Test frame")
+
+	def on_btn_test1(self):
+		print "Test 1"
+
+	def on_btn_test2(self):
+		print "Test 2"
+
+	def on_btn_test3(self):
+		print "Test 3"
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
