@@ -355,6 +355,9 @@ class drone_CoPilot():
 			data = {'ch1': value[1], 'ch2': value[2], 'ch3': value[3], 'ch4': value[4], 'ch5': value[5], 'ch6': value[6], 'ch7': value[7], 'ch8': value[8]}
 			if data['ch8'] > 1900:
 				self.vehicle_controll.panic()
+			else:
+				if self.vehicle_controll.in_panic:
+					self.vehicle_controll.in_panic = False
 
 		elif attr_name=="last_heartbeat":
 			#print "last_heartbeat: {}".format(round(value,2))		
