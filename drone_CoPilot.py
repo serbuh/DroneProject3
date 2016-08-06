@@ -356,7 +356,7 @@ class drone_CoPilot():
 			if (data['ch8'] > 1900) and (not self.vehicle_controll.in_panic):
 				# start to panic
 				self.vehicle_controll.panic()
-			elif (data['ch8'] < 1900) and (self.vehicle_controll.in_panic)
+			elif (data['ch8'] < 1900) and (self.vehicle_controll.in_panic):
 				# stop panic
 				self.vehicle_controll.in_panic = False
 			else:
