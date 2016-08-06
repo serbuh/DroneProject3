@@ -71,6 +71,10 @@ class vehicle_controll:
 			self.move_left_once(int(cmd[1]))
 		elif cmd[0] == "right_once":
 			self.move_right_once(int(cmd[1]))
+		elif cmd[0] == "up_once":
+			self.move_up_once(int(cmd[1]))
+		elif cmd[0] == "down_once":
+			self.move_down_once(int(cmd[1]))
 		elif cmd[0] == "move_0_once":
 			self.move_0_once()
 
@@ -168,6 +172,14 @@ class vehicle_controll:
 	def move_right_once(self, velocity):
 		self.report("Drone: drone controll - Right " + str(velocity) + " m/s")
 		self.send_ned_velocity_once(0,velocity,0)
+
+	def move_up_once(self, velocity):
+		self.report("Drone: drone controll - Up " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,0,-velocity)
+
+	def move_down_once(self, velocity):
+		self.report("Drone: drone controll - Down " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,0,velocity)
 
 
 	def move_0(self):

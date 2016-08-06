@@ -299,7 +299,7 @@ class GUI_main(tk.Frame):
 
 	def key_callback(self, event):
 		#print repr(event.char)	+ "Pressed"
-		if (event.char=='z'):
+		if (event.char=='p'):
 			self.UDP_client.send_cmd(['arm', int(10)])
 		if (event.char=='w'):
 			self.key_pressed = event.char
@@ -309,22 +309,26 @@ class GUI_main(tk.Frame):
 			self.key_pressed = event.char
 		elif (event.char=='d'):
 			self.key_pressed = event.char
+		elif (event.char=='z'):
+			self.key_pressed = event.char
+		elif (event.char=='x'):
+			self.key_pressed = event.char
 		elif (event.char=='q'):
 			self.UDP_client.send_cmd(['yaw_left', int(10)])
 		elif (event.char=='e'):
 			self.UDP_client.send_cmd(['yaw_right', int(10)])
 		elif (event.char=='l'):
 			self.UDP_client.send_cmd(['land'])
-		elif (event.char=='t'):
-			self.UDP_client.send_cmd(['triangle'])
-		elif (event.char=='y'):
-			self.UDP_client.send_cmd(['triangle2'])
-		elif (event.char=='u'):
-			self.UDP_client.send_cmd(['square'])
-		elif (event.char=='i'):
-			self.UDP_client.send_cmd(['square2'])
-		elif (event.char=='p'):
-			self.UDP_client.send_cmd(['diamond'])
+		#elif (event.char=='t'):
+		#	self.UDP_client.send_cmd(['triangle'])
+		#elif (event.char=='y'):
+		#	self.UDP_client.send_cmd(['triangle2'])
+		#elif (event.char=='u'):
+		#	self.UDP_client.send_cmd(['square'])
+		#elif (event.char=='i'):
+		#	self.UDP_client.send_cmd(['square2'])
+		#elif (event.char=='h'):
+		#	self.UDP_client.send_cmd(['diamond'])
 
 	def GUI_close(self):
 		self.root.destroy()
@@ -339,6 +343,10 @@ class GUI_main(tk.Frame):
 			self.UDP_client.send_cmd(['backward_once', int(1)])
 		elif (self.key_pressed == 'd'):
 			self.UDP_client.send_cmd(['right_once', int(1)])
+		elif (self.key_pressed == 'z'):
+			self.UDP_client.send_cmd(['up_once', int(1)])
+		elif (self.key_pressed == 'x'):
+			self.UDP_client.send_cmd(['down_once', int(1)])
 		elif (self.key_pressed == None):
 			#print "None pressed"
 			if (self.send_move_0 == 1):
