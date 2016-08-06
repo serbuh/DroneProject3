@@ -42,6 +42,10 @@ class vehicle_controll:
 			self.stabilize()
 		elif cmd[0] == "loiter":
 			self.loiter()
+		elif cmd[0] == "guided":
+			self.guided()
+		elif cmd[0] == "poshold":
+			self.poshold()
 
 		elif cmd[0] == "override":
 			self.override()
@@ -93,13 +97,14 @@ class vehicle_controll:
 		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
 		#TODO add abort mechanism
-		while not self.vehicle.is_armable:
-			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
-			time.sleep(1)
+		#while not self.vehicle.is_armable:
+		#	self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
+		#	time.sleep(1)
 
-		self.report("Drone: drone controll - Arm: MODE=GUIDED")
-		# Copter should arm in GUIDED mode
-		self.vehicle.mode = VehicleMode("GUIDED")
+		# self.report("Drone: drone controll - Arm: MODE=GUIDED")
+		# Copter should arm in GUIDED mode (if we have GPS 3D Fix)
+		# self.vehicle.mode = VehicleMode("GUIDED")
+		# self.vehicle.mode = VehicleMode("STABILIZE")
 		self.report("Drone: drone controll - Arm: Arming motors")
 		self.vehicle.armed = True
 
@@ -213,6 +218,15 @@ class vehicle_controll:
 	def loiter(self):
 		self.report("Drone: drone controll - LOITER")
 		self.vehicle.mode = VehicleMode("LOITER")
+
+	def guided(self):
+		self.report("Drone: drone controll - GUIDED")
+		self.vehicle.mode = VehicleMode("GUIDED")
+
+	def poshold(self):
+		self.report("Drone: drone controll - POSHOLD")
+		self.vehicle.mode = VehicleMode("POSHOLD")
+
 
 	def override(self):
 		self.report("override activated")

@@ -150,6 +150,13 @@ class GUI_main(tk.Frame):
 		self.btn_loiter = tk.Button(self.frame2, fg='black', activebackground='green2', text='Loiter', width=25, command= self.on_btn_loiter)
 		self.btn_loiter.grid(row=7, column=1, columnspan=1)
 
+		self.btn_guided = tk.Button(self.frame2, fg='black', activebackground='green2', text='Guided', width=25, command= self.on_btn_guided)
+		self.btn_guided.grid(row=8, column=0, columnspan=1)
+
+		self.btn_poshold = tk.Button(self.frame2, fg='black', activebackground='green2', text='Position Hold', width=25, command= self.on_btn_poshold)
+		self.btn_poshold.grid(row=8, column=1, columnspan=1)
+
+
 		#self.btn_close = tk.Button(self.frame2, text='Close all', width=25, command= self.on_btn_close)
 		#self.btn_close.grid(row=5, column=0, columnspan=1)
 
@@ -196,6 +203,13 @@ class GUI_main(tk.Frame):
 
 	def on_btn_loiter(self):
 		self.UDP_client.send_cmd(['loiter'])
+
+	def on_btn_guided(self):
+		self.UDP_client.send_cmd(['guided'])
+
+	def on_btn_poshold(self):
+		self.UDP_client.send_cmd(['poshold'])
+
 
 	def on_btn_refresh_state(self):
 		self.UDP_client.send_cmd(['refresh_state'])
