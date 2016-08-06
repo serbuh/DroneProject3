@@ -20,6 +20,7 @@ class vehicle_controll:
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
+		self.safety_activated = False
 
 	def report(self, msg):
 		print str(msg)
@@ -42,14 +43,19 @@ class vehicle_controll:
 		elif cmd[0] == "loiter":
 			self.loiter()
 
+		elif cmd[0] == "override":
+			self.override()
+		elif cmd[0] == "release_override":
+			self.release_override()
+
 		elif cmd[0] == "is_armable":
 			self.is_armable()
 		elif cmd[0] == "ekf_ok":
 			self.ekf_ok()
 		elif cmd[0] == "system_state":
 			self.system_state()
-		elif cmd[0] == "check_state":
-			self.check_state()
+		elif cmd[0] == "refresh_state":
+			self.refresh_state()
 		elif cmd[0] == "check_firmware":
 			self.check_firmware()
 
@@ -208,6 +214,14 @@ class vehicle_controll:
 		self.report("Drone: drone controll - LOITER")
 		self.vehicle.mode = VehicleMode("LOITER")
 
+	def override(self):
+		self.report("override activated")
+		self.vehicle.channels.overrides = {'7':2000}
+
+	def release_override(self):
+		self.report("release override activated")
+		self.vehicle.channels.overrides = {}
+
 
 	def is_armable(self):
 		self.UDP_server_Telem_Cmd.send_telem({'is_armable_on_demand': str(self.vehicle.is_armable)})
@@ -225,7 +239,7 @@ class vehicle_controll:
 		self.UDP_server_Telem_Cmd.send_telem({'armed': str(self.vehicle.armed)})
 
 
-	def check_state(self):
+	def refresh_state(self):
 		self.is_armable()
 		self.ekf_ok()
 		self.system_status()
@@ -240,6 +254,16 @@ class vehicle_controll:
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_type': str(self.vehicle.version.release_type())})
 		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_ver': str(self.vehicle.version.release_version())})
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_stable': str(self.vehicle.version.is_stable())})
+
+
+	def safety_activate(self):
+		if self.safety_activated == False:
+			self.land()
+			self.safety_activated = True
+			self.report("Drone: drone controll - SAFETY SWITCH ACTIVATED!")
+		else:
+			# enter here every time after reading the  safety channel value over threshold
+			pass
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):

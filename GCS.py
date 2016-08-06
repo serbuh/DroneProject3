@@ -15,8 +15,15 @@ class GUI_main(tk.Frame):
 		self.close_all = close_all
 
 		print "GCS: GUI - Start"
-		tk.Frame.__init__(self, root, *args, **kwargs)
 		self.root = root
+		self.GUI_init()
+
+		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)
+		self.root.after(100,self.GUI_tick)
+
+	def GUI_init(self):
+		print "GCS: GUI - Init"
+		tk.Frame.__init__(self, self.root)
 		self.root.title("GCS GUI")
 		self.root.configure(background='black')
 
@@ -32,68 +39,64 @@ class GUI_main(tk.Frame):
 		self.firmware_frame.configure(background='black')
 		self.firmware_hide = True
 		self.test_frame_hide = True
-		self.GUI_init()
 
-		self.frame1.grid(row=1, column=0)
-		self.frame2.grid(row=0, column=0)
-		#self.test_frame.grid(row=0, column=1)
-		#self.firmware_frame.grid(row=2, column=0)
-
-
-		self.root.protocol('WM_DELETE_WINDOW', self.on_window_close)
-		self.root.after(100,self.GUI_tick)
-
-	def GUI_init(self):
-		print "GCS: GUI - Init objects"
 		# frame1
-		self.GUI_init_2labels(self.frame1, 'roll', label1_text='Roll: ', row1=1, column1=1)
-		self.GUI_init_2labels(self.frame1, 'pitch', label1_text='Pitch: ', row1=2, column1=1)
-		self.GUI_init_2labels(self.frame1, 'yaw', label1_text='Yaw: ', row1=3, column1=1)
-		self.GUI_init_2labels(self.frame1, 'vx', label1_text='Vx: ', row1=4, column1=1)
-		self.GUI_init_2labels(self.frame1, 'vy', label1_text='Vy: ', row1=5, column1=1)
-		self.GUI_init_2labels(self.frame1, 'vz', label1_text='Vz: ', row1=6, column1=1)
-		self.GUI_init_2labels(self.frame1, 'heading', label1_text='Heading: ', row1=7, column1=1)
-		self.GUI_init_2labels(self.frame1, 'rangefinder', label1_text='Rangefinder: ', row1=8, column1=1)
-		self.GUI_init_2labels(self.frame1, 'gimbal_roll', label1_text='Gimbal roll: ', row1=9, column1=1)
-		self.GUI_init_2labels(self.frame1, 'gimbal_pitch', label1_text='Gimbal pitch: ', row1=10, column1=1)
-		self.GUI_init_2labels(self.frame1, 'gimbal_yaw', label1_text='Gimbal yaw: ', row1=11, column1=1)
+		row, col = 1, 1
+		self.GUI_init_2labels(self.frame1, 'frame_loc_north', label1_text='North (loc): ', row1=row+0, column1=col)
+		self.GUI_init_2labels(self.frame1, 'frame_loc_east', label1_text='East (loc): ', row1=row+1, column1=col)
+		self.GUI_init_2labels(self.frame1, 'frame_loc_down', label1_text='Down (loc): ', row1=row+2, column1=col)
+		self.GUI_init_2labels(self.frame1, 'frame_gl_lat', label1_text='Lat (gl): ', row1=row+0, column1=col+2)
+		self.GUI_init_2labels(self.frame1, 'frame_gl_lon', label1_text='Lon (gl): ', row1=row+1, column1=col+2)
+		self.GUI_init_2labels(self.frame1, 'frame_gl_alt', label1_text='Alt (gl): ', row1=row+2, column1=col+2)
+		self.GUI_init_2labels(self.frame1, 'frame_gl_rel_lat', label1_text='Lat (gl rel): ', row1=row+0, column1=col+4)
+		self.GUI_init_2labels(self.frame1, 'frame_gl_rel_lon', label1_text='Lon (gl rel): ', row1=row+1, column1=col+4)
+		self.GUI_init_2labels(self.frame1, 'frame_gl_rel_alt', label1_text='Alt (gl rel): ', row1=row+2, column1=col+4)
+		#self.GUI_init_dummy_label(self.frame1, row=row+3, column=1)
 
+		row, col = 4, 1
+		self.btn_refresh_state = tk.Button(self.frame1, text='Refresh state:', command= self.on_btn_refresh_state, font=('arial', 10, 'bold'), bg='black', activebackground='black', fg='green', activeforeground='green3')
+		self.btn_refresh_state.grid(row=row+0, column=col, columnspan=1)
+		self.GUI_init_2labels(self.frame1, 'ekf_ok', label1_text='EKF OK: ', row1=row+1, column1=col)
+		self.GUI_init_2labels(self.frame1, 'system_status', label1_text='System status: ', row1=row+2, column1=col)
+		self.GUI_init_2labels(self.frame1, 'is_armable_on_demand', label1_text='Is Armable: ', row1=row+3, column1=col)
+		self.GUI_init_2labels(self.frame1, 'mode', label1_text='Mode: ', row1=row+4, column1=col)
+		self.GUI_init_2labels(self.frame1, 'armed', label1_text='Armed: ', row1=row+5, column1=col)
 
-		self.GUI_init_2labels(self.frame1, 'battery', label1_text='Battery: ', row1=1, column1=3)
-		self.GUI_init_2labels(self.frame1, 'gps_0_HDOP', label1_text='HDOP: ', row1=2, column1=3)
-		self.GUI_init_2labels(self.frame1, 'gps_0_VDOP', label1_text='VDOP: ', row1=3, column1=3)
-		self.GUI_init_2labels(self.frame1, 'gps_0_satellites', label1_text='Satellites: ', row1=4, column1=3)
-		self.GUI_init_2labels(self.frame1, 'gps_0_fix', label1_text='GPS fix: ', row1=5, column1=3)
-		self.GUI_init_2labels(self.frame1, 'ekf_ok', label1_text='EKF OK: ', row1=6, column1=3)
-		self.GUI_init_2labels(self.frame1, 'system_status', label1_text='System status: ', row1=7, column1=3)
-		self.GUI_init_2labels(self.frame1, 'is_armable_on_demand', label1_text='Is Armable: ', row1=8, column1=3)
-		self.GUI_init_2labels(self.frame1, 'mode', label1_text='Mode: ', row1=9, column1=3)
-		self.GUI_init_2labels(self.frame1, 'armed', label1_text='Armed: ', row1=10, column1=3)
+		row, col= 11, 1
+		self.GUI_init_2labels(self.frame1, 'battery', label1_text='Battery: ', row1=row+0, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gps_0_HDOP', label1_text='HDOP: ', row1=row+1, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gps_0_VDOP', label1_text='VDOP: ', row1=row+2, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gps_0_satellites', label1_text='Satellites: ', row1=row+3, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gps_0_fix', label1_text='GPS fix: ', row1=row+4, column1=col)
 
-		self.GUI_init_2labels(self.frame1, 'ch1', label1_text='Ch1: ', row1=1, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch2', label1_text='Ch2: ', row1=2, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch3', label1_text='Ch3: ', row1=3, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch4', label1_text='Ch4: ', row1=4, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch5', label1_text='Ch5: ', row1=5, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch6', label1_text='Ch6: ', row1=6, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch7', label1_text='Ch7: ', row1=7, column1=5)
-		self.GUI_init_2labels(self.frame1, 'ch8', label1_text='Ch8: ', row1=8, column1=5)
+		row, col = 16, 1
+		self.GUI_init_2labels(self.frame1, 'airspeed', label1_text='Airspeed: ', row1=row+0, column1=col)
+		self.GUI_init_2labels(self.frame1, 'groundspeed', label1_text='Groundspeed: ', row1=row+1, column1=col)	
+		self.GUI_init_2labels(self.frame1, 'last_heartbeat', label1_text='Last heartbeat: ', row1=row+2, column1=col)
 
-	    
-		self.GUI_init_2labels(self.frame1, 'frame_loc_north', label1_text='North (loc): ', row1=12, column1=1)
-		self.GUI_init_2labels(self.frame1, 'frame_loc_east', label1_text='East (loc): ', row1=13, column1=1)
-		self.GUI_init_2labels(self.frame1, 'frame_loc_down', label1_text='Down (loc): ', row1=14, column1=1)
-		self.GUI_init_2labels(self.frame1, 'frame_gl_lat', label1_text='Lat (gl): ', row1=12, column1=3)
-		self.GUI_init_2labels(self.frame1, 'frame_gl_lon', label1_text='Lon (gl): ', row1=13, column1=3)
-		self.GUI_init_2labels(self.frame1, 'frame_gl_alt', label1_text='Alt (gl): ', row1=14, column1=3)
-		self.GUI_init_2labels(self.frame1, 'frame_gl_rel_lat', label1_text='Lat (gl rel): ', row1=12, column1=5)
-		self.GUI_init_2labels(self.frame1, 'frame_gl_rel_lon', label1_text='Lon (gl rel): ', row1=13, column1=5)
-		self.GUI_init_2labels(self.frame1, 'frame_gl_rel_alt', label1_text='Alt (gl rel): ', row1=14, column1=5)
+		row, col = 5, 3
+		self.GUI_init_2labels(self.frame1, 'roll', label1_text='Roll: ', row1=row+0, column1=col)
+		self.GUI_init_2labels(self.frame1, 'pitch', label1_text='Pitch: ', row1=row+1, column1=col)
+		self.GUI_init_2labels(self.frame1, 'yaw', label1_text='Yaw: ', row1=row+2, column1=col)
+		self.GUI_init_2labels(self.frame1, 'vx', label1_text='Vx: ', row1=row+3, column1=col)
+		self.GUI_init_2labels(self.frame1, 'vy', label1_text='Vy: ', row1=row+4, column1=col)
+		self.GUI_init_2labels(self.frame1, 'vz', label1_text='Vz: ', row1=row+5, column1=col)
+		self.GUI_init_2labels(self.frame1, 'heading', label1_text='Heading: ', row1=row+6, column1=col)
+		self.GUI_init_2labels(self.frame1, 'rangefinder', label1_text='Rangefinder: ', row1=row+7, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gimbal_roll', label1_text='Gimbal roll: ', row1=row+8, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gimbal_pitch', label1_text='Gimbal pitch: ', row1=row+9, column1=col)
+		self.GUI_init_2labels(self.frame1, 'gimbal_yaw', label1_text='Gimbal yaw: ', row1=row+10, column1=col)
 
+		row, col = 5, 5
+		self.GUI_init_2labels(self.frame1, 'ch1', label1_text='Ch1: ', row1=row+0, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch2', label1_text='Ch2: ', row1=row+1, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch3', label1_text='Ch3: ', row1=row+2, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch4', label1_text='Ch4: ', row1=row+3, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch5', label1_text='Ch5: ', row1=row+4, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch6', label1_text='Ch6: ', row1=row+5, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch7', label1_text='Ch7: ', row1=row+6, column1=col)
+		self.GUI_init_2labels(self.frame1, 'ch8', label1_text='Ch8: ', row1=row+7, column1=col)
 
-		self.GUI_init_2labels(self.frame1, 'airspeed', label1_text='Airspeed: ', row1=15, column1=1)
-		self.GUI_init_2labels(self.frame1, 'groundspeed', label1_text='Groundspeed: ', row1=16, column1=1)	
-		self.GUI_init_2labels(self.frame1, 'last_heartbeat', label1_text='Last heartbeat: ', row1=17, column1=1)
 
 
 		# frame 2 - row 0
@@ -108,10 +111,7 @@ class GUI_main(tk.Frame):
 		self.ent_command.grid(row=1, column=1)
 		self.ent_command.bind('<Return>', self.on_ent_command_enter)
 
-		# frame 2 - row 2, 3
-		self.btn_check_state = tk.Button(self.frame2, fg='black', text='Check state', width=15, command= self.on_btn_check_state)
-		self.btn_check_state.grid(row=2, column=0, columnspan=1)
-
+		# frame 2 - row 2
 		if (self.firmware_hide == True):
 			text_btn_check_firmware = "Show firmware"
 		else:
@@ -124,7 +124,7 @@ class GUI_main(tk.Frame):
 		else:
 			text_btn_test_frame = "Hide test frame"
 		self.btn_test_frame = tk.Button(self.frame2, fg='black', text=text_btn_test_frame, width=15, command= self.on_btn_test_frame)
-		self.btn_test_frame.grid(row=3, column=0, columnspan=1)
+		self.btn_test_frame.grid(row=2, column=0, columnspan=1)
 
 		# frame 2 - row 4
 		self.btn_listen_keys = tk.Button(self.frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
@@ -176,6 +176,12 @@ class GUI_main(tk.Frame):
 		self.btn_test3 = tk.Button(self.test_frame, fg='black', text='Test 3', command= self.on_btn_test3)
 		self.btn_test3.grid(row=3, column=0, columnspan=1)
 
+
+		self.frame1.grid(row=1, column=0)
+		self.frame2.grid(row=0, column=0)
+		#self.test_frame.grid(row=0, column=1)
+		#self.firmware_frame.grid(row=2, column=0)
+
 		self.send_move_0 = 0
 		self.key_pressed = None
 
@@ -191,8 +197,8 @@ class GUI_main(tk.Frame):
 	def on_btn_loiter(self):
 		self.UDP_client.send_cmd(['loiter'])
 
-	def on_btn_check_state(self):
-		self.UDP_client.send_cmd(['check_state'])
+	def on_btn_refresh_state(self):
+		self.UDP_client.send_cmd(['refresh_state'])
 
 	def on_btn_check_firmware(self):
 		if (self.firmware_hide == True):
@@ -247,10 +253,10 @@ class GUI_main(tk.Frame):
 			self.btn_test_frame.config(text = "Show Test frame")
 
 	def on_btn_test1(self):
-		print "Test 1"
+		self.UDP_client.send_cmd(['override'])
 
 	def on_btn_test2(self):
-		print "Test 2"
+		self.UDP_client.send_cmd(['release_override'])
 
 	def on_btn_test3(self):
 		print "Test 3"
@@ -262,11 +268,16 @@ class GUI_main(tk.Frame):
 	def GUI_init_2labels(self, frame, key, label1_text, row1 ,column1):
 		row2 = row1
 		column2= column1 + 1
-		lbl_name = tk.Label(frame, text=label1_text,font=('arial', 10, 'bold'), fg='green',bg='black')
-		lbl_val = tk.Label(frame, font=('arial', 10, 'bold'), fg='green',bg='black')
+		lbl_name = tk.Label(frame, text=label1_text, font=('arial', 10, 'bold'), fg='green', bg='black')
+		lbl_val = tk.Label(frame, font=('arial', 10, 'bold'), fg='green', bg='black')
 		self.val_dict[key] = {'lbl_name': lbl_name, 'lbl_val': lbl_val, 'value': None}
 		self.val_dict[key]['lbl_name'].grid(row=row1, column=column1, columnspan=1)
 		self.val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)
+
+	def GUI_init_dummy_label(self, frame, row, column):
+		lbl_name = tk.Label(frame, text='',font=('arial', 10, 'bold'), fg='green',bg='black')
+		lbl_name.grid(row=row, column=column, columnspan=1)
+
 
 	def key_release_callback(self, event):
 		#self.key_pressed = None
