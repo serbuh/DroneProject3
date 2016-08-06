@@ -20,7 +20,7 @@ class vehicle_controll:
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
-		self.panic = False
+		self.in_panic = False
 
 	def report(self, msg):
 		print str(msg)
@@ -99,7 +99,7 @@ class vehicle_controll:
 		self.report("Drone: drone controll - Arm.")
 		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
-		while not self.panic:
+		while not self.in_panic:
 			self.report("Loop. Panic switch: " + str(self.vehicle.channels['8']))
 			time.sleep(1)		
 		#while not self.vehicle.is_armable:
@@ -302,9 +302,9 @@ class vehicle_controll:
 
 
 	def panic(self):
-		if self.panic == False:
+		if self.in_panic == False:
 			self.land()
-			self.panic = True
+			self.in_panic = True
 			self.report("Drone: drone controll - SAFETY SWITCH ACTIVATED!")
 		else:
 			# enter here every time after reading the  safety channel value over threshold
