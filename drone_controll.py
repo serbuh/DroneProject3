@@ -95,67 +95,45 @@ class vehicle_controll:
 		else:
 			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
+	
 	def arm(self):
 		self.report("Drone: drone controll - Arm.")
-		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
-		# Don't let the user try to arm until autopilot is ready
-		while not self.in_panic:
-			self.report("Loop. Panic switch: " + str(self.vehicle.channels['8']))
-			time.sleep(1)		
-		#while not self.vehicle.is_armable:
-		#	self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
-		#	time.sleep(1)
-
-		# self.report("Drone: drone controll - Arm: MODE=GUIDED")
-		# Copter should arm in GUIDED mode (if we have GPS 3D Fix)
-		# self.vehicle.mode = VehicleMode("GUIDED")
-		# self.vehicle.mode = VehicleMode("STABILIZE")
-		self.report("Drone: drone controll - Arm: Arming motors")
+		self.report("Drone: drone controll - Arm: Pre-arm check")
+		while not self.vehicle.is_armable:
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm: ABORT")
+				return
+			self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
+			time.sleep(1)
+		self.report("Drone: drone controll - Arming")
 		self.vehicle.armed = True
-
-	'''
-	def arm(self):
-		self.report("Drone: drone controll - Arm.")
-		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
-		# Don't let the user try to arm until autopilot is ready
-		#while not self.vehicle.is_armable:
-		#	self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
-		#	time.sleep(1)
-
-		# self.report("Drone: drone controll - Arm: MODE=GUIDED")
-		# Copter should arm in GUIDED mode (if we have GPS 3D Fix)
-		# self.vehicle.mode = VehicleMode("GUIDED")
-		# self.vehicle.mode = VehicleMode("STABILIZE")
-		self.report("Drone: drone controll - Arm: Arming motors")
-		self.vehicle.armed = True
-		'''
+		
 	def disarm(self):
-		self.report("Drone: drone controll - Disarm: Disarming motors")
+		self.report("Drone: drone controll - Disarming")
 		self.vehicle.armed = False
 
 	def arm_and_takeoff(self, aTargetAltitude):
-		self.report("Drone: drone controll - Arm and take off to " + str(aTargetAltitude) + " meters")
-		self.report("Drone: drone controll - Arm and take off: Basic pre-arm checks")
-		# Don't let the user try to arm until autopilot is ready
-		#TODO add abort mechanism
-		#(not self.vehicle.is_armable)
-		while self.vehicle.channels['8']<1900:
-			print (self.vehicle.channels['8'])
-			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
+		self.report("Drone: drone controll - Arm and takeoff to " + str(aTargetAltitude) + " meters")
+		self.report("Drone: drone controll - Arm and takeoff: Pre-arm check")
+		while not self.vehicle.is_armable:
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm and takeoff: ABORT")
+				return
+			self.report("Drone: drone controll - Arm and takeoff: Waiting for vehicle to initialise...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm and take off: MODE=GUIDED")
-		# Copter should arm in GUIDED mode
+		self.report("Drone: drone controll - Arm and takeoff: MODE=GUIDED")
 		self.vehicle.mode = VehicleMode("GUIDED")
-		self.report("Drone: drone controll - Arm and take off: Arming motors")
+		self.report("Drone: drone controll - Arm and takeoff: Arming")
 		self.vehicle.armed = True
 
-		#TODO add abort mechanism
-		while not self.vehicle.armed:      
+		while not self.vehicle.armed:
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm and takeoff: ABORT")
 			self.report("Drone: drone controll - Arm and take off: Waiting for arming...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm and take off: Taking off!")
+		self.report("Drone: drone controll - Arm and takeoff: Taking off!")
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
@@ -163,9 +141,11 @@ class vehicle_controll:
 		#TODO add abort mechanism
 
 		while True:
-			self.report("Drone: drone controll - Arm and take off: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm and takeoff: ABORT")
+			self.report("Drone: drone controll - Arm and takeoff: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
-				self.report("Drone: drone controll - Arm and take off: Reached target altitude")
+				self.report("Drone: drone controll - Arm and takeoff: Reached target altitude")
 				self.move_0()
 				break
 			time.sleep(1)
@@ -305,10 +285,10 @@ class vehicle_controll:
 		if self.in_panic == False:
 			self.land()
 			self.in_panic = True
-			self.report("Drone: drone controll - SAFETY SWITCH ACTIVATED!")
+			self.report("Drone: drone controll - PANIC ACTIVATED!")
 		else:
-			# enter here every time after reading the  safety channel value over threshold
-			pass
+			# enter here every time after reading the safety channel value over threshold
+			self.report("Drone: drone controll - WARNING: PANIC ACTIVATED AGAIN!")
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
