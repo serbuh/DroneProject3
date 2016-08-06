@@ -99,7 +99,7 @@ class vehicle_controll:
 		self.report("Drone: drone controll - Arm.")
 		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
-		while True:
+		while not self.panic:
 			self.report("Loop. Panic switch: " + str(self.vehicle.channels['8']))
 			time.sleep(1)		
 		#while not self.vehicle.is_armable:
