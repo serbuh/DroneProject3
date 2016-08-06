@@ -138,7 +138,6 @@ class vehicle_controll:
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
 		#  after Vehicle.simple_takeoff will execute immediately).
-		#TODO add abort mechanism
 
 		while True:
 			if self.in_panic:

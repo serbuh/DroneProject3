@@ -353,11 +353,15 @@ class drone_CoPilot():
 		elif attr_name=="channels":		
 			#print "Channels. 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
 			data = {'ch1': value[1], 'ch2': value[2], 'ch3': value[3], 'ch4': value[4], 'ch5': value[5], 'ch6': value[6], 'ch7': value[7], 'ch8': value[8]}
-			if data['ch8'] > 1900:
+			if (data['ch8'] > 1900) and (not self.vehicle_controll.in_panic):
+				# start to panic
 				self.vehicle_controll.panic()
+			elif (data['ch8'] < 1900) and (self.vehicle_controll.in_panic)
+				# stop panic
+				self.vehicle_controll.in_panic = False
 			else:
-				if self.vehicle_controll.in_panic:
-					self.vehicle_controll.in_panic = False
+				# or already in panic or no reason to panic
+				pass
 
 		elif attr_name=="last_heartbeat":
 			#print "last_heartbeat: {}".format(round(value,2))		
