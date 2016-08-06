@@ -20,7 +20,7 @@ class vehicle_controll:
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
-		self.safety_activated = False
+		self.panic = False
 
 	def report(self, msg):
 		print str(msg)
@@ -95,12 +95,13 @@ class vehicle_controll:
 		else:
 			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
-
 	def arm(self):
 		self.report("Drone: drone controll - Arm.")
 		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
-		#TODO add abort mechanism
+		while True:
+			self.report("Loop. Panic switch: " + str(self.vehicle.channels['8']))
+			time.sleep(1)		
 		#while not self.vehicle.is_armable:
 		#	self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
 		#	time.sleep(1)
@@ -112,6 +113,22 @@ class vehicle_controll:
 		self.report("Drone: drone controll - Arm: Arming motors")
 		self.vehicle.armed = True
 
+	'''
+	def arm(self):
+		self.report("Drone: drone controll - Arm.")
+		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
+		# Don't let the user try to arm until autopilot is ready
+		#while not self.vehicle.is_armable:
+		#	self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
+		#	time.sleep(1)
+
+		# self.report("Drone: drone controll - Arm: MODE=GUIDED")
+		# Copter should arm in GUIDED mode (if we have GPS 3D Fix)
+		# self.vehicle.mode = VehicleMode("GUIDED")
+		# self.vehicle.mode = VehicleMode("STABILIZE")
+		self.report("Drone: drone controll - Arm: Arming motors")
+		self.vehicle.armed = True
+		'''
 	def disarm(self):
 		self.report("Drone: drone controll - Disarm: Disarming motors")
 		self.vehicle.armed = False
@@ -121,7 +138,9 @@ class vehicle_controll:
 		self.report("Drone: drone controll - Arm and take off: Basic pre-arm checks")
 		# Don't let the user try to arm until autopilot is ready
 		#TODO add abort mechanism
-		while not self.vehicle.is_armable:
+		#(not self.vehicle.is_armable)
+		while self.vehicle.channels['8']<1900:
+			print (self.vehicle.channels['8'])
 			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
 			time.sleep(1)
 
@@ -242,7 +261,7 @@ class vehicle_controll:
 
 	def override(self):
 		self.report("override activated")
-		self.vehicle.channels.overrides = {'7':2000}
+		self.vehicle.channels.overrides = {'8':2000}
 
 	def release_override(self):
 		self.report("release override activated")
@@ -282,10 +301,10 @@ class vehicle_controll:
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_stable': str(self.vehicle.version.is_stable())})
 
 
-	def safety_activate(self):
-		if self.safety_activated == False:
+	def panic(self):
+		if self.panic == False:
 			self.land()
-			self.safety_activated = True
+			self.panic = True
 			self.report("Drone: drone controll - SAFETY SWITCH ACTIVATED!")
 		else:
 			# enter here every time after reading the  safety channel value over threshold

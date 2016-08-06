@@ -117,14 +117,14 @@ class GUI_main(tk.Frame):
 		else:
 			text_btn_check_firmware = "Hide firmware"
 		self.btn_check_firmware = tk.Button(self.frame2, fg='black', text=text_btn_check_firmware, width=15, command= self.on_btn_check_firmware)
-		self.btn_check_firmware.grid(row=2, column=1, columnspan=1)
+		self.btn_check_firmware.grid(row=2, column=0, columnspan=1)
 
 		if (self.test_frame_hide == True):
-			text_btn_test_frame = "Show test frame"
+			text_btn_test_frame = "Show test frame ->"
 		else:
-			text_btn_test_frame = "Hide test frame"
+			text_btn_test_frame = "Hide test frame ->"
 		self.btn_test_frame = tk.Button(self.frame2, fg='black', text=text_btn_test_frame, width=15, command= self.on_btn_test_frame)
-		self.btn_test_frame.grid(row=2, column=0, columnspan=1)
+		self.btn_test_frame.grid(row=2, column=1, columnspan=1)
 
 		# frame 2 - row 4
 		self.btn_listen_keys = tk.Button(self.frame2, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
