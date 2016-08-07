@@ -30,17 +30,19 @@ class GUI_main(tk.Frame):
 		self.control_frame_row, self.control_frame_column, = 0, 0
 		self.HUD_frame_row, self.HUD_frame_column, = 1, 0
 		self.firmware_frame_row, self.firmware_frame_column, self.firmware_frame_hide = 2, 0, True
-		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 1, True
 		self.test_frame_row, self.test_frame_column, self.test_frame_hide = 0, 2, True
+		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 1, True
 
 		self.init_control_frame(frame_row=self.control_frame_row, frame_column=self.control_frame_column)
 		self.init_HUD_frame(frame_row=self.HUD_frame_row, frame_column=self.HUD_frame_column)
 		self.init_firmware_frame(frame_row=self.firmware_frame_row, frame_column=self.firmware_frame_column)
-		self.init_mission_frame(frame_row=self.mission_frame_row, frame_column=self.mission_frame_column)
 		self.init_test_frame(frame_row=self.test_frame_row, frame_column=self.test_frame_column)
+		self.init_mission_frame(frame_row=self.mission_frame_row, frame_column=self.mission_frame_column)
 
 		self.send_move_0 = 0
 		self.key_pressed = None
+
+
 
 	def init_control_frame(self, frame_row, frame_column):
 		self.control_frame = tk.Frame(self.root)
@@ -67,43 +69,139 @@ class GUI_main(tk.Frame):
 		self.btn_check_firmware.grid(row=2, column=0, columnspan=1)
 
 		if (self.test_frame_hide == True):
-			text_btn_test_frame = "Show test frame ->"
+			text_btn_test_frame = "Show test frame"
 		else:
-			text_btn_test_frame = "Hide test frame ->"
+			text_btn_test_frame = "Hide test frame"
 		self.btn_test_frame = tk.Button(self.control_frame, fg='black', text=text_btn_test_frame, width=15, command= self.on_btn_test_frame)
-		self.btn_test_frame.grid(row=2, column=1, columnspan=1)
+		self.btn_test_frame.grid(row=3, column=0, columnspan=1)
 
-		# row 4
-		self.btn_listen_keys = tk.Button(self.control_frame, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
-		self.btn_listen_keys.grid(row=4, column=0, columnspan=1)
 
-		self.btn_send_position = tk.Button(self.control_frame, fg='black', activebackground='red', bg='red', text='Send zero position - NO', width=25, command= self.on_btn_send_position)
-		self.btn_send_position.grid(row=4, column=1, columnspan=1)
+		if (self.mission_frame_hide == True):
+			text_btn_mission_frame = "Show mission frame"
+		else:
+			text_btn_mission_frame = "Hide mission frame"
+		self.btn_mission_frame = tk.Button(self.control_frame, fg='black', text=text_btn_mission_frame, width=15, command= self.on_btn_mission_frame)
+		self.btn_mission_frame.grid(row=4, column=0, columnspan=1)
+
 
 		# row 5
-		self.lbl_failsafe = tk.Label(self.control_frame, text='Save the drone:', font=('arial', 12, 'bold'), fg='red',bg='white')
-		self.lbl_failsafe.grid(row=5, column=0, columnspan=3)
+		self.btn_listen_keys = tk.Button(self.control_frame, fg='black', activebackground='red', bg='red', text='Listen keys - NO', width=25, command= self.on_btn_listen_keys)
+		self.btn_listen_keys.grid(row=5, column=0, columnspan=1)
 
-		# row 6,7
+		self.btn_send_position = tk.Button(self.control_frame, fg='black', activebackground='red', bg='red', text='Send zero position - NO', width=25, command= self.on_btn_send_position)
+		self.btn_send_position.grid(row=5, column=1, columnspan=1)
+
+		# row 6
+		self.lbl_failsafe = tk.Label(self.control_frame, text='Activate flight modes:', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_failsafe.grid(row=6, column=0, columnspan=3)
+
+		# row 7,8
 		self.btn_land = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Land', width=25, command= self.on_btn_land)
-		self.btn_land.grid(row=6, column=0, columnspan=1)
+		self.btn_land.grid(row=7, column=0, columnspan=1)
 
 		self.btn_rtl = tk.Button(self.control_frame, fg='black', activebackground='green2', text='RTL', width=25, command= self.on_btn_rtl)
-		self.btn_rtl.grid(row=6, column=1, columnspan=1)
+		self.btn_rtl.grid(row=7, column=1, columnspan=1)
 
 		self.btn_stabilize = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Stabilize', width=25, command= self.on_btn_stabilize)
-		self.btn_stabilize.grid(row=7, column=0, columnspan=1)
+		self.btn_stabilize.grid(row=8, column=0, columnspan=1)
 
 		self.btn_loiter = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Loiter', width=25, command= self.on_btn_loiter)
-		self.btn_loiter.grid(row=7, column=1, columnspan=1)
+		self.btn_loiter.grid(row=8, column=1, columnspan=1)
 
 		self.btn_guided = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Guided', width=25, command= self.on_btn_guided)
-		self.btn_guided.grid(row=8, column=0, columnspan=1)
+		self.btn_guided.grid(row=9, column=0, columnspan=1)
 
 		self.btn_poshold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Position Hold', width=25, command= self.on_btn_poshold)
-		self.btn_poshold.grid(row=8, column=1, columnspan=1)
+		self.btn_poshold.grid(row=9, column=1, columnspan=1)
 
 		self.control_frame.grid(row=frame_row, column=frame_column)
+
+	def on_btn_land(self):
+		self.UDP_client.send_cmd(['land'])
+
+	def on_btn_rtl(self):
+		self.UDP_client.send_cmd(['rtl'])
+
+	def on_btn_stabilize(self):
+		self.UDP_client.send_cmd(['stabilize'])
+
+	def on_btn_loiter(self):
+		self.UDP_client.send_cmd(['loiter'])
+
+	def on_btn_guided(self):
+		self.UDP_client.send_cmd(['guided'])
+
+	def on_btn_poshold(self):
+		self.UDP_client.send_cmd(['poshold'])
+
+
+	def on_btn_refresh_state(self):
+		self.UDP_client.send_cmd(['refresh_state'])
+
+
+	def on_btn_close(self):
+		print "GCS: Close all - GUI button Close"
+		self.close_all()
+
+	def on_ent_command_enter(self, event):
+		self.on_btn_send()
+		self.ent_command.delete(0, tk.END)
+
+	def on_btn_send(self):
+		command = self.ent_command.get().split(' ')
+		self.UDP_client.send_cmd(command)
+		#print "GCS: Command sent: " + str(command)
+
+	def on_btn_listen_keys(self):
+		if self.btn_listen_keys.cget('bg') == "green3":
+			self.root.unbind("<Key>")
+			self.root.unbind("<KeyRelease>")
+			self.btn_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
+		elif self.btn_listen_keys.cget('bg') == "red":
+			self.root.bind("<Key>", self.key_callback)
+			self.root.bind("<KeyRelease>", self.key_release_callback)
+			self.btn_listen_keys.config(text = "Listen keys - YES", activebackground='green3', bg='green3')
+
+	def on_btn_send_position(self):
+		if self.btn_send_position.cget('bg') == "green3":
+			self.send_move_0 = 0
+			self.btn_send_position.config(text = "Send zero position - NO", activebackground='red', bg='red')
+		elif self.btn_send_position.cget('bg') == "red":
+			self.send_move_0 = 1
+			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green3', bg='green3')
+
+	def on_btn_check_firmware(self):
+		if (self.firmware_frame_hide == True):
+			self.firmware_frame.grid(row=self.firmware_frame_row, column=self.firmware_frame_column)
+			self.UDP_client.send_cmd(['check_firmware'])
+			self.firmware_frame_hide = False
+			self.btn_check_firmware.config(text = "Hide firmware")
+		else:
+			self.firmware_frame.grid_remove()
+			self.firmware_frame_hide = True
+			self.btn_check_firmware.config(text = "Show firmware")
+
+	def on_btn_test_frame(self):
+		if (self.test_frame_hide == True):
+			self.test_frame.grid(row=self.test_frame_row, column=self.test_frame_column)
+			self.test_frame_hide = False
+			self.btn_test_frame.config(text = "Hide Test frame")
+		else:
+			self.test_frame.grid_remove()
+			self.test_frame_hide = True
+			self.btn_test_frame.config(text = "Show Test frame")
+
+	def on_btn_mission_frame(self):
+		if (self.mission_frame_hide == True):
+			self.mission_frame.grid(row=self.mission_frame_row, column=self.mission_frame_column)
+			self.mission_frame_hide = False
+			self.btn_mission_frame.config(text = "Hide Mission frame")
+		else:
+			self.mission_frame.grid_remove()
+			self.mission_frame_hide = True
+			self.btn_mission_frame.config(text = "Show Mission frame")
+
+
 
 	def init_HUD_frame(self, frame_row, frame_column):
 		self.HUD_frame = tk.Frame(self.root)
@@ -168,16 +266,6 @@ class GUI_main(tk.Frame):
 		self.HUD_frame.grid(row=frame_row, column=frame_column)
 
 
-	def on_btn_check_firmware(self):
-		if (self.firmware_frame_hide == True):
-			self.firmware_frame.grid(row=self.firmware_frame_row, column=self.firmware_frame_column)
-			self.UDP_client.send_cmd(['check_firmware'])
-			self.firmware_frame_hide = False
-			self.btn_check_firmware.config(text = "Hide firmware")
-		else:
-			self.firmware_frame.grid_remove()
-			self.firmware_frame_hide = True
-			self.btn_check_firmware.config(text = "Show firmware")
 
 	def init_firmware_frame(self, frame_row, frame_column):
 		self.firmware_frame = tk.Frame(self.root)
@@ -192,15 +280,6 @@ class GUI_main(tk.Frame):
 		self.GUI_init_2labels(self.firmware_frame, 'firmware_ver_release_stable', label1_text='Release stable?: ', row1=24, column1=1)		
 		#self.firmware_frame.grid(row=frame_row, column=frame_column)
 
-	def on_btn_test_frame(self):
-		if (self.test_frame_hide == True):
-			self.test_frame.grid(row=self.test_frame_row, column=self.test_frame_column)
-			self.test_frame_hide = False
-			self.btn_test_frame.config(text = "Hide Test frame")
-		else:
-			self.test_frame.grid_remove()
-			self.test_frame_hide = True
-			self.btn_test_frame.config(text = "Show Test frame")
 
 
 	def init_test_frame(self, frame_row, frame_column):
@@ -220,63 +299,6 @@ class GUI_main(tk.Frame):
 		self.btn_test3.grid(row=3, column=0, columnspan=1)
 		#self.test_frame.grid(row=frame_row, column=frame_column)
 
-	def init_mission_frame(self, frame_row, frame_column):
-		pass
-
-	def on_btn_land(self):
-		self.UDP_client.send_cmd(['land'])
-
-	def on_btn_rtl(self):
-		self.UDP_client.send_cmd(['rtl'])
-
-	def on_btn_stabilize(self):
-		self.UDP_client.send_cmd(['stabilize'])
-
-	def on_btn_loiter(self):
-		self.UDP_client.send_cmd(['loiter'])
-
-	def on_btn_guided(self):
-		self.UDP_client.send_cmd(['guided'])
-
-	def on_btn_poshold(self):
-		self.UDP_client.send_cmd(['poshold'])
-
-
-	def on_btn_refresh_state(self):
-		self.UDP_client.send_cmd(['refresh_state'])
-
-
-	def on_btn_close(self):
-		print "GCS: Close all - GUI button Close"
-		self.close_all()
-
-	def on_ent_command_enter(self, event):
-		self.on_btn_send()
-		self.ent_command.delete(0, tk.END)
-
-	def on_btn_send(self):
-		command = self.ent_command.get().split(' ')
-		self.UDP_client.send_cmd(command)
-		#print "GCS: Command sent: " + str(command)
-
-	def on_btn_listen_keys(self):
-		if self.btn_listen_keys.cget('bg') == "green3":
-			self.root.unbind("<Key>")
-			self.root.unbind("<KeyRelease>")
-			self.btn_listen_keys.config(text = "Listen keys - NO", activebackground='red', bg='red')
-		elif self.btn_listen_keys.cget('bg') == "red":
-			self.root.bind("<Key>", self.key_callback)
-			self.root.bind("<KeyRelease>", self.key_release_callback)
-			self.btn_listen_keys.config(text = "Listen keys - YES", activebackground='green3', bg='green3')
-
-	def on_btn_send_position(self):
-		if self.btn_send_position.cget('bg') == "green3":
-			self.send_move_0 = 0
-			self.btn_send_position.config(text = "Send zero position - NO", activebackground='red', bg='red')
-		elif self.btn_send_position.cget('bg') == "red":
-			self.send_move_0 = 1
-			self.btn_send_position.config(text = "Send zero position - YES", activebackground='green3', bg='green3')
-
 	def on_btn_test1(self):
 		self.UDP_client.send_cmd(['override'])
 
@@ -285,6 +307,100 @@ class GUI_main(tk.Frame):
 
 	def on_btn_test3(self):
 		print "Test 3"
+
+
+
+	def init_mission_frame(self, frame_row, frame_column):
+		self.mission_frame = tk.Frame(self.root)
+		self.mission_frame.configure(background='white')
+
+
+		self.lbl_mission_frame = tk.Label(self.mission_frame, text='Mission flow:', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_mission_frame.grid(row=0, column=0, columnspan=4)
+
+		self.lbl_mission1 = tk.Label(self.mission_frame, text='(1) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission1.grid(row=1, column=0, columnspan=1)
+		self.btn_mission1 = tk.Button(self.mission_frame, fg='black', text='Arm', width=20, command= self.on_btn_mission1)
+		self.btn_mission1.grid(row=1, column=1, columnspan=1)
+
+		self.lbl_mission2 = tk.Label(self.mission_frame, text='(2) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission2.grid(row=2, column=0, columnspan=1)
+		self.btn_mission2 = tk.Button(self.mission_frame, fg='black', text='Takeoff to:', width=20, command= self.on_btn_mission2)
+		self.btn_mission2.grid(row=2, column=1, columnspan=1)
+		self.ent_mission2 = tk.Entry(self.mission_frame)
+		self.ent_mission2.grid(row=2, column=2)
+		self.lbl_mission2_note = tk.Label(self.mission_frame, text='(default is 3 meters)', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission2_note.grid(row=2, column=3, columnspan=1)
+
+		self.lbl_mission3 = tk.Label(self.mission_frame, text='(3) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission3.grid(row=3, column=0, columnspan=1)
+		self.btn_mission3 = tk.Button(self.mission_frame, fg='black', text='GUIDED, move_0', width=20, command= self.on_btn_mission3)
+		self.btn_mission3.grid(row=3, column=1, columnspan=1)
+
+		self.lbl_mission4 = tk.Label(self.mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission4.grid(row=4, column=0, columnspan=1)
+		self.btn_mission4 = tk.Button(self.mission_frame, fg='black', text='Listen to WASD keys', width=20, command= self.on_btn_mission4)
+		self.btn_mission4.grid(row=4, column=1, columnspan=1)
+
+		self.lbl_mission5 = tk.Label(self.mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission5.grid(row=5, column=0, columnspan=1)
+		self.btn_mission5 = tk.Button(self.mission_frame, fg='black', text='Fly! :)', width=20, command= self.on_btn_mission5)
+		self.btn_mission5.grid(row=5, column=1, columnspan=1)
+
+		self.lbl_mission6 = tk.Label(self.mission_frame, text='(6) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission6.grid(row=6, column=0, columnspan=1)
+		self.btn_mission6 = tk.Button(self.mission_frame, fg='black', text='LAND', width=20, command= self.on_btn_mission6)
+		self.btn_mission6.grid(row=6, column=1, columnspan=1)
+
+		self.btn_mission6_1 = tk.Button(self.mission_frame, fg='black', text='POSHOLD', width=20, command= self.on_btn_mission6_1)
+		self.btn_mission6_1.grid(row=6, column=2, columnspan=1)
+
+		self.btn_mission6_2 = tk.Button(self.mission_frame, fg='black', text='LOITER', width=20, command= self.on_btn_mission6_2)
+		self.btn_mission6_2.grid(row=6, column=3, columnspan=1)
+
+		self.lbl_mission7 = tk.Label(self.mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_mission7.grid(row=7, column=0, columnspan=1)
+		self.btn_mission7 = tk.Button(self.mission_frame, fg='black', text='Disarm', width=20, command= self.on_btn_mission7)
+		self.btn_mission7.grid(row=7, column=1, columnspan=1)
+
+
+	def on_btn_mission1(self):
+		print "Mission: Arm"
+		self.UDP_client.send_cmd(['arm'])
+
+	def on_btn_mission2(self):
+		altitude = self.ent_mission2.get()	
+		if altitude is "":
+			altitude = 3
+		print "Mission: Takeoff to " + str(altitude) + " meters"
+		self.UDP_client.send_cmd(['takeoff', int(altitude)])
+
+	def on_btn_mission3(self):
+		print "Mission: GUIDED, move_0"
+		self.UDP_client.send_cmd(['guided'])
+
+	def on_btn_mission4(self):
+		print "Mission: Listen to WASD keys"
+
+	def on_btn_mission5(self):
+		print "Mission: Fly! :)"
+
+	def on_btn_mission6(self):
+		print "Mission: LAND mode"
+		self.UDP_client.send_cmd(['land'])
+
+	def on_btn_mission6_1(self):
+		print "Mission: POSHOLD mode"
+		self.UDP_client.send_cmd(['poshold'])
+
+	def on_btn_mission6_2(self):
+		print "Mission: LOITER mode"
+		self.UDP_client.send_cmd(['loiter'])
+
+	def on_btn_mission7(self):
+		print "Mission: Disarm"
+		self.UDP_client.send_cmd(['disarm'])
+
 
 	def on_window_close(self):
 		print "GCS: Close all - GUI window close"
