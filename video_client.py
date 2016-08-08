@@ -7,10 +7,10 @@ import threading
 import time
 
 
-HOST = '192.168.12.1'
+HOST = ''
 PORT = 3333
 
-def showImage(title , frame ,event, wait = False ):	
+def showImage(title , frame , wait = False ):	
 	cv2.imshow(title, frame)
     	if wait:
         	while True:
@@ -19,7 +19,7 @@ def showImage(title , frame ,event, wait = False ):
         	cv2.destroyAllWindows()
     	else:
         	if cv2.waitKey(1)&0xff == ord('q'):
-            		event.clear()
+            		raise KeyboardInterrupt
 
 #def reciveAndQueue(queue,socket,run_event):
 #	flag = 0
@@ -38,15 +38,15 @@ def recieveAndQueue(queue,run_event):
 	print "Recieve Thread Closed"
 
 if __name__ == "__main__":
-	
+	i = 0
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
-	s.settimeout(0.1)
-	q = Queue()
-	run_event = threading.Event()
-	run_event.set() 
+	#s.settimeout(0.1)
+	#q = Queue()
+	#run_event = threading.Event()
+	#run_event.set() 
 
-	recieveThread = threading.Thread(target=recieveAndQueue, args=[q,run_event])
+	'''recieveThread = threading.Thread(target=recieveAndQueue, args=[q,run_event])
 	print "Start Recieve Thread!"
 	recieveThread.start()
 	full_data = ''
@@ -64,9 +64,11 @@ if __name__ == "__main__":
 				full_data = ''.join([full_data,data[1]])
 			#print len(full_data),data[0]
 			if(len(full_data) == 921600):
+				print "SHOWING FRAME: {}".format(i)
+				i = i +1
 				tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
 				frame = numpy.reshape(tmp_frame, (480,640,3))
-				showImage("Client", frame)
+				showImage("Client", frame,run_event)
 				full_data = ''
 			if cv2.waitKey(1)&0xff == ord('q'):
 				raise KeyboardInterrupt
@@ -74,6 +76,20 @@ if __name__ == "__main__":
  		except(KeyboardInterrupt , SystemExit):
 			run_event.clear()
 			recieveThread.join()
+			s.close()
+			cv2.destroyAllWindows()
+			break'''
+	while True:
+		try:
+			data = s.recv(60000)
+			data = eval(data)
+			tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
+			frame = numpy.reshape(tmp_frame, (120,160,3))
+			showImage("Client", frame)
+			if cv2.waitKey(1)&0xff == ord('q'):
+				raise KeyboardInterrupt
+			
+ 		except(KeyboardInterrupt , SystemExit):
 			s.close()
 			cv2.destroyAllWindows()
 			break

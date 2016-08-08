@@ -49,34 +49,32 @@ if __name__ == "__main__":
 	q = Queue()	
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	
-	run_event = threading.Event()
+	#run_event = threading.Event()
 	#run_event.set() 	
 	
-	sendThread = threading.Thread(target=chunkAndSend, args=[q,s,run_event])	
+	#sendThread = threading.Thread(target=chunkAndSend, args=[q,s,run_event])	
 	#cap = cv2.VideoCapture(0)
 	while True:
-		frame = camera.getFrame(True)
-		#ret, frame = cap.read()
-		#frame = cv2.resize(redBallTracking(frame),(180, 120))		
-		#frame = cv2.resize(redBallTracking(frame),(640, 480))
-		frame = cv2.resize(frame,(640,480))
-		#showImage("Server",frame)		
 		try:
+			frame = camera.getFrame(True)
+			#ret, frame = cap.read()
+			#frame = cv2.resize(redBallTracking(frame),(180, 120))		
+			#frame = cv2.resize(redBallTracking(frame),(640, 480))
+			frame = cv2.resize(frame,(160,120))
 			#showImage("Server",frame)
 			frame = frame.flatten()
 			data = frame.tostring()
 			q.put(data)			
-			if run_event.is_set() == False and q.empty() == False:
+			'''if run_event.is_set() == False and q.empty() == False:
 				run_event.set()
 				print "Start Recieve Thread!"
-				sendThread.start()		
-			if cv2.waitKey(1) & 0xFF == ord('q'):
-				raise KeyboardInterrupt
+				sendThread.start()'''		
+			s.sendto(pack,(HOST,PORT))
 		except KeyboardInterrupt:
-			cv2.waitKey(0)			
-			run_event.clear()
-			sendThread.join()			
-			cv2.destroyAllWindows()			
+			#cv2.waitKey(0)			
+			#run_event.clear()
+			#sendThread.join()			
+			#cv2.destroyAllWindows()			
 			s.close()
 			break
 
