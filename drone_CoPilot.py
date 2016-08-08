@@ -102,18 +102,18 @@ class GUI_main(tk.Frame):
 		self.root.destroy()
 		self.root.quit()
 
-	def GUI_tick(self):	
+	def GUI_tick(self):
 		if (self.key_pressed == 'w'):
-			self.vehicle_controll.send_command("forward_once", 1)
+			self.vehicle_controll.send_command("forward", 1)
 		elif (self.key_pressed == 'a'):
-			self.vehicle_controll.send_command("left_once", 1)
+			self.vehicle_controll.send_command("left", 1)
 		elif (self.key_pressed == 's'):
-			self.vehicle_controll.send_command("backward_once", 1)
+			self.vehicle_controll.send_command("backward", 1)
 		elif (self.key_pressed == 'd'):
-			self.vehicle_controll.send_command("right_once", 1)
+			self.vehicle_controll.send_command("right", 1)
 		elif (self.key_pressed == None):
 			if (self.send_move_0 == 1):
-				self.vehicle_controll.send_command("move_0_once")
+				self.vehicle_controll.send_command("move_0")
 		else:
 			print "Drone: WTF am I doing here?"
 		self.root.after(100, self.GUI_tick)
@@ -217,7 +217,7 @@ class drone_CoPilot():
 				self.no_GUI()
 
 		except KeyboardInterrupt:
-			print "Drone: Close all - keyboard interrupt in main"		
+			print "Drone: Close all - keyboard interrupt in main"
 			self.close_all()
 
 	def run_GUI(self):
