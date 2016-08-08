@@ -35,8 +35,10 @@ class UDP():
 		self.send_thread = None
 		self.receive_thread = None
 
-		#self.receive_loop_thread()
-		#self.send_loop_thread(host_sendto,port_sendto)
+		print self.UDP_type + ": ===================================================="
+		print self.UDP_type + ": Recieving at: " + str(self.host) + ":" + str(self.port_receive)
+		print self.UDP_type + ": Sending to:   " + str(self.host_sendto) + ":" + str(self.port_sendto) + " from " + str(self.port_send)
+		print self.UDP_type + ": ===================================================="
 
 	def sock_create(self, host, port):
 		print self.UDP_type + ": Open Socket. Host: " + str(host) + " Port: " + str(port)
@@ -54,51 +56,6 @@ class UDP():
 		return sock
 
 ### -> INIT
-### SEND ->
-
-	def send_loop(self, host, port, event_stop_send):
-		addr_send = (host, port)
-		counter = 0
-		while not event_stop_send.is_set():
-			data_send = str(counter)
-			counter = counter + 1
-			self.sock_send.sendto(data_send, addr_send)
-			#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_send)
-			time.sleep(1)
-
-	def send_loop_thread(self, host, port):
-		print self.UDP_type + ": Start send thread. Sending to: " + str(host) + ":" + str(port)
-		self.send_thread = threading.Thread(target=self.send_loop, args=(host, port, self.event_stop_send))
-		self.send_thread.start()
-
-	def send_once(self, data):
-		addr_send = (self.host_sendto, self.port_sendto)
-		self.sock_send.sendto(data, addr_send)
-		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data)
-
-	def send_telem(self, data_dict):
-		data_str = str(data_dict)
-		addr_send = (self.host_sendto, self.port_sendto)
-		self.sock_send.sendto(data_str, addr_send)
-		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
-
-	def send_cmd(self, data_list):
-		data_str = str(data_list)
-		addr_send = (self.host_sendto, self.port_sendto)
-		self.sock_send.sendto(data_str, addr_send)
-		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
-
-	def send_generic(self, data_str):
-		addr_send = (self.host_sendto, self.port_sendto)
-		self.sock_send.sendto(data_str, addr_send)
-		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
-	
-	def send_report(self, data):
-		data_str = str(data)
-		addr_send = (self.host_sendto, self.port_sendto)
-		self.sock_send.sendto(data_str, addr_send)
-
-### -> SEND
 ### RECEIVE ->
 
 	def receive_loop_cmd(self, stop_receive_event, vehicle_controll):
@@ -120,7 +77,7 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
 				data_dict = eval(data_receive)
 				#print data_dict
 
@@ -202,6 +159,51 @@ class UDP():
 		print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
 
 ### -> RECEIVE
+### SEND ->
+
+	def send_loop(self, host, port, event_stop_send):
+		addr_send = (host, port)
+		counter = 0
+		while not event_stop_send.is_set():
+			data_send = str(counter)
+			counter = counter + 1
+			self.sock_send.sendto(data_send, addr_send)
+			#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_send)
+			time.sleep(1)
+
+	def send_loop_thread(self, host, port):
+		print self.UDP_type + ": Start send thread. Sending to: " + str(host) + ":" + str(port)
+		self.send_thread = threading.Thread(target=self.send_loop, args=(host, port, self.event_stop_send))
+		self.send_thread.start()
+
+	def send_once(self, data):
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data, addr_send)
+		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data)
+
+	def send_telem(self, data_dict):
+		data_str = str(data_dict)
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data_str, addr_send)
+		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+
+	def send_cmd(self, data_list):
+		data_str = str(data_list)
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data_str, addr_send)
+		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+
+	def send_generic(self, data_str):
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data_str, addr_send)
+		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+	
+	def send_report(self, data):
+		data_str = str(data)
+		addr_send = (self.host_sendto, self.port_sendto)
+		self.sock_send.sendto(data_str, addr_send)
+
+### -> SEND
 ### CLOSE ->
 
 	def send_loop_thread_stop(self):

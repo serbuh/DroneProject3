@@ -12,13 +12,15 @@ import sys, traceback
 class vehicle_controll:
 	vehicle = None
 
-	def __init__(self, vehicle, UDP_server_Report):
+	def __init__(self, vehicle, UDP_server_Report, UDP_server_Telem_Cmd):
 		self.vehicle = vehicle
 		self.UDP_server_Report = UDP_server_Report
+		self.UDP_server_Telem_Cmd = UDP_server_Telem_Cmd
 		self.report("Set airspeed to 2m/s, (10m/s max).")
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
+		self.in_panic = False
 
 	def report(self, msg):
 		print str(msg)
@@ -33,7 +35,33 @@ class vehicle_controll:
 		elif cmd[0] == "disarm":
 			self.disarm()
 		elif cmd[0] == "land":
-			self.land_here()
+			self.land()
+		elif cmd[0] == "rtl":
+			self.rtl()
+		elif cmd[0] == "stabilize":
+			self.stabilize()
+		elif cmd[0] == "loiter":
+			self.loiter()
+		elif cmd[0] == "guided":
+			self.guided()
+		elif cmd[0] == "poshold":
+			self.poshold()
+
+		elif cmd[0] == "override":
+			self.override()
+		elif cmd[0] == "release_override":
+			self.release_override()
+
+		elif cmd[0] == "is_armable":
+			self.is_armable()
+		elif cmd[0] == "ekf_ok":
+			self.ekf_ok()
+		elif cmd[0] == "system_state":
+			self.system_state()
+		elif cmd[0] == "refresh_state":
+			self.refresh_state()
+		elif cmd[0] == "check_firmware":
+			self.check_firmware()
 
 		elif cmd[0] == "forward_once":
 			self.move_forward_once(int(cmd[1]))
@@ -43,6 +71,10 @@ class vehicle_controll:
 			self.move_left_once(int(cmd[1]))
 		elif cmd[0] == "right_once":
 			self.move_right_once(int(cmd[1]))
+		elif cmd[0] == "up_once":
+			self.move_up_once(int(cmd[1]))
+		elif cmd[0] == "down_once":
+			self.move_down_once(int(cmd[1]))
 		elif cmd[0] == "move_0_once":
 			self.move_0_once()
 
@@ -63,64 +95,61 @@ class vehicle_controll:
 		else:
 			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
-
+	
 	def arm(self):
 		self.report("Drone: drone controll - Arm.")
-		self.report("Drone: drone controll - Arm: Basic pre-arm checks")
-		# Don't let the user try to arm until autopilot is ready
-		#TODO add abort mechanism
+		self.report("Drone: drone controll - Arm: Pre-arm check")
 		while not self.vehicle.is_armable:
-			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm: ABORT")
+				return
+			self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
 			time.sleep(1)
-
-		self.report("Drone: drone controll - Arm: MODE=GUIDED")
-		# Copter should arm in GUIDED mode
-		self.vehicle.mode = VehicleMode("GUIDED")
-		self.report("Drone: drone controll - Arm: Arming motors")
+		self.report("Drone: drone controll - Arming")
 		self.vehicle.armed = True
-
+		
 	def disarm(self):
-		self.report("Drone: drone controll - Disarm: Disarming motors")
+		self.report("Drone: drone controll - Disarming")
 		self.vehicle.armed = False
 
 	def arm_and_takeoff(self, aTargetAltitude):
-		self.report("Drone: drone controll - Arm and take off to " + str(aTargetAltitude) + " meters")
-		self.report("Drone: drone controll - Arm and take off: Basic pre-arm checks")
-		# Don't let the user try to arm until autopilot is ready
-		#TODO add abort mechanism
+		self.report("Drone: drone controll - Arm and takeoff to " + str(aTargetAltitude) + " meters")
+		self.report("Drone: drone controll - Arm and takeoff: Pre-arm check")
 		while not self.vehicle.is_armable:
-			self.report("Drone: drone controll - Arm and take off: Waiting for vehicle to initialise...")
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm and takeoff: ABORT")
+				return
+			self.report("Drone: drone controll - Arm and takeoff: Waiting for vehicle to initialise...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm and take off: MODE=GUIDED")
-		# Copter should arm in GUIDED mode
+		self.report("Drone: drone controll - Arm and takeoff: MODE=GUIDED")
 		self.vehicle.mode = VehicleMode("GUIDED")
-		self.report("Drone: drone controll - Arm and take off: Arming motors")
+		self.report("Drone: drone controll - Arm and takeoff: Arming")
 		self.vehicle.armed = True
 
-		#TODO add abort mechanism
-		while not self.vehicle.armed:      
+		while not self.vehicle.armed:
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm and takeoff: ABORT")
 			self.report("Drone: drone controll - Arm and take off: Waiting for arming...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm and take off: Taking off!")
+		self.report("Drone: drone controll - Arm and takeoff: Taking off!")
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
 		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
 		#  after Vehicle.simple_takeoff will execute immediately).
-		#TODO add abort mechanism
 
 		while True:
-			self.report("Drone: drone controll - Arm and take off: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
+			if self.in_panic:
+				self.report("Drone: drone controll - Arm and takeoff: ABORT")
+			self.report("Drone: drone controll - Arm and takeoff: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
-				self.report("Drone: drone controll - Arm and take off: Reached target altitude")
+				self.report("Drone: drone controll - Arm and takeoff: Reached target altitude")
 				self.move_0()
 				break
 			time.sleep(1)
 
-	def land_here(self):
-		self.report("Drone: drone controll - land here")
-		self.vehicle.mode = VehicleMode("LAND")
+
 
 	def move_0_once(self):
 		self.report("Drone: drone controll - move to the current position once")
@@ -141,6 +170,14 @@ class vehicle_controll:
 	def move_right_once(self, velocity):
 		self.report("Drone: drone controll - Right " + str(velocity) + " m/s")
 		self.send_ned_velocity_once(0,velocity,0)
+
+	def move_up_once(self, velocity):
+		self.report("Drone: drone controll - Up " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,0,-velocity)
+
+	def move_down_once(self, velocity):
+		self.report("Drone: drone controll - Down " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,0,velocity)
 
 
 	def move_0(self):
@@ -174,6 +211,83 @@ class vehicle_controll:
 	def yaw_right(self, angle):
 		self.report("Drone: drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
 		self.condition_yaw(angle, relative=True)
+
+
+	def land(self):
+		self.report("Drone: drone controll - LAND")
+		self.vehicle.mode = VehicleMode("LAND")
+
+	def rtl(self):
+		self.report("Drone: drone controll - RTL")
+		self.vehicle.mode = VehicleMode("RTL")
+
+	def stabilize(self):
+		self.report("Drone: drone controll - STABILIZE")
+		self.vehicle.mode = VehicleMode("STABILIZE")
+
+	def loiter(self):
+		self.report("Drone: drone controll - LOITER")
+		self.vehicle.mode = VehicleMode("LOITER")
+
+	def guided(self):
+		self.report("Drone: drone controll - GUIDED")
+		self.vehicle.mode = VehicleMode("GUIDED")
+
+	def poshold(self):
+		self.report("Drone: drone controll - POSHOLD")
+		self.vehicle.mode = VehicleMode("POSHOLD")
+
+
+	def override(self):
+		self.report("override activated")
+		self.vehicle.channels.overrides = {'8':2000}
+
+	def release_override(self):
+		self.report("release override activated")
+		self.vehicle.channels.overrides = {}
+
+
+	def is_armable(self):
+		self.UDP_server_Telem_Cmd.send_telem({'is_armable_on_demand': str(self.vehicle.is_armable)})
+
+	def ekf_ok(self):
+		self.UDP_server_Telem_Cmd.send_telem({'ekf_ok': str(self.vehicle.ekf_ok)})
+
+	def system_status(self):
+		self.UDP_server_Telem_Cmd.send_telem({'system_status': str(self.vehicle.system_status.state)})
+
+	def mode(self):
+		self.UDP_server_Telem_Cmd.send_telem({'mode': str(self.vehicle.mode.name)})
+	
+	def armed(self):
+		self.UDP_server_Telem_Cmd.send_telem({'armed': str(self.vehicle.armed)})
+
+
+	def refresh_state(self):
+		self.is_armable()
+		self.ekf_ok()
+		self.system_status()
+		self.mode()
+		self.armed()		
+
+	def check_firmware(self):
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver': str(self.vehicle.version)})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_major': str(self.vehicle.version.major)})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_minor': str(self.vehicle.version.minor)})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_patch': str(self.vehicle.version.patch)})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_type': str(self.vehicle.version.release_type())})
+		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_ver': str(self.vehicle.version.release_version())})
+		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_stable': str(self.vehicle.version.is_stable())})
+
+
+	def panic(self):
+		if self.in_panic == False:
+			self.land()
+			self.in_panic = True
+			self.report("Drone: drone controll - PANIC ACTIVATED!")
+		else:
+			# enter here every time after reading the safety channel value over threshold
+			self.report("Drone: drone controll - WARNING: PANIC ACTIVATED AGAIN!")
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):

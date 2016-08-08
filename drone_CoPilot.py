@@ -179,16 +179,31 @@ class drone_CoPilot():
 			self.vehicle_controll = None
 			self.UDP_server_Telem_Cmd = None
 			self.UDP_server_Report = None
+
+			#Set up option parsing to get connection string	
+			self.parser = argparse.ArgumentParser(description='HUD module')
+			self.parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
+			self.parser.add_argument('--gcs_ip')
+			self.args = self.parser.parse_args()
+
 			print "Drone: Connect to FCU"
 			self.vehicle, self.sitl = self.connect2FCU()
 
+			if not self.args.gcs_ip:
+				# default - broadcast ip
+				self.gcs_ip = "255.255.255.255"
+			else:
+				self.gcs_ip = self.args.gcs_ip
+
 			if (Report_enabled is True):
 				print "Drone: open Report socket"
-				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, "255.255.255.255", 6101)
-			self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle, self.UDP_server_Report)
+				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, self.gcs_ip, 6101)
 
 			print "Drone: open Telemetry, commands socket"
-			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, "255.255.255.255", 6001)
+			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, self.gcs_ip, 6001)
+
+			self.vehicle_controll = drone_controll.vehicle_controll(self.vehicle, self.UDP_server_Report, self.UDP_server_Telem_Cmd)
+
 			print "Drone: Start receive commands thread"
 			self.UDP_server_Telem_Cmd.receive_loop_cmd_thread(self.vehicle_controll)
 
@@ -225,13 +240,9 @@ class drone_CoPilot():
 			self.close_all()
 
 	def connect2FCU(self):
-		#Set up option parsing to get connection string	
-		parser = argparse.ArgumentParser(description='HUD module')
-		parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
-		args = parser.parse_args()
-		connection_string = args.connect
+		connection_string = self.args.connect
 		sitl=None
-		if not args.connect:
+		if not self.args.connect:
 	    		print "The connect string was not specified. Running SITL!"
 			from dronekit_sitl import SITL
 			sitl = SITL()
@@ -246,9 +257,8 @@ class drone_CoPilot():
 		vehicle = connect(connection_string, wait_ready=True)
 		vehicle.wait_ready('autopilot_version')
 		# Get all vehicle attributes (state)
-		'''
+
 		print "======================================================="
-		print "\nGet all vehicle attribute values:"
 		print " Autopilot Firmware version: %s" % vehicle.version
 		print "   Major version number: %s" % vehicle.version.major
 		print "   Minor version number: %s" % vehicle.version.minor
@@ -256,6 +266,7 @@ class drone_CoPilot():
 		print "   Release type: %s" % vehicle.version.release_type()
 		print "   Release version: %s" % vehicle.version.release_version()
 		print "   Stable release?: %s" % vehicle.version.is_stable()
+		'''
 		print " Autopilot capabilities"
 		print "   Supports MISSION_FLOAT message type: %s" % vehicle.capabilities.mission_float
 		print "   Supports PARAM_FLOAT message type: %s" % vehicle.capabilities.param_float
@@ -291,8 +302,8 @@ class drone_CoPilot():
 		print " Airspeed: %s" % vehicle.airspeed    # settable
 		print " Mode: %s" % vehicle.mode.name    # settable
 		print " Armed: %s" % vehicle.armed    # settable
+		'''
 		print "======================================================="
-		'''		
 		return vehicle, sitl
 
 	def wildcard_callback(self, vehicle, attr_name, value):
@@ -342,6 +353,15 @@ class drone_CoPilot():
 		elif attr_name=="channels":		
 			#print "Channels. 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {}".format(value['1'], value['2'], value['3'], value['4'], value['5'], value['6'], value['7'], value['8'], )
 			data = {'ch1': value[1], 'ch2': value[2], 'ch3': value[3], 'ch4': value[4], 'ch5': value[5], 'ch6': value[6], 'ch7': value[7], 'ch8': value[8]}
+			if (data['ch8'] > 1900) and (not self.vehicle_controll.in_panic):
+				# start to panic
+				self.vehicle_controll.panic()
+			elif (data['ch8'] < 1900) and (self.vehicle_controll.in_panic):
+				# stop panic
+				self.vehicle_controll.in_panic = False
+			else:
+				# or already in panic or no reason to panic
+				pass
 
 		elif attr_name=="last_heartbeat":
 			#print "last_heartbeat: {}".format(round(value,2))		
@@ -378,7 +398,7 @@ class drone_CoPilot():
 
 		elif attr_name=="is_armable":
 			#print "is_armable: {}".format(value)
-			print "is_armable: {}".format(dir(value))
+			print "### is_armable: {}".format(dir(value))
 
 		elif attr_name=="system_status":
 			#print "System status {}".format(value.state)

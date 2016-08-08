@@ -2,15 +2,13 @@ done - (1) check sanity of controll (SITL, from the droneside)
 done - (2) controll from the GCS-side (UDP, SITL)
 done - (3) report from the drone via separate UDP channel
 done - (4) added simple arm/disarm commands
-4) add abort command for arm
-3) upload droneside to Odroid
-	a) Odroid connectivity (LAN (internet), WiFi (hotspot))
-	b) dronekit and other packeges
-	c) run drone-side code on Odroid
-	d) check drone-side via WiFi
-4) drone assemble
-5) Try to arm assembled drone Odroid+GCS+WiFi+UDP+Arm
-6) human override mechanismus (goto stabilize mode)
+
+done - (5) human override
+done - (6) abort while loop
+done - (7) connect odroid via USB - FTDI cable?
+
+done - (8) Arm assembled drone Odroid+GCS+WiFi+UDP+Arm
+
 --------------------------------- Odroid <-> GCS (WiFi, UDP) -------------------------------
 6) sending video transmission via UDP
 --------------------------- Odroid <-> GCS (WiFi, UDP) with video -------------------------------
