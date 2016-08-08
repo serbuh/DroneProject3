@@ -157,21 +157,38 @@ class GUI_main(tk.Frame):
 
 	def on_btn_listen_keys(self):
 		if self.lbl_listen_keys.cget('bg') == "green3":
-			self.root.unbind("<Key>")
-			self.root.unbind("<KeyRelease>")
-			self.lbl_listen_keys.config(text = "NO", bg='red')
+			self.listen_keys_disable()
 		elif self.lbl_listen_keys.cget('bg') == "red":
-			self.root.bind("<Key>", self.key_callback)
-			self.root.bind("<KeyRelease>", self.key_release_callback)
-			self.lbl_listen_keys.config(text = "YES", bg='green3')
+			self.listen_keys_enable()
+
+	def listen_keys_disable(self):
+		self.prnt("GCS", "Listen to keyboard DISABLE")
+		self.root.unbind("<Key>")
+		self.root.unbind("<KeyRelease>")
+		self.lbl_listen_keys.config(text = "NO", bg='red')
+
+	def listen_keys_enable(self):
+		self.prnt("GCS", "Listen to keyboard ENABLE")
+		self.root.bind("<Key>", self.key_callback)
+		self.root.bind("<KeyRelease>", self.key_release_callback)
+		self.lbl_listen_keys.config(text = "YES", bg='green3')
+
 
 	def on_btn_send_position(self):
 		if self.lbl_send_position.cget('bg') == "green3":
-			self.send_move_0 = 0
-			self.lbl_send_position.config(text = "NO", bg='red')
+			self.send_postition_disable()
 		elif self.lbl_send_position.cget('bg') == "red":
-			self.send_move_0 = 1
-			self.lbl_send_position.config(text = "YES", bg='green3')
+			self.send_postition_enable()
+
+	def send_position_disable(self):
+		self.prnt("GCS", "Send move_0 DISABLE")
+		self.send_move_0 = 0
+		self.lbl_send_position.config(text = "NO", bg='red')
+
+	def send_position_enable(self):
+		self.prnt("GCS", "Send move_0 ENABLE")
+		self.send_move_0 = 1
+		self.lbl_send_position.config(text = "YES", bg='green3')
 
 	def on_btn_check_firmware(self):
 		if (self.firmware_frame_hide == True):
@@ -343,28 +360,28 @@ class GUI_main(tk.Frame):
 
 		self.lbl_mission4 = tk.Label(self.mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission4.grid(row=4, column=0, columnspan=1)
-
+		self.btn_mission4 = tk.Button(self.mission_frame, fg='black', text='Fly! :)', width=20, command= self.on_btn_mission4)
+		self.btn_mission4.grid(row=4, column=1, columnspan=1)
 
 		self.lbl_mission5 = tk.Label(self.mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission5.grid(row=5, column=0, columnspan=1)
-		self.btn_mission5 = tk.Button(self.mission_frame, fg='black', text='Fly! :)', width=20, command= self.on_btn_mission5)
+		self.btn_mission5 = tk.Button(self.mission_frame, fg='black', text='LAND', width=20, command= self.on_btn_mission5)
 		self.btn_mission5.grid(row=5, column=1, columnspan=1)
+
+		self.btn_mission5_1 = tk.Button(self.mission_frame, fg='black', text='POSHOLD', width=20, command= self.on_btn_mission5_1)
+		self.btn_mission5_1.grid(row=5, column=2, columnspan=1)
+
+		self.btn_mission5_2 = tk.Button(self.mission_frame, fg='black', text='LOITER', width=20, command= self.on_btn_mission5_2)
+		self.btn_mission5_2.grid(row=5, column=3, columnspan=1)
 
 		self.lbl_mission6 = tk.Label(self.mission_frame, text='(6) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission6.grid(row=6, column=0, columnspan=1)
-		self.btn_mission6 = tk.Button(self.mission_frame, fg='black', text='LAND', width=20, command= self.on_btn_mission6)
+		self.btn_mission6 = tk.Button(self.mission_frame, fg='black', text='Disarm', width=20, command= self.on_btn_mission6)
 		self.btn_mission6.grid(row=6, column=1, columnspan=1)
 
-		self.btn_mission6_1 = tk.Button(self.mission_frame, fg='black', text='POSHOLD', width=20, command= self.on_btn_mission6_1)
-		self.btn_mission6_1.grid(row=6, column=2, columnspan=1)
 
-		self.btn_mission6_2 = tk.Button(self.mission_frame, fg='black', text='LOITER', width=20, command= self.on_btn_mission6_2)
-		self.btn_mission6_2.grid(row=6, column=3, columnspan=1)
-
-		self.lbl_mission7 = tk.Label(self.mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission7.grid(row=7, column=0, columnspan=1)
-		self.btn_mission7 = tk.Button(self.mission_frame, fg='black', text='Disarm', width=20, command= self.on_btn_mission7)
-		self.btn_mission7.grid(row=7, column=1, columnspan=1)
+		#self.lbl_mission7 = tk.Label(self.mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
+		#self.lbl_mission7.grid(row=7, column=0, columnspan=1)
 
 
 	def on_btn_mission1(self):
@@ -375,41 +392,48 @@ class GUI_main(tk.Frame):
 		altitude = self.ent_mission2.get()	
 		self.prnt("Mission", "Takeoff to " + str(altitude) + " meters")
 		self.GCS.UDP_client.send_cmd(['takeoff', int(altitude)])
-
-	def on_btn_mission2_1(self):
-		self.prnt("Mission","GUIDED, move_0")
-		self.GCS.UDP_client.send_cmd(['guided'])
 		if self.lbl_send_position.cget('bg') == "red":
 			self.send_move_0 = 1
 			self.lbl_send_position.config(text = "YES", bg='green3')
 
+	def on_btn_mission2_1(self):
+		self.prnt("Mission", "GUIDED, move_0")
+		self.GCS.UDP_client.send_cmd(['guided'])
+		if self.lbl_send_position.cget('bg') == "red":
+			self.send_position_enable()
+
 	def on_btn_mission3(self):
 		self.prnt("Mission", "Listen to WASD keys")
 		if self.lbl_listen_keys.cget('bg') == "red":
-			self.root.bind("<Key>", self.key_callback)
-			self.root.bind("<KeyRelease>", self.key_release_callback)
-			self.lbl_listen_keys.config(text = "YES", bg='green3')
+			self.listen_keys_enable()
+
+	def on_btn_mission4(self):
+		self.prnt("Mission", "Fly! :)")
 
 #TODO terminal to label
 #TODO simulte panic triger from GCS / GCS.close_all in droneside
 #TODO finish mission flow
 
-	def on_btn_mission5(self):
-		self.prnt("Mission", "Fly! :)")
 
-	def on_btn_mission6(self):
+	def on_btn_mission5(self):
+		self.send_position_disable()
+		self.listen_keys_disable()
 		self.prnt("Mission", "LAND mode")
 		self.GCS.UDP_client.send_cmd(['land'])
 
-	def on_btn_mission6_1(self):
+	def on_btn_mission5_1(self):
+		self.send_position_disable()
+		self.listen_keys_disable()
 		self.prnt("Mission", "POSHOLD mode")
 		self.GCS.UDP_client.send_cmd(['poshold'])
 
-	def on_btn_mission6_2(self):
+	def on_btn_mission5_2(self):
+		self.send_position_disable()
+		self.listen_keys_disable()
 		self.prnt("Mission", "LOITER mode")
 		self.GCS.UDP_client.send_cmd(['loiter'])
 
-	def on_btn_mission7(self):
+	def on_btn_mission6(self):
 		self.prnt("Mission", "Disarm")
 		self.GCS.UDP_client.send_cmd(['disarm'])
 
