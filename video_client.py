@@ -7,10 +7,10 @@ import threading
 import time
 
 
-HOST = '0.0.0.0'
+HOST = '192.168.12.1'
 PORT = 3333
 
-def showImage(title , frame , wait = False ):	
+def showImage(title , frame ,event, wait = False ):	
 	cv2.imshow(title, frame)
     	if wait:
         	while True:
@@ -19,16 +19,16 @@ def showImage(title , frame , wait = False ):
         	cv2.destroyAllWindows()
     	else:
         	if cv2.waitKey(1)&0xff == ord('q'):
-            		raise KeyboardInterrupt()
+            		event.clear()
 
-def reciveAndQueue(queue,socket,run_event):
-	flag = 0
-	while run_event.is_set():
-		print "Recive!"
-		packet = socket.recv(60000)
-    	print "Recive1!"
-    	data = eval(packet)
-    	queue.put(data)
+#def reciveAndQueue(queue,socket,run_event):
+#	flag = 0
+#	while run_event.is_set():
+#		print "Recive!"
+#		packet = socket.recv(60000)
+#   	print "Recive1!"
+#    	data = eval(packet)
+#    	queue.put(data)
 
 def recieveAndQueue(queue,run_event):
 	while run_event.is_set():
@@ -41,6 +41,7 @@ if __name__ == "__main__":
 	
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
+	s.settimeout(0.1)
 	q = Queue()
 	run_event = threading.Event()
 	run_event.set() 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 	print "Start Recieve Thread!"
 	recieveThread.start()
 	full_data = ''
-	while True:
+	while run_event.is_set():
 		try:
 			data = q.get()
 			#print data[0]
@@ -67,6 +68,8 @@ if __name__ == "__main__":
 				frame = numpy.reshape(tmp_frame, (480,640,3))
 				showImage("Client", frame)
 				full_data = ''
+			if cv2.waitKey(1)&0xff == ord('q'):
+				raise KeyboardInterrupt
 			
  		except(KeyboardInterrupt , SystemExit):
 			run_event.clear()
