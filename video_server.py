@@ -32,7 +32,7 @@ def chunkstring(string, length):
 def chunkAndSend(queue,socket,run_event):
 	while run_event.is_set():
 		data = queue.get()
-		print len(data)
+		#print len(data)
 		data = list(chunkstring(data,14400))
 		for i in range(0,64):
 			pack = str((i,data[i]))
@@ -60,16 +60,22 @@ if __name__ == "__main__":
 			#ret, frame = cap.read()
 			#frame = cv2.resize(redBallTracking(frame),(180, 120))		
 			#frame = cv2.resize(redBallTracking(frame),(640, 480))
-			frame = cv2.resize(frame,(160,120))
+			frame = cv2.resize(frame,(320,240))
 			#showImage("Server",frame)
 			frame = frame.flatten()
 			data = frame.tostring()
-			q.put(data)			
+			l = len(data)/16
+			for i in range(0,16):
+				pack = str((i,data[l*i:l*(i+1)]))
+				#print len(pack)
+				s.sendto(pack,(HOST,PORT))
+			#print len(data)
+			#q.put(data)			
 			'''if run_event.is_set() == False and q.empty() == False:
 				run_event.set()
 				print "Start Recieve Thread!"
 				sendThread.start()'''		
-			s.sendto(pack,(HOST,PORT))
+			print "Sent Frame!"
 		except KeyboardInterrupt:
 			#cv2.waitKey(0)			
 			#run_event.clear()
