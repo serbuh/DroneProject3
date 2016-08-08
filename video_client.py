@@ -10,7 +10,7 @@ import time
 HOST = ''
 PORT = 3333
 
-def showImage(title , frame , wait = False ):	
+def showImage(title , frame , run_event, wait = False ):	
 	cv2.imshow(title, frame)
     	if wait:
         	while True:
@@ -18,8 +18,8 @@ def showImage(title , frame , wait = False ):
               			break
         	cv2.destroyAllWindows()
     	else:
-        	if cv2.waitKey(1)&0xff == ord('q'):
-            		raise KeyboardInterrupt
+			if cv2.waitKey(1)&0xff == ord('q'):
+				raise KeyboardInterrupt
 
 #def reciveAndQueue(queue,socket,run_event):
 #	flag = 0
@@ -42,14 +42,14 @@ if __name__ == "__main__":
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
 	#s.settimeout(0.1)
-	#q = Queue()
-	#run_event = threading.Event()
-	#run_event.set() 
+	q = Queue()
+	run_event = threading.Event()
+	run_event.set() 
 
-	'''recieveThread = threading.Thread(target=recieveAndQueue, args=[q,run_event])
+	recieveThread = threading.Thread(target=recieveAndQueue, args=[q,run_event])
 	print "Start Recieve Thread!"
 	recieveThread.start()
-	full_data = ''
+	'''full_data = ''
 	while run_event.is_set():
 		try:
 			data = q.get()
@@ -79,17 +79,28 @@ if __name__ == "__main__":
 			s.close()
 			cv2.destroyAllWindows()
 			break'''
+	full_data = ''
+	num_of_packets = 0
 	while True:
 		try:
-			data = s.recv(60000)
-			data = eval(data)
-			tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
-			frame = numpy.reshape(tmp_frame, (120,160,3))
-			showImage("Client", frame)
+			data = q.get()
+			print data[0]
+			if data[0] == 0 :
+				full_data = data[1]
+				num_of_packets = 1
+			else :
+				full_data = ''.join([full_data,data[1]])
+				num_of_packets = num_of_packets + 1
+
+			if num_of_packets == 16:
+				tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
+				frame = numpy.reshape(tmp_frame, (240,320,3))
+				showImage("Client", frame ,run_event)
+			
 			if cv2.waitKey(1)&0xff == ord('q'):
 				raise KeyboardInterrupt
 			
  		except(KeyboardInterrupt , SystemExit):
-			s.close()
+			#s.close()
 			cv2.destroyAllWindows()
 			break
