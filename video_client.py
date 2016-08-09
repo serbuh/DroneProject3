@@ -8,7 +8,7 @@ import time
 import errno
 from time import sleep
 
-HOST = '127.0.0.1'
+HOST = ''
 PORT = 3333
 
 def showImage(title , frame , run_event, wait = False ):	
