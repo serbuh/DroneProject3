@@ -70,6 +70,7 @@ if __name__ == "__main__":
 			frame = frame.flatten()
 			data = frame.tostring()
 			q.put(data)
+			sleep(0.1)
 			#print "main!"			
 					
 		except KeyboardInterrupt:
