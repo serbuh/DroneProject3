@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import socket
 import time
 import cv2
@@ -70,7 +72,8 @@ if __name__ == "__main__":
 			frame = frame.flatten()
 			data = frame.tostring()
 			q.put(data)
-			sleep(0.1)
+			print "sent: " + str(datetime.now())
+			#sleep(0.1)
 			#print "main!"			
 					
 		except KeyboardInterrupt:
