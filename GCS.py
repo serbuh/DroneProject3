@@ -258,7 +258,7 @@ class GUI_main(tk.Frame):
 		self.console_frame = tk.Frame(self.root)
 		self.console_frame.configure(background='black')
 
-		self.txt_console = tk.Text(font=('times',12), width=150, height=3, wrap=tk.WORD, bg='black', fg='green2')
+		self.txt_console = tk.Text(font=('times',12), width=150, height=4, wrap=tk.WORD, bg='black', fg='green2')
 		self.txt_console.grid(row=1, column=0, columnspan=4) 
 		# Start redirecting stdout to GUI:
 		self.redirector = StdoutRedirector(self.txt_console)
