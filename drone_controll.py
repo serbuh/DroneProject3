@@ -48,6 +48,8 @@ class vehicle_controll:
 			self.guided()
 		elif cmd[0] == "poshold":
 			self.poshold()
+		elif cmd[0] == "althold":
+			self.althold()
 
 		elif cmd[0] == "override":
 			self.override()
@@ -206,6 +208,10 @@ class vehicle_controll:
 	def poshold(self):
 		self.report("Drone controll - POSHOLD")
 		self.vehicle.mode = VehicleMode("POSHOLD")
+
+	def althold(self):
+		self.report("Drone controll - ALTHOLD")
+		self.vehicle.mode = VehicleMode("ALTHOLD")
 
 
 	def override(self):

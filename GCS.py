@@ -9,12 +9,15 @@ import re
 import argparse
 import datetime
 import sys
+import os
 
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
     def __init__(self,text_area):
         self.text_area = text_area
-	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%H:%M:%S') + ".txt", "w")
+	if not os.path.isdir("/home/el"):
+		os.mkdir("./log")
+	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%y.%m.%d_%H:%M:%S') + ".txt", "w")
 
 class StdoutRedirector(IORedirector):
     '''A class for redirecting stdout to this Text widget.'''
@@ -134,6 +137,9 @@ class GUI_main(tk.Frame):
 		self.btn_poshold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Position Hold', width=25, command= self.on_btn_poshold)
 		self.btn_poshold.grid(row=10, column=1, columnspan=1)
 
+		self.btn_althold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Altitude Hold', width=25, command= self.on_btn_althold)
+		self.btn_althold.grid(row=11, column=0, columnspan=1)
+
 		self.control_frame.grid(row=frame_row, column=frame_column)
 
 	def on_btn_land(self):
@@ -153,6 +159,9 @@ class GUI_main(tk.Frame):
 
 	def on_btn_poshold(self):
 		self.GCS.UDP_client.send_cmd(['poshold'])
+
+	def on_btn_althold(self):
+		self.GCS.UDP_client.send_cmd(['althold'])
 
 
 	def on_btn_refresh_state(self):
@@ -244,8 +253,6 @@ class GUI_main(tk.Frame):
 		self.console_frame = tk.Frame(self.root)
 		self.console_frame.configure(background='black')
 
-		self.lbl_test_frame = tk.Label(self.console_frame, text='Console frame', font=('arial', 12, 'bold'), fg='red',bg='white')
-		self.lbl_test_frame.grid(row=0, column=0, columnspan=1)
 		self.txt_console = tk.Text(font=('times',12), width=150, height=3, wrap=tk.WORD, bg='black', fg='green2')
 		self.txt_console.grid(row=1, column=0, columnspan=2) 
 		# Start redirecting stdout to GUI:
@@ -444,11 +451,6 @@ class GUI_main(tk.Frame):
 	def on_btn_mission4(self):
 		self.prnt("Mission", "Fly! :)")
 
-#TODO terminal to label
-#TODO simulte panic triger from GCS / GCS.close_all in droneside
-#TODO finish mission flow
-
-
 	def on_btn_mission5(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
@@ -479,8 +481,8 @@ class GUI_main(tk.Frame):
 	def GUI_init_2labels(self, frame, key, label1_text, row1 ,column1):
 		row2 = row1
 		column2= column1 + 1
-		lbl_name = tk.Label(frame, text=label1_text, font=('arial', 10, 'bold'), fg='green', bg='black')
-		lbl_val = tk.Label(frame, font=('arial', 10, 'bold'), fg='green', bg='black')
+		lbl_name = tk.Label(frame, text=label1_text, font=('arial', 10, 'bold'), fg='green2', bg='black')
+		lbl_val = tk.Label(frame, font=('arial', 10, 'bold'), fg='green2', bg='black')
 		self.GCS.val_dict[key] = {'lbl_name': lbl_name, 'lbl_val': lbl_val, 'value': None}
 		self.GCS.val_dict[key]['lbl_name'].grid(row=row1, column=column1, columnspan=1)
 		self.GCS.val_dict[key]['lbl_val'].grid(row=row2, column=column2, columnspan=1)
