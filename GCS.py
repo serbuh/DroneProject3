@@ -8,6 +8,21 @@ import traceback
 import re
 import argparse
 import datetime
+import sys
+
+class IORedirector(object):
+    '''A general class for redirecting I/O to this Text widget.'''
+    def __init__(self,text_area):
+        self.text_area = text_area
+	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%H:%M:%S') + ".txt", "w")
+
+class StdoutRedirector(IORedirector):
+    '''A class for redirecting stdout to this Text widget.'''
+    def write(self,str):
+	self.text_area.see(tk.END)
+	self.text_area.insert(tk.END, str)
+	self.log_file.write(str)
+
 
 class GUI_main(tk.Frame):
 	def __init__(self, GCS):
@@ -27,12 +42,14 @@ class GUI_main(tk.Frame):
 		self.root.configure(background='black')
 		
 		self.control_frame_row, self.control_frame_column, = 0, 0
-		self.HUD_frame_row, self.HUD_frame_column, = 1, 0
-		self.firmware_frame_row, self.firmware_frame_column, self.firmware_frame_hide = 2, 0, True
-		self.test_frame_row, self.test_frame_column, self.test_frame_hide = 0, 2, True
-		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 1, True
+		self.console_frame_row, self.console_frame_column = 2, 0
+		self.HUD_frame_row, self.HUD_frame_column, = 0, 1
+		self.firmware_frame_row, self.firmware_frame_column, self.firmware_frame_hide = 1, 1, True
+		self.test_frame_row, self.test_frame_column, self.test_frame_hide = 0, 3, True
+		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 2, True
 
 		self.init_control_frame(frame_row=self.control_frame_row, frame_column=self.control_frame_column)
+		self.init_console_frame(frame_row=self.console_frame_row, frame_column=self.console_frame_column)
 		self.init_HUD_frame(frame_row=self.HUD_frame_row, frame_column=self.HUD_frame_column)
 		self.init_firmware_frame(frame_row=self.firmware_frame_row, frame_column=self.firmware_frame_column)
 		self.init_test_frame(frame_row=self.test_frame_row, frame_column=self.test_frame_column)
@@ -221,6 +238,23 @@ class GUI_main(tk.Frame):
 			self.mission_frame_hide = True
 			self.btn_mission_frame.config(text = "Show Mission frame")
 
+
+
+	def init_console_frame(self, frame_row, frame_column):
+		self.console_frame = tk.Frame(self.root)
+		self.console_frame.configure(background='black')
+
+		self.lbl_test_frame = tk.Label(self.console_frame, text='Console frame', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_test_frame.grid(row=0, column=0, columnspan=1)
+		self.txt_console = tk.Text(font=('times',12),width=150,height=3,wrap=tk.WORD)
+		self.txt_console.grid(row=1, column=0, columnspan=2) 
+		# Start redirecting stdout to GUI:
+		self.redirector = StdoutRedirector(self.txt_console)
+		sys.stdout = self.redirector
+		# (where self refers to the widget)
+
+
+		self.console_frame.grid(row=frame_row, column=frame_column)
 
 
 	def init_HUD_frame(self, frame_row, frame_column):
@@ -586,7 +620,11 @@ class GCS():
 			self.close_all()
 
 	def close_all(self):
-	
+		
+		# Stop redirecting stdout to GUI:
+		sys.stdout = sys.__stdout__
+		self.GUI.redirector.log_file.close()
+
 		self.prnt("GSC", "Close all - Telemetry/commands")
 		self.UDP_client.close_UDP()
 		self.prnt("GSC", "Close all - Drone Report")
