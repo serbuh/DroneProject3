@@ -55,7 +55,7 @@ def send(chunks_queue,socket, run_event):
 	try:
 		while run_event.is_set():
 			if not chunks_queue.empty():
-				data = chunks_queue.get()
+				pack = chunks_queue.get()
 				socket.sendto(pack,(HOST,PORT))
 				#print "sent: " + str(datetime.now())
 				#print l , i
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 			#showImage("Server",frame)
 			frame = frame.flatten()
 			data = frame.tostring()
-			q.put(data)
+			frame_queue.put(data)
 			#sleep(0.1)
 			#print "main!"			
 					
