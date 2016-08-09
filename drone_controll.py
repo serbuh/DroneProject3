@@ -110,7 +110,7 @@ class vehicle_controll:
 			if self.in_panic or count > self.count_max:
 				self.report("Drone controll - Arm: ABORT")
 				return
-			self.report("Drone controll - Arm: Waiting for vehicle to be armable... " + str(count))
+			self.report("Drone controll - Arm: Waiting for vehicle to be armable... " + str(count) + "/" + str(self.count_max))
 			time.sleep(1)
 		self.report("Drone controll - Arming")
 		self.vehicle.armed = True
@@ -126,7 +126,7 @@ class vehicle_controll:
 			if self.in_panic or count > self.count_max:
 				self.report("Drone controll - Takeoff: ABORT")
 				return
-			self.report("Drone controll - Takeoff: Waiting for arming... " + str(count))
+			self.report("Drone controll - Takeoff: Waiting for arming... " + str(count) + "/" + str(self.count_max))
 			time.sleep(1)
 
 		self.report("Drone controll - Taking off!")
@@ -134,10 +134,10 @@ class vehicle_controll:
 		count = 0
 		while True:
 			count+=1
-			if self.in_panic or (count > (self.count_max * 10)):
+			if self.in_panic or (count > (self.count_max * 5)):
 				self.report("Drone controll - Takeoff: ABORT")
 				return
-			self.report("Drone controll - Takeoff: (" + str(count) + ") Current altitude: " + str(self.vehicle.location.global_relative_frame.alt))
+			self.report("Drone controll - Takeoff: (" + str(count) + "/" + str(self.count_max * 5) + ") Current altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
 				self.report("Drone controll - Takeoff: Reached target altitude")
 				self.move_0()
