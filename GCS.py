@@ -11,8 +11,6 @@ import datetime
 import sys
 import os
 
-#TODO Panic switch in simulated environment
-#ALTHOLD in GUI, Mission, 
 
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
@@ -92,6 +90,9 @@ class GUI_main(tk.Frame):
 		self.btn_check_firmware = tk.Button(self.control_frame, fg='black', text=text_btn_check_firmware, width=15, command= self.on_btn_check_firmware)
 		self.btn_check_firmware.grid(row=2, column=0, columnspan=1)
 
+		self.btn_override = tk.Button(self.control_frame, text='ch3: 1500', width=15, command=self.on_btn_override)
+		self.btn_override.grid(row=2, column=1, columnspan=1)
+
 		if (self.test_frame_hide == True):
 			text_btn_test_frame = "Show test frame"
 		else:
@@ -99,6 +100,8 @@ class GUI_main(tk.Frame):
 		self.btn_test_frame = tk.Button(self.control_frame, fg='black', text=text_btn_test_frame, width=15, command= self.on_btn_test_frame)
 		self.btn_test_frame.grid(row=3, column=0, columnspan=1)
 
+		self.btn_override_release = tk.Button(self.control_frame, text='ch3: release', width=15, command=self.on_btn_override_release)
+		self.btn_override_release.grid(row=3, column=1, columnspan=1)
 
 		if (self.mission_frame_hide == True):
 			text_btn_mission_frame = "Show mission frame"
@@ -167,6 +170,12 @@ class GUI_main(tk.Frame):
 
 	def on_btn_althold(self):
 		self.GCS.UDP_client.send_cmd(['alt_hold'])
+
+	def on_btn_override(self):
+		self.GCS.UDP_client.send_cmd(['override'])
+
+	def on_btn_override_release(self):
+		self.GCS.UDP_client.send_cmd(['override_release'])
 
 
 	def on_btn_refresh_state(self):
@@ -258,7 +267,7 @@ class GUI_main(tk.Frame):
 		self.console_frame = tk.Frame(self.root)
 		self.console_frame.configure(background='black')
 
-		self.txt_console = tk.Text(font=('times',12), width=150, height=4, wrap=tk.WORD, bg='black', fg='green2')
+		self.txt_console = tk.Text(font=('times',12), width=150, height=8, wrap=tk.WORD, bg='black', fg='green2')
 		self.txt_console.grid(row=1, column=0, columnspan=4) 
 		# Start redirecting stdout to GUI:
 		self.redirector = StdoutRedirector(self.txt_console)

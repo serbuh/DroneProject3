@@ -22,6 +22,7 @@ class vehicle_controll:
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
 		self.in_panic = False
+		self.count_max = 6
 
 	def report(self, msg):
 		print str(msg)
@@ -54,8 +55,8 @@ class vehicle_controll:
 
 		elif cmd[0] == "override":
 			self.override()
-		elif cmd[0] == "release_override":
-			self.release_override()
+		elif cmd[0] == "override_release":
+			self.override_release()
 
 		elif cmd[0] == "is_armable":
 			self.is_armable()
@@ -103,11 +104,13 @@ class vehicle_controll:
 	
 	def arm(self):
 		self.report("Drone controll - Arm: Pre-arm check")
+		count = 0
 		while not self.vehicle.is_armable:
-			if self.in_panic:
+			count+=1			
+			if self.in_panic or count > self.count_max:
 				self.report("Drone controll - Arm: ABORT")
 				return
-			self.report("Drone controll - Arm: Waiting for vehicle to be armable...")
+			self.report("Drone controll - Arm: Waiting for vehicle to be armable... " + str(count))
 			time.sleep(1)
 		self.report("Drone controll - Arming")
 		self.vehicle.armed = True
@@ -117,21 +120,24 @@ class vehicle_controll:
 			self.report("Drone controll - Takeoff: Change to GUIDED mode")
 			self.vehicle.mode = VehicleMode("GUIDED")
 		self.report("Drone controll - Takeoff to " + str(aTargetAltitude) + " meters")
+		count = 0
 		while not self.vehicle.armed:
-			if self.in_panic:
+			count+=1
+			if self.in_panic or count > self.count_max:
 				self.report("Drone controll - Takeoff: ABORT")
 				return
-			self.report("Drone controll - Takeoff: Waiting for arming...")
+			self.report("Drone controll - Takeoff: Waiting for arming... " + str(count))
 			time.sleep(1)
 
 		self.report("Drone controll - Taking off!")
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
-
+		count = 0
 		while True:
-			if self.in_panic:
+			count+=1
+			if self.in_panic or (count > (self.count_max * 10)):
 				self.report("Drone controll - Takeoff: ABORT")
 				return
-			self.report("Drone controll - Takeoff: Current altitude: " + str(self.vehicle.location.global_relative_frame.alt))
+			self.report("Drone controll - Takeoff: (" + str(count) + ") Current altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
 				self.report("Drone controll - Takeoff: Reached target altitude")
 				self.move_0()
@@ -217,9 +223,9 @@ class vehicle_controll:
 
 	def override(self):
 		self.report("override activated")
-		self.vehicle.channels.overrides = {'8':2000}
+		self.vehicle.channels.overrides = {'3':1500}
 
-	def release_override(self):
+	def override_release(self):
 		self.report("release override activated")
 		self.vehicle.channels.overrides = {}
 
