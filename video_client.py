@@ -11,7 +11,7 @@ from time import sleep
 HOST = ''
 PORT = 3333
 
-def showImage(title , frame , run_event, wait = False ):	
+def showImage(title , frame , wait = False ):	
 	cv2.imshow(title, frame)
     	if wait:
         	while True:
@@ -19,8 +19,8 @@ def showImage(title , frame , run_event, wait = False ):
               			break
         	cv2.destroyAllWindows()
     	else:
-			if cv2.waitKey(1)&0xff == ord('q'):
-				raise KeyboardInterrupt
+        	if cv2.waitKey(1)&0xff == ord('q'):
+            		raise KeyboardInterrupt
 
 #def reciveAndQueue(queue,socket,run_event):
 #	flag = 0
@@ -41,18 +41,14 @@ def recieveAndQueue(queue,run_event):
 		except(KeyboardInterrupt):
 			print "Thread interupt..."
 			close_event.set()
-		except socket.timeout, e:
-	            sleep(1)
-	            print 'recv timed out, retry later'
-	            continue
 	print "Recieve Thread Closed"
 
 if __name__ == "__main__":
 	i = 0
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
-	s.settimeout(1)
 	q = Queue()
+	print q.empty()
 	run_event = threading.Event()
 	close_event = threading.Event()
 	run_event.set() 
@@ -66,20 +62,22 @@ if __name__ == "__main__":
 		try:
 			if not q.empty():
 				data = q.get()
-				print data[0]
+				#print data[0]
 				if data[0] == 0:
 					full_data = data[1]
 					last_packet_num = 0
 					print "Reset frame!"
-				elif data[0] == last_packet_num + 1:
+				elif data[0] == (last_packet_num + 1):
+				#	print "Added packet"
+				#	last_packet_num  = last_packet_num + 1
 					full_data = ''.join([full_data,data[1]])
-				#print len(full_data),data[0]
-				if(len(full_data) == 921600):
-					#print "SHOWING FRAME: {}".format(i)
+				print len(full_data),len(data[1]),data[0]
+				if(len(full_data) == 921600 and last_packet_num == 63):
+					print "SHOWING FRAME: {}".format(i)
 					#i = i +1
 					tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
 					frame = numpy.reshape(tmp_frame, (480,640,3))
-					showImage("Client", frame,run_event)
+					showImage("Client", frame)
 					full_data = ''
 				
  		except(KeyboardInterrupt):
