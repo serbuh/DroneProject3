@@ -10,6 +10,8 @@ import traceback
 import Tkinter as tk
 import sys
 
+#TODO add listen for the stderr ;)
+
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
     def __init__(self,UDP_server_Report):
