@@ -89,7 +89,7 @@ class UDP():
 					if val_dict.has_key(rec_key):
 						val_dict[rec_key]['value'] = rec_val
 					else:
-						self.prnt_UDP("Drone Report", "GCS WARNING: Trying to update not existing item in val_dict: " + str(rec_key) + " Message " + str(rec_val))
+						self.prnt_UDP("GCS WARNING: Trying to update not existing item in val_dict: " + str(rec_key) + " Message " + str(rec_val))
 			except socket.error:
 				#self.prnt_UDP("Timeout. No received telem messages")
 				continue
@@ -125,7 +125,7 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				self.prnt_UDP(self.UDP_type, "Received from: " + str(addr) + " Message: " + str(data_receive))
+				self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
 
 			except socket.error:
 				#self.prnt_UDP("Timeout. No received report messages")
