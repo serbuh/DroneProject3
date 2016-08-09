@@ -8,6 +8,20 @@ import json
 import drone_controll
 import traceback
 import Tkinter as tk
+import sys
+
+class IORedirector(object):
+    '''A general class for redirecting I/O to this Text widget.'''
+    def __init__(self,UDP_server_Report):
+        self.UDP_server_Report = UDP_server_Report
+	self.count = 0
+
+class StdoutRedirector(IORedirector):
+    '''A class for redirecting stdout to this Text widget.'''
+    def write(self, msg):
+	sys.__stdout__.write(msg)
+	if msg != '\n':
+		self.UDP_server_Report.send_report(str(msg))
 
 class GUI_main(tk.Frame):
 	def __init__(self, root, vehicle, sitl, vehicle_controll, close_all, *args, **kwargs):
@@ -15,7 +29,7 @@ class GUI_main(tk.Frame):
 		self.sitl = sitl
 		self.vehicle_controll = vehicle_controll
 		self.close_all = close_all
-
+		
 		print "Drone: GUI - Start"
 		tk.Frame.__init__(self, root, *args, **kwargs)
 		self.root = root
@@ -102,18 +116,18 @@ class GUI_main(tk.Frame):
 		self.root.destroy()
 		self.root.quit()
 
-	def GUI_tick(self):	
+	def GUI_tick(self):
 		if (self.key_pressed == 'w'):
-			self.vehicle_controll.send_command("forward_once", 1)
+			self.vehicle_controll.send_command("forward", 1)
 		elif (self.key_pressed == 'a'):
-			self.vehicle_controll.send_command("left_once", 1)
+			self.vehicle_controll.send_command("left", 1)
 		elif (self.key_pressed == 's'):
-			self.vehicle_controll.send_command("backward_once", 1)
+			self.vehicle_controll.send_command("backward", 1)
 		elif (self.key_pressed == 'd'):
-			self.vehicle_controll.send_command("right_once", 1)
+			self.vehicle_controll.send_command("right", 1)
 		elif (self.key_pressed == None):
 			if (self.send_move_0 == 1):
-				self.vehicle_controll.send_command("move_0_once")
+				self.vehicle_controll.send_command("move_0")
 		else:
 			print "Drone: WTF am I doing here?"
 		self.root.after(100, self.GUI_tick)
@@ -198,6 +212,10 @@ class drone_CoPilot():
 			if (Report_enabled is True):
 				print "Drone: open Report socket"
 				self.UDP_server_Report = UDP.UDP(1, "Drone Report", "0.0.0.0", 5100, self.gcs_ip, 6101)
+				# Start redirecting stdout to UDP:
+				print "Drone: redirecting stdout to UDP"
+				sys.stdout = StdoutRedirector(self.UDP_server_Report)
+				#sys.stderr = StdoutRedirector(self.UDP_server_Report)
 
 			print "Drone: open Telemetry, commands socket"
 			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, self.gcs_ip, 6001)
@@ -209,7 +227,8 @@ class drone_CoPilot():
 
 			print "Drone: Start to listen for telemetry from the drone"
 			self.vehicle.add_attribute_listener('*', self.wildcard_callback)
-		
+
+
 			if (GUI_enabled is True):
 				self.run_GUI()
 			else:
@@ -217,7 +236,7 @@ class drone_CoPilot():
 				self.no_GUI()
 
 		except KeyboardInterrupt:
-			print "Drone: Close all - keyboard interrupt in main"		
+			print "Drone: Close all - keyboard interrupt in main"
 			self.close_all()
 
 	def run_GUI(self):
@@ -413,6 +432,13 @@ class drone_CoPilot():
 				traceback.print_exc()
 
 	def close_all(self):
+		
+		if self.Report_enabled:
+			print "Drone: Stop redirecting stdout to UDP"
+			sys.stdout = sys.__stdout__
+			#sys.stderr = sys.__stderr__
+			print "Drone: Stoped redirecting stdout to UDP"
+
 		if self.vehicle is not None:
 			print "Drone: Close all - Unbind Pixhawk telem callback"
 			self.vehicle.remove_attribute_listener('*', self.wildcard_callback)

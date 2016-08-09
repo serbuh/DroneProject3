@@ -9,6 +9,7 @@ import time
 import threading
 import struct
 import traceback
+import datetime
 
 class UDP():
 ### INIT ->
@@ -35,13 +36,16 @@ class UDP():
 		self.send_thread = None
 		self.receive_thread = None
 
-		print self.UDP_type + ": ===================================================="
-		print self.UDP_type + ": Recieving at: " + str(self.host) + ":" + str(self.port_receive)
-		print self.UDP_type + ": Sending to:   " + str(self.host_sendto) + ":" + str(self.port_sendto) + " from " + str(self.port_send)
-		print self.UDP_type + ": ===================================================="
+		self.prnt_UDP("====================================================")
+		self.prnt_UDP("Recieving at: " + str(self.host) + ":" + str(self.port_receive))
+		self.prnt_UDP("Sending to:   " + str(self.host_sendto) + ":" + str(self.port_sendto) + " from " + str(self.port_send))
+		self.prnt_UDP("====================================================")
+
+	def prnt_UDP(self, msg):
+		print datetime.datetime.utcnow().strftime('%H:%M:%S.%f') + ": <Drone Report> " + str(msg)
 
 	def sock_create(self, host, port):
-		print self.UDP_type + ": Open Socket. Host: " + str(host) + " Port: " + str(port)
+		self.prnt_UDP("Open Socket. Host: " + str(host) + " Port: " + str(port))
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -62,13 +66,13 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
 				data_list = eval(data_receive)
 				#print data_receive, type(data_receive)
 				#print data_list, type(data_list)
 				vehicle_controll.send_command_list(data_list)
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received user commands"
+				#self.prnt_UDP("Timeout. No received user commands")
 				continue
 			except:
 				traceback.print_exc()
@@ -77,7 +81,7 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				#self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
 				data_dict = eval(data_receive)
 				#print data_dict
 
@@ -85,9 +89,9 @@ class UDP():
 					if val_dict.has_key(rec_key):
 						val_dict[rec_key]['value'] = rec_val
 					else:
-						print 'GCS WARNING: Trying to update not existing item in val_dict: ' + str(rec_key) + ' Message ' + str(rec_val)
+						self.prnt_UDP("Drone Report", "GCS WARNING: Trying to update not existing item in val_dict: " + str(rec_key) + " Message " + str(rec_val))
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received telem messages"
+				#self.prnt_UDP("Timeout. No received telem messages")
 				continue
 			except:
 				traceback.print_exc()
@@ -99,7 +103,7 @@ class UDP():
 				data_eval = eval(data_receive)
 				queue.put(data_eval)
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received video messages"
+				#self.prnt_UDP("Timeout. No received video messages")
 				continue
 			except:
 				traceback.print_exc()
@@ -108,11 +112,11 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				#print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
-				print self.UDP_type + ": " + str(data_receive)
+				#self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
+				self.prnt_UDP(str(data_receive))
 
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received report messages"
+				#self.prnt_UDP("Timeout. No received report messages")
 				continue
 			except:
 				traceback.print_exc()
@@ -121,42 +125,42 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+				self.prnt_UDP(self.UDP_type, "Received from: " + str(addr) + " Message: " + str(data_receive))
 
 			except socket.error:
-				#print self.UDP_type + ": Timeout. No received report messages"
+				#self.prnt_UDP("Timeout. No received report messages")
 				continue
 			except:
 				traceback.print_exc()
 
 	def receive_loop_report_thread(self):
-		print self.UDP_type + ": Start receive Drone Reports thread. Listening to: " + str(self.port_receive)
+		self.prnt_UDP("Start receive Drone Reports thread. Listening to: " + str(self.port_receive))
 		self.receive_thread = threading.Thread(target=self.receive_loop_report, args=(self.event_stop_receive,))
 		self.receive_thread.start()
 
 	def receive_loop_cmd_thread(self, vehicle_controll):
-		print self.UDP_type + ": Start receive Commands thread. Listening to: " + str(self.port_receive)
+		self.prnt_UDP("Start receive Commands thread. Listening to: " + str(self.port_receive))
 		self.receive_thread = threading.Thread(target=self.receive_loop_cmd, args=(self.event_stop_receive, vehicle_controll))
 		self.receive_thread.start()
 
 	def receive_loop_telem_thread(self, val_dict):
-		print self.UDP_type + ": Start receive Telemetry thread. Listening to: " + str(self.port_receive)
+		self.prnt_UDP("Start receive Telemetry thread. Listening to: " + str(self.port_receive))
 		self.receive_thread = threading.Thread(target=self.receive_loop_telem, args=(self.event_stop_receive, val_dict))
 		self.receive_thread.start()
 
 	def receive_loop_video_thread(self,queue):
-		print self.UDP_type + ": Start receive video thread. Listening to: " + str(self.port_receive)	
+		self.prnt_UDP("Start receive video thread. Listening to: " + str(self.port_receive))
 		self.receive_thread = threading.Thread(target=self.receive_loop_video, args=(self.event_stop_receive, queue))
 		self.receive_thread.start()
 
 	def receive_loop_generic_thread(self):
-		print self.UDP_type + ": Start receive thread (Generic). Listening to: " + str(self.port_receive)
+		self.prnt_UDP("Start receive thread (Generic). Listening to: " + str(self.port_receive))
 		self.receive_thread = threading.Thread(target=self.receive_loop_generic, args=(self.event_stop_receive,))
 		self.receive_thread.start()
 
 	def receive_once(self):
 		data_receive, addr = self.sock_receive.recvfrom(1024)
-		print self.UDP_type + ": Received from: " + str(addr) + " Message: " + str(data_receive)
+		self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
 
 ### -> RECEIVE
 ### SEND ->
@@ -168,35 +172,35 @@ class UDP():
 			data_send = str(counter)
 			counter = counter + 1
 			self.sock_send.sendto(data_send, addr_send)
-			#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_send)
+			#self.prnt_UDP("Sent to: " + str(addr_send) + " Message: " + str(data_send))
 			time.sleep(1)
 
 	def send_loop_thread(self, host, port):
-		print self.UDP_type + ": Start send thread. Sending to: " + str(host) + ":" + str(port)
+		self.prnt_UDP("Start send thread. Sending to: " + str(host) + ":" + str(port))
 		self.send_thread = threading.Thread(target=self.send_loop, args=(host, port, self.event_stop_send))
 		self.send_thread.start()
 
 	def send_once(self, data):
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data, addr_send)
-		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data)
+		#self.prnt_UDP("Sent to: " + str(addr_send) + " Message: " + str(data))
 
 	def send_telem(self, data_dict):
 		data_str = str(data_dict)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
-		#print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+		#self.prnt_UDP("Sent to: " + str(addr_send) + " Message: " + str(data_str))
 
 	def send_cmd(self, data_list):
 		data_str = str(data_list)
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
-		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+		#self.prnt_UDP("Sent to: " + str(addr_send) + " Message: " + str(data_str))
 
 	def send_generic(self, data_str):
 		addr_send = (self.host_sendto, self.port_sendto)
 		self.sock_send.sendto(data_str, addr_send)
-		print self.UDP_type + ": Sent to: " + str(addr_send) + " Message: " + str(data_str)
+		self.prnt_UDP("Sent to: " + str(addr_send) + " Message: " + str(data_str))
 	
 	def send_report(self, data):
 		data_str = str(data)
@@ -208,15 +212,15 @@ class UDP():
 
 	def send_loop_thread_stop(self):
 		self.event_stop_send.set()
-		print self.UDP_type + ": Close UDP. Send loop: Event sent, wait for a stop."
+		self.prnt_UDP("Close UDP. Send loop: Event sent, wait for a stop.")
 		self.send_thread.join()
-		print self.UDP_type + ": Close UDP. Send loop: Stoped."
+		self.prnt_UDP("Close UDP. Send loop: Stoped.")
 
 	def receive_loop_thread_stop(self):
 		self.event_stop_receive.set()
-		print self.UDP_type + ": Close UDP. Receive loop: Event sent, wait for loop to stop."
+		self.prnt_UDP("Close UDP. Receive loop: Event sent, wait for loop to stop.")
 		self.receive_thread.join()
-		print self.UDP_type + ": Close UDP. Receive loop: Stoped."
+		self.prnt_UDP("Close UDP. Receive loop: Stoped.")
 
 	def close_UDP(self):
 		if (self.send_thread is not None) and (self.send_thread.is_alive()):
@@ -225,7 +229,7 @@ class UDP():
 			self.receive_loop_thread_stop()
 		self.sock_send.close()
 		self.sock_receive.close()
-		print self.UDP_type + ": Close UDP. Sockets closed: Send port: " + str(self.port_send) + " Receive port: " + str(self.port_receive)
+		self.prnt_UDP("Close UDP. Sockets closed: Send port: " + str(self.port_send) + " Receive port: " + str(self.port_receive))
 
 ### -> CLOSE
 

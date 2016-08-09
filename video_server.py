@@ -84,4 +84,3 @@ if __name__ == "__main__":
 	if close_event.is_set():
 		print "Cleaning..."
 		cv2.destroyAllWindows()
-

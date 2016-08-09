@@ -9,6 +9,7 @@ import math
 import time
 import sys, traceback
 
+
 class vehicle_controll:
 	vehicle = None
 
@@ -24,14 +25,16 @@ class vehicle_controll:
 
 	def report(self, msg):
 		print str(msg)
-		if (self.UDP_server_Report is not None):
-			self.UDP_server_Report.send_report(msg)
+		#if (self.UDP_server_Report is not None):
+		#	self.UDP_server_Report.send_report(msg)
 
 	def send_command_list(self, cmd):
 		if cmd[0] == "arm" and len(cmd) == 1:
 			self.arm()
 		elif cmd[0] == "arm" and len(cmd) == 2:
 			self.arm_and_takeoff(int(cmd[1]))
+		elif cmd[0] == "takeoff":
+			self.takeoff(int(cmd[1]))
 		elif cmd[0] == "disarm":
 			self.disarm()
 		elif cmd[0] == "land":
@@ -46,6 +49,8 @@ class vehicle_controll:
 			self.guided()
 		elif cmd[0] == "poshold":
 			self.poshold()
+		elif cmd[0] == "alt_hold":
+			self.alt_hold()
 
 		elif cmd[0] == "override":
 			self.override()
@@ -63,20 +68,20 @@ class vehicle_controll:
 		elif cmd[0] == "check_firmware":
 			self.check_firmware()
 
-		elif cmd[0] == "forward_once":
-			self.move_forward_once(int(cmd[1]))
-		elif cmd[0] == "backward_once":
-			self.move_backward_once(int(cmd[1]))
-		elif cmd[0] == "left_once":
-			self.move_left_once(int(cmd[1]))
-		elif cmd[0] == "right_once":
-			self.move_right_once(int(cmd[1]))
-		elif cmd[0] == "up_once":
-			self.move_up_once(int(cmd[1]))
-		elif cmd[0] == "down_once":
-			self.move_down_once(int(cmd[1]))
-		elif cmd[0] == "move_0_once":
-			self.move_0_once()
+		elif cmd[0] == "forward":
+			self.move_forward(int(cmd[1]))
+		elif cmd[0] == "backward":
+			self.move_backward(int(cmd[1]))
+		elif cmd[0] == "left":
+			self.move_left(int(cmd[1]))
+		elif cmd[0] == "right":
+			self.move_right(int(cmd[1]))
+		elif cmd[0] == "up":
+			self.move_up(int(cmd[1]))
+		elif cmd[0] == "down":
+			self.move_down(int(cmd[1]))
+		elif cmd[0] == "move_0":
+			self.move_0()
 
 		elif cmd[0] == "yaw_left":
 			self.yaw_left(int(cmd[1]))
@@ -93,149 +98,121 @@ class vehicle_controll:
 		elif cmd[0] == "diamond":
 			self.diamond()
 		else:
-			self.report("Drone: drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
+			self.report("Drone controll - Warning: command " + str(cmd[0]) + " does not exist!")
 
 	
 	def arm(self):
-		self.report("Drone: drone controll - Arm.")
-		self.report("Drone: drone controll - Arm: Pre-arm check")
+		self.report("Drone controll - Arm: Pre-arm check")
 		while not self.vehicle.is_armable:
 			if self.in_panic:
-				self.report("Drone: drone controll - Arm: ABORT")
+				self.report("Drone controll - Arm: ABORT")
 				return
-			self.report("Drone: drone controll - Arm: Waiting for vehicle to initialise...")
+			self.report("Drone controll - Arm: Waiting for vehicle to be armable...")
 			time.sleep(1)
-		self.report("Drone: drone controll - Arming")
+		self.report("Drone controll - Arming")
 		self.vehicle.armed = True
-		
-	def disarm(self):
-		self.report("Drone: drone controll - Disarming")
-		self.vehicle.armed = False
-
-	def arm_and_takeoff(self, aTargetAltitude):
-		self.report("Drone: drone controll - Arm and takeoff to " + str(aTargetAltitude) + " meters")
-		self.report("Drone: drone controll - Arm and takeoff: Pre-arm check")
-		while not self.vehicle.is_armable:
-			if self.in_panic:
-				self.report("Drone: drone controll - Arm and takeoff: ABORT")
-				return
-			self.report("Drone: drone controll - Arm and takeoff: Waiting for vehicle to initialise...")
-			time.sleep(1)
-
-		self.report("Drone: drone controll - Arm and takeoff: MODE=GUIDED")
-		self.vehicle.mode = VehicleMode("GUIDED")
-		self.report("Drone: drone controll - Arm and takeoff: Arming")
-		self.vehicle.armed = True
-
+	
+	def takeoff(self, aTargetAltitude):
+		if self.vehicle.mode != VehicleMode("GUIDED"):
+			self.report("Drone controll - Takeoff: Change to GUIDED mode")
+			self.vehicle.mode = VehicleMode("GUIDED")
+		self.report("Drone controll - Takeoff to " + str(aTargetAltitude) + " meters")
 		while not self.vehicle.armed:
 			if self.in_panic:
-				self.report("Drone: drone controll - Arm and takeoff: ABORT")
-			self.report("Drone: drone controll - Arm and take off: Waiting for arming...")
+				self.report("Drone controll - Takeoff: ABORT")
+				return
+			self.report("Drone controll - Takeoff: Waiting for arming...")
 			time.sleep(1)
 
-		self.report("Drone: drone controll - Arm and takeoff: Taking off!")
+		self.report("Drone controll - Taking off!")
 		self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
-
-		# Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
-		#  after Vehicle.simple_takeoff will execute immediately).
 
 		while True:
 			if self.in_panic:
-				self.report("Drone: drone controll - Arm and takeoff: ABORT")
-			self.report("Drone: drone controll - Arm and takeoff: Altitude: " + str(self.vehicle.location.global_relative_frame.alt))
+				self.report("Drone controll - Takeoff: ABORT")
+				return
+			self.report("Drone controll - Takeoff: Current altitude: " + str(self.vehicle.location.global_relative_frame.alt))
 			if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
-				self.report("Drone: drone controll - Arm and takeoff: Reached target altitude")
+				self.report("Drone controll - Takeoff: Reached target altitude")
 				self.move_0()
 				break
 			time.sleep(1)
 
+	def arm_and_takeoff(self, aTargetAltitude):
+		self.arm()
+		if not self.in_panic:
+			self.takeoff(aTargetAltitude)
 
-
-	def move_0_once(self):
-		self.report("Drone: drone controll - move to the current position once")
-		self.send_ned_velocity_once(0,0,0)
-
-	def move_forward_once(self, velocity):
-		self.report("Drone: drone controll - Forward " + str(velocity) + " m/s")
-		self.send_ned_velocity_once(velocity,0,0)
-
-	def move_backward_once(self, velocity):
-		self.report("Drone: drone controll - Backward " + str(velocity) + " m/s")
-		self.send_ned_velocity_once(-velocity,0,0)
-
-	def move_left_once(self, velocity):
-		self.report("Drone: drone controll - Left " + str(velocity) + " m/s")
-		self.send_ned_velocity_once(0,-velocity,0)
-
-	def move_right_once(self, velocity):
-		self.report("Drone: drone controll - Right " + str(velocity) + " m/s")
-		self.send_ned_velocity_once(0,velocity,0)
-
-	def move_up_once(self, velocity):
-		self.report("Drone: drone controll - Up " + str(velocity) + " m/s")
-		self.send_ned_velocity_once(0,0,-velocity)
-
-	def move_down_once(self, velocity):
-		self.report("Drone: drone controll - Down " + str(velocity) + " m/s")
-		self.send_ned_velocity_once(0,0,velocity)
+	def disarm(self):
+		self.report("Drone controll - Disarming")
+		self.vehicle.armed = False
 
 
 	def move_0(self):
-		self.report("Drone: drone controll - move to the current position (to allow the yaw controll)")
-		self.send_ned_velocity(0,0,0,1)
+		self.report("Drone controll - stay at the current position")
+		self.send_ned_velocity_once(0,0,0)
 
-	def move_forward(self, velocity, duration):
-		self.report("Drone: drone controll - move forward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
-		self.send_ned_velocity(velocity,0,0,duration)
-		self.send_ned_velocity(0,0,0,1)
+	def move_forward(self, velocity):
+		self.report("Drone controll - Forward " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(velocity,0,0)
 
-	def move_backward(self, velocity, duration):
-		self.report("Drone: drone controll - move backward, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
-		self.send_ned_velocity(-velocity,0,0,duration)
-		self.send_ned_velocity(0,0,0,1)
+	def move_backward(self, velocity):
+		self.report("Drone controll - Backward " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(-velocity,0,0)
 
-	def move_left(self, velocity, duration):
-		self.report("Drone: drone controll - move left, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
-		self.send_ned_velocity(0,-velocity,0,duration)
-		self.send_ned_velocity(0,0,0,1)
+	def move_left(self, velocity):
+		self.report("Drone controll - Left " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,-velocity,0)
 
-	def move_right(self, velocity, duration):
-		self.report("Drone: drone controll - move right, vel: " + str(velocity) + ", duration:" + str(duration) + " *0.1 sec")
-		self.send_ned_velocity(0,velocity,0,duration)
-		self.send_ned_velocity(0,0,0,1)
+	def move_right(self, velocity):
+		self.report("Drone controll - Right " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,velocity,0)
+
+	def move_up(self, velocity):
+		self.report("Drone controll - Up " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,0,-velocity)
+
+	def move_down(self, velocity):
+		self.report("Drone controll - Down " + str(velocity) + " m/s")
+		self.send_ned_velocity_once(0,0,velocity)
+
 
 	def yaw_left(self, angle):
-		self.report("Drone: drone controll - Yaw left " + str(angle) + " relative (to previous yaw heading)")
+		self.report("Drone controll - Yaw left " + str(angle) + " relative (to previous yaw heading)")
 		self.condition_yaw(360-angle, relative=True)
 
 	def yaw_right(self, angle):
-		self.report("Drone: drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
+		self.report("Drone controll - Yaw right " + str(angle) + " relative (to previous yaw heading)")
 		self.condition_yaw(angle, relative=True)
 
 
 	def land(self):
-		self.report("Drone: drone controll - LAND")
+		self.report("Drone controll - LAND")
 		self.vehicle.mode = VehicleMode("LAND")
 
 	def rtl(self):
-		self.report("Drone: drone controll - RTL")
+		self.report("Drone controll - RTL")
 		self.vehicle.mode = VehicleMode("RTL")
 
 	def stabilize(self):
-		self.report("Drone: drone controll - STABILIZE")
+		self.report("Drone controll - STABILIZE")
 		self.vehicle.mode = VehicleMode("STABILIZE")
 
 	def loiter(self):
-		self.report("Drone: drone controll - LOITER")
+		self.report("Drone controll - LOITER")
 		self.vehicle.mode = VehicleMode("LOITER")
 
 	def guided(self):
-		self.report("Drone: drone controll - GUIDED")
+		self.report("Drone controll - GUIDED")
 		self.vehicle.mode = VehicleMode("GUIDED")
 
 	def poshold(self):
-		self.report("Drone: drone controll - POSHOLD")
+		self.report("Drone controll - POSHOLD")
 		self.vehicle.mode = VehicleMode("POSHOLD")
+
+	def alt_hold(self):
+		self.report("Drone controll - ALT_HOLD")
+		self.vehicle.mode = VehicleMode("ALT_HOLD")
 
 
 	def override(self):
@@ -282,12 +259,12 @@ class vehicle_controll:
 
 	def panic(self):
 		if self.in_panic == False:
-			self.land()
+			self.alt_hold()
 			self.in_panic = True
-			self.report("Drone: drone controll - PANIC ACTIVATED!")
+			self.report("Drone controll - PANIC ACTIVATED!")
 		else:
 			# enter here every time after reading the safety channel value over threshold
-			self.report("Drone: drone controll - WARNING: PANIC ACTIVATED AGAIN!")
+			self.report("Drone controll - WARNING: PANIC ACTIVATED AGAIN!")
 
 
 	def send_ned_velocity_once(self, velocity_x, velocity_y, velocity_z):
@@ -653,18 +630,18 @@ class vehicle_controll:
 		the distance-to-target.
 		"""	
 
-		print("Drone: drone controll - Triangle: TRIANGLE path using standard Vehicle.simple_goto()")
+		print("Drone controll - Triangle: TRIANGLE path using standard Vehicle.simple_goto()")
 
-		print("Drone: drone controll - Triangle: Set groundspeed to 5m/s.")
+		print("Drone controll - Triangle: Set groundspeed to 5m/s.")
 		self.vehicle.groundspeed=5
 
-		print("Drone: drone controll - Triangle: Position North 80 West 50")
+		print("Drone controll - Triangle: Position North 80 West 50")
 		self.goto(80, -50)
 
-		print("Drone: drone controll - Triangle: Position North 0 East 100")
+		print("Drone controll - Triangle: Position North 0 East 100")
 		self.goto(0, 100)
 
-		print("Drone: drone controll - Triangle: Position North -80 West 50")
+		print("Drone controll - Triangle: Position North -80 West 50")
 		self.goto(-80, -50)
 
 
@@ -683,22 +660,22 @@ class vehicle_controll:
 		In AC3.3 the speed changes immediately.
 		"""
 
-		print("Drone: drone controll - Triangle2: TRIANGLE path using standard SET_POSITION_TARGET_GLOBAL_INT message and with varying speed.")
-		print("Drone: drone controll - Triangle2: Position South 100 West 130")
+		print("Drone controll - Triangle2: TRIANGLE path using standard SET_POSITION_TARGET_GLOBAL_INT message and with varying speed.")
+		print("Drone controll - Triangle2: Position South 100 West 130")
 
-		print("Drone: drone controll - Triangle2: Set groundspeed to 5m/s.")
+		print("Drone controll - Triangle2: Set groundspeed to 5m/s.")
 		self.vehicle.groundspeed = 5
 		self.goto(-100, -130, self.goto_position_target_global_int)
 
-		print("Drone: drone controll - Triangle2: Set groundspeed to 15m/s (max).")
+		print("Drone controll - Triangle2: Set groundspeed to 15m/s (max).")
 		self.vehicle.groundspeed = 15
-		print("Drone: drone controll - Triangle2: Position South 0 East 200")
+		print("Drone controll - Triangle2: Position South 0 East 200")
 		self.goto(0, 260, self.goto_position_target_global_int)
 
-		print("Drone: drone controll - Triangle2: Set airspeed to 10m/s (max).")
+		print("Drone controll - Triangle2: Set airspeed to 10m/s (max).")
 		self.vehicle.airspeed = 10
 
-		print("Drone: drone controll - Triangle2: Position North 100 West 130")
+		print("Drone controll - Triangle2: Position North 100 West 130")
 		self.goto(100, -130, self.goto_position_target_global_int)
 
 
@@ -719,29 +696,29 @@ class vehicle_controll:
 		camera gimbal at the the selected location (in this case it aligns the whole vehicle to point at the ROI).
 		"""	
 
-		print("Drone: drone controll - Square: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
+		print("Drone controll - Square: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
 		self.DURATION = 20 #Set duration for each segment.
 
-		print("Drone: drone controll - Square: North 50m, East 0m, 10m altitude for %s seconds" % self.DURATION)
+		print("Drone controll - Square: North 50m, East 0m, 10m altitude for %s seconds" % self.DURATION)
 		self.goto_position_target_local_ned(50,0,-10)
-		print("Drone: drone controll - Square: Point ROI at current location (home position)") 
+		print("Drone controll - Square: Point ROI at current location (home position)") 
 		# NOTE that this has to be called after the goto command as first "move" command of a particular type
 		# "resets" ROI/YAW commands
 		self.set_roi(self.vehicle.location.global_relative_frame)
 		time.sleep(self.DURATION)
 
-		print("Drone: drone controll - Square: North 50m, East 50m, 10m altitude")
+		print("Drone controll - Square: North 50m, East 50m, 10m altitude")
 		self.goto_position_target_local_ned(50,50,-10)
 		time.sleep(self.DURATION)
 
-		print("Drone: drone controll - Square: Point ROI at current location")
+		print("Drone controll - Square: Point ROI at current location")
 		self.set_roi(self.vehicle.location.global_relative_frame)
 
-		print("Drone: drone controll - Square: North 0m, East 50m, 10m altitude")
+		print("Drone controll - Square: North 0m, East 50m, 10m altitude")
 		self.goto_position_target_local_ned(0,50,-10)
 		time.sleep(self.DURATION)
 
-		print("Drone: drone controll - Square: North 0m, East 0m, 10m altitude")
+		print("Drone controll - Square: North 0m, East 0m, 10m altitude")
 		self.goto_position_target_local_ned(0,0,-10)
 		time.sleep(self.DURATION)
 
@@ -756,7 +733,7 @@ class vehicle_controll:
 		so that the front of the vehicle points in the direction of travel
 		"""
 
-		print("Drone: drone controll - Square2: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
+		print("Drone controll - Square2: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
 		self.DURATION = 20 #Set duration for each segment.
 
 		#Set up velocity vector to map to each direction.
@@ -779,36 +756,36 @@ class vehicle_controll:
 
 
 		# Square path using velocity
-		print("Drone: drone controll - Square2: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and velocity parameters")
+		print("Drone controll - Square2: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and velocity parameters")
 
-		print("Drone: drone controll - Square2: Yaw 180 absolute (South)")
+		print("Drone controll - Square2: Yaw 180 absolute (South)")
 		self.condition_yaw(180)
 
-		print("Drone: drone controll - Square2: Velocity South & up")
+		print("Drone controll - Square2: Velocity South & up")
 		self.send_ned_velocity(self.SOUTH,0,self.UP,self.DURATION)
 		self.send_ned_velocity(0,0,0,1)
 
 
-		print("Drone: drone controll - Square2: Yaw 270 absolute (West)")
+		print("Drone controll - Square2: Yaw 270 absolute (West)")
 		self.condition_yaw(270)
 
-		print("Drone: drone controll - Square2: Velocity West & down")
+		print("Drone controll - Square2: Velocity West & down")
 		self.send_ned_velocity(0,self.WEST,self.DOWN,self.DURATION)
 		self.send_ned_velocity(0,0,0,1)
 
 
-		print("Drone: drone controll - Square2: Yaw 0 absolute (North)")
+		print("Drone controll - Square2: Yaw 0 absolute (North)")
 		self.condition_yaw(0)
 
-		print("Drone: drone controll - Square2: Velocity North")
+		print("Drone controll - Square2: Velocity North")
 		self.send_ned_velocity(self.NORTH,0,0,self.DURATION)
 		self.send_ned_velocity(0,0,0,1)
 
 
-		print("Drone: drone controll - Square2: Yaw 90 absolute (East)")
+		print("Drone controll - Square2: Yaw 90 absolute (East)")
 		self.condition_yaw(90)
 
-		print("Drone: drone controll - Square2: Velocity East")
+		print("Drone controll - Square2: Velocity East")
 		self.send_ned_velocity(0,self.EAST,0,self.DURATION)
 		self.send_ned_velocity(0,0,0,1)
 
@@ -826,7 +803,7 @@ class vehicle_controll:
 		At the end of the second segment the code sets a new home location to the current point.
 		"""
 		
-		print("Drone: drone controll - Diamond: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
+		print("Drone controll - Diamond: SQUARE path using SET_POSITION_TARGET_LOCAL_NED and position parameters")
 		self.DURATION = 20 #Set duration for each segment.
 
 		#Set up velocity vector to map to each direction.
@@ -847,45 +824,45 @@ class vehicle_controll:
 		self.UP = -0.5
 		self.DOWN = 0.5
 
-		print("Drone: drone controll - Diamond: DIAMOND path using SET_POSITION_TARGET_GLOBAL_INT and velocity parameters")
+		print("Drone controll - Diamond: DIAMOND path using SET_POSITION_TARGET_GLOBAL_INT and velocity parameters")
 		# vx, vy are parallel to North and East (independent of the vehicle orientation)
 
-		print("Drone: drone controll - Diamond: Yaw 225 absolute")
+		print("Drone controll - Diamond: Yaw 225 absolute")
 		self.condition_yaw(225)
 
-		print("Drone: drone controll - Diamond: Velocity South, West and Up")
+		print("Drone controll - Diamond: Velocity South, West and Up")
 		self.send_global_velocity(self.SOUTH,self.WEST,self.UP,self.DURATION)
 		self.send_global_velocity(0,0,0,1)
 
-		print("Drone: drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
+		print("Drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
 		self.condition_yaw(90,relative=True)
 
-		print("Drone: drone controll - Diamond: Velocity North, West and Down")
+		print("Drone controll - Diamond: Velocity North, West and Down")
 		self.send_global_velocity(self.NORTH,self.WEST,self.DOWN,self.DURATION)
 		self.send_global_velocity(0,0,0,1)
 
-		print("Drone: drone controll - Diamond: Set new home location to current location")
+		print("Drone controll - Diamond: Set new home location to current location")
 		self.vehicle.home_location=self.vehicle.location.global_frame
-		print "Drone: drone controll - Diamond: Get new home location"
+		print "Drone controll - Diamond: Get new home location"
 		#This reloads the home location in DroneKit and GCSs
 		cmds = self.vehicle.commands
 		cmds.download()
 		cmds.wait_ready()
-		print "Drone: drone controll - Diamond: Home Location: %s" % self.vehicle.home_location
+		print "Drone controll - Diamond: Home Location: %s" % self.vehicle.home_location
 
 
-		print("Drone: drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
+		print("Drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
 		self.condition_yaw(90,relative=True)
 
-		print("Drone: drone controll - Diamond: Velocity North and East")
+		print("Drone controll - Diamond: Velocity North and East")
 		self.send_global_velocity(self.NORTH,self.EAST,0,self.DURATION)
 		self.send_global_velocity(0,0,0,1)
 
 
-		print("Drone: drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
+		print("Drone controll - Diamond: Yaw 90 relative (to previous yaw heading)")
 		self.condition_yaw(90,relative=True)
 
-		print("Drone: drone controll - Diamond: Velocity South and East")
+		print("Drone controll - Diamond: Velocity South and East")
 		self.send_global_velocity(self.SOUTH,self.EAST,0,self.DURATION)
 		self.send_global_velocity(0,0,0,1)
 
