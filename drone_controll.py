@@ -9,6 +9,7 @@ import math
 import time
 import sys, traceback
 
+
 class vehicle_controll:
 	vehicle = None
 
@@ -24,8 +25,8 @@ class vehicle_controll:
 
 	def report(self, msg):
 		print str(msg)
-		if (self.UDP_server_Report is not None):
-			self.UDP_server_Report.send_report(msg)
+		#if (self.UDP_server_Report is not None):
+		#	self.UDP_server_Report.send_report(msg)
 
 	def send_command_list(self, cmd):
 		if cmd[0] == "arm" and len(cmd) == 1:
@@ -48,8 +49,8 @@ class vehicle_controll:
 			self.guided()
 		elif cmd[0] == "poshold":
 			self.poshold()
-		elif cmd[0] == "althold":
-			self.althold()
+		elif cmd[0] == "alt_hold":
+			self.alt_hold()
 
 		elif cmd[0] == "override":
 			self.override()
@@ -209,9 +210,9 @@ class vehicle_controll:
 		self.report("Drone controll - POSHOLD")
 		self.vehicle.mode = VehicleMode("POSHOLD")
 
-	def althold(self):
-		self.report("Drone controll - ALTHOLD")
-		self.vehicle.mode = VehicleMode("ALTHOLD")
+	def alt_hold(self):
+		self.report("Drone controll - ALT_HOLD")
+		self.vehicle.mode = VehicleMode("ALT_HOLD")
 
 
 	def override(self):
@@ -258,7 +259,7 @@ class vehicle_controll:
 
 	def panic(self):
 		if self.in_panic == False:
-			self.land()
+			self.alt_hold()
 			self.in_panic = True
 			self.report("Drone controll - PANIC ACTIVATED!")
 		else:
