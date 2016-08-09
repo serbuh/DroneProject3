@@ -38,8 +38,7 @@ def chunk(frame_queue,chunks_queue, run_event):
 				data = frame_queue.get()
 				data = list(chunkstring(data,14400))
 				for i in range(0,64):
-					pack = str((i,data[i]))
-					chunks_queue.put(pack)
+					chunks_queue.put(data[i])
 					#l = l + len(data[i])
 					#s.sendto(pack,(HOST,PORT))
 					#print len(pack),i
@@ -55,8 +54,10 @@ def send(chunks_queue,socket, run_event):
 	try:
 		while run_event.is_set():
 			if not chunks_queue.empty():
-				pack = chunks_queue.get()
-				socket.sendto(pack,(HOST,PORT))
+				for i in range(0,64):
+					pack = chunks_queue.get()
+					pack = str((i,pack))
+					socket.sendto(pack,(HOST,PORT))
 				#print "sent: " + str(datetime.now())
 				#print l , i
 	except KeyboardInterrupt:
