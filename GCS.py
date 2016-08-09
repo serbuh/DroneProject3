@@ -48,11 +48,13 @@ class GUI_main(tk.Frame):
 		self.root.configure(background='black')
 		
 		self.control_frame_row, self.control_frame_column, = 0, 0
-		self.console_frame_row, self.console_frame_column = 2, 0
 		self.HUD_frame_row, self.HUD_frame_column, = 0, 1
+		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 3, True
+		self.console_frame_row, self.console_frame_column = 2, 0
+
 		self.firmware_frame_row, self.firmware_frame_column, self.firmware_frame_hide = 1, 1, True
-		self.test_frame_row, self.test_frame_column, self.test_frame_hide = 0, 3, True
-		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 2, True
+		self.test_frame_row, self.test_frame_column, self.test_frame_hide = 3, 0, True
+
 
 		self.init_control_frame(frame_row=self.control_frame_row, frame_column=self.control_frame_column)
 		self.init_console_frame(frame_row=self.console_frame_row, frame_column=self.console_frame_column)
@@ -122,25 +124,25 @@ class GUI_main(tk.Frame):
 		self.lbl_failsafe.grid(row=7, column=0, columnspan=3)
 
 		# row 8, 9, 10
-		self.btn_land = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Land', width=25, command= self.on_btn_land)
+		self.btn_land = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Land', width=15, command= self.on_btn_land)
 		self.btn_land.grid(row=8, column=0, columnspan=1)
 
-		self.btn_rtl = tk.Button(self.control_frame, fg='black', activebackground='green2', text='RTL', width=25, command= self.on_btn_rtl)
+		self.btn_rtl = tk.Button(self.control_frame, fg='black', activebackground='green2', text='RTL', width=15, command= self.on_btn_rtl)
 		self.btn_rtl.grid(row=8, column=1, columnspan=1)
 
-		self.btn_stabilize = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Stabilize', width=25, command= self.on_btn_stabilize)
+		self.btn_stabilize = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Stabilize', width=15, command= self.on_btn_stabilize)
 		self.btn_stabilize.grid(row=9, column=0, columnspan=1)
 
-		self.btn_loiter = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Loiter', width=25, command= self.on_btn_loiter)
+		self.btn_loiter = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Loiter', width=15, command= self.on_btn_loiter)
 		self.btn_loiter.grid(row=9, column=1, columnspan=1)
 
-		self.btn_guided = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Guided', width=25, command= self.on_btn_guided)
+		self.btn_guided = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Guided', width=15, command= self.on_btn_guided)
 		self.btn_guided.grid(row=10, column=0, columnspan=1)
 
-		self.btn_poshold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Position Hold', width=25, command= self.on_btn_poshold)
+		self.btn_poshold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Position Hold', width=15, command= self.on_btn_poshold)
 		self.btn_poshold.grid(row=10, column=1, columnspan=1)
 
-		self.btn_althold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Altitude Hold', width=25, command= self.on_btn_althold)
+		self.btn_althold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Altitude Hold', width=15, command= self.on_btn_althold)
 		self.btn_althold.grid(row=11, column=0, columnspan=1)
 
 		self.control_frame.grid(row=frame_row, column=frame_column)
@@ -164,7 +166,7 @@ class GUI_main(tk.Frame):
 		self.GCS.UDP_client.send_cmd(['poshold'])
 
 	def on_btn_althold(self):
-		self.GCS.UDP_client.send_cmd(['althold'])
+		self.GCS.UDP_client.send_cmd(['alt_hold'])
 
 
 	def on_btn_refresh_state(self):
@@ -257,7 +259,7 @@ class GUI_main(tk.Frame):
 		self.console_frame.configure(background='black')
 
 		self.txt_console = tk.Text(font=('times',12), width=150, height=3, wrap=tk.WORD, bg='black', fg='green2')
-		self.txt_console.grid(row=1, column=0, columnspan=2) 
+		self.txt_console.grid(row=1, column=0, columnspan=4) 
 		# Start redirecting stdout to GUI:
 		self.redirector = StdoutRedirector(self.txt_console)
 		sys.stdout = self.redirector
@@ -384,44 +386,44 @@ class GUI_main(tk.Frame):
 
 		self.lbl_mission1 = tk.Label(self.mission_frame, text='(1) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission1.grid(row=1, column=0, columnspan=1)
-		self.btn_mission1 = tk.Button(self.mission_frame, fg='black', text='Arm', width=20, command= self.on_btn_mission1)
+		self.btn_mission1 = tk.Button(self.mission_frame, fg='black', text='Arm', width=10, command= self.on_btn_mission1)
 		self.btn_mission1.grid(row=1, column=1, columnspan=1)
 
 		self.lbl_mission2 = tk.Label(self.mission_frame, text='(2) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission2.grid(row=2, column=0, columnspan=1)
-		self.btn_mission2 = tk.Button(self.mission_frame, fg='black', text='Guided Takeoff, Stay on alt:', width=20, command= self.on_btn_mission2)
+		self.btn_mission2 = tk.Button(self.mission_frame, fg='black', text='Takeoff to:', width=10, command= self.on_btn_mission2)
 		self.btn_mission2.grid(row=2, column=1, columnspan=1)
-		self.ent_mission2 = tk.Entry(self.mission_frame)
+		self.ent_mission2 = tk.Entry(self.mission_frame, width=10)
 		self.ent_mission2.insert(0, "3")
 		self.ent_mission2.grid(row=2, column=2)
-		self.btn_mission2_1 = tk.Button(self.mission_frame, fg='black', text='GUIDED, move_0', width=20, command= self.on_btn_mission2_1)
-		self.btn_mission2_1.grid(row=2, column=3, columnspan=1)
 
 		self.lbl_mission3 = tk.Label(self.mission_frame, text='(3) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission3.grid(row=3, column=0, columnspan=1)
-		self.btn_mission3 = tk.Button(self.mission_frame, fg='black', text='Listen to WASD keys', width=20, command= self.on_btn_mission3)
-		self.btn_mission3.grid(row=3, column=1, columnspan=1)
+		self.btn_mission3 = tk.Button(self.mission_frame, fg='black', text='GUIDED, move_0, WASD', width=23, command= self.on_btn_mission3)
+		self.btn_mission3.grid(row=3, column=1, columnspan=2)
 
 		self.lbl_mission4 = tk.Label(self.mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission4.grid(row=4, column=0, columnspan=1)
-		self.btn_mission4 = tk.Button(self.mission_frame, fg='black', text='Fly! :)', width=20, command= self.on_btn_mission4)
+		self.btn_mission4 = tk.Button(self.mission_frame, fg='black', text='Fly! :)', width=10, command= self.on_btn_mission4)
 		self.btn_mission4.grid(row=4, column=1, columnspan=1)
 
 		self.lbl_mission5 = tk.Label(self.mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_mission5.grid(row=5, column=0, columnspan=1)
-		self.btn_mission5 = tk.Button(self.mission_frame, fg='black', text='LAND', width=20, command= self.on_btn_mission5)
-		self.btn_mission5.grid(row=5, column=1, columnspan=1)
-
-		self.btn_mission5_1 = tk.Button(self.mission_frame, fg='black', text='POSHOLD', width=20, command= self.on_btn_mission5_1)
+		self.btn_mission5_0 = tk.Button(self.mission_frame, fg='black', text='ALT_HOLD', width=10, command= self.on_btn_mission5_0)
+		self.btn_mission5_0.grid(row=5, column=1, columnspan=1)
+		self.btn_mission5_1 = tk.Button(self.mission_frame, fg='black', text='LAND', width=10, command= self.on_btn_mission5_1)
 		self.btn_mission5_1.grid(row=5, column=2, columnspan=1)
 
-		self.btn_mission5_2 = tk.Button(self.mission_frame, fg='black', text='LOITER', width=20, command= self.on_btn_mission5_2)
-		self.btn_mission5_2.grid(row=5, column=3, columnspan=1)
+		self.btn_mission5_2 = tk.Button(self.mission_frame, fg='black', text='LOITER', width=10, command= self.on_btn_mission5_2)
+		self.btn_mission5_2.grid(row=6, column=1, columnspan=1)
+
+		self.btn_mission5_3 = tk.Button(self.mission_frame, fg='black', text='POSHOLD', width=10, command= self.on_btn_mission5_3)
+		self.btn_mission5_3.grid(row=6, column=2, columnspan=1)
 
 		self.lbl_mission6 = tk.Label(self.mission_frame, text='(6) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission6.grid(row=6, column=0, columnspan=1)
-		self.btn_mission6 = tk.Button(self.mission_frame, fg='black', text='Disarm', width=20, command= self.on_btn_mission6)
-		self.btn_mission6.grid(row=6, column=1, columnspan=1)
+		self.lbl_mission6.grid(row=7, column=0, columnspan=1)
+		self.btn_mission6 = tk.Button(self.mission_frame, fg='black', text='Disarm', width=10, command= self.on_btn_mission6)
+		self.btn_mission6.grid(row=7, column=1, columnspan=1)
 
 
 		#self.lbl_mission7 = tk.Label(self.mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
@@ -441,12 +443,14 @@ class GUI_main(tk.Frame):
 			self.lbl_send_position.config(text = "YES", bg='green3')
 
 	def on_btn_mission2_1(self):
-		self.prnt("Mission", "GUIDED, move_0")
-		self.GCS.UDP_client.send_cmd(['guided'])
-		if self.lbl_send_position.cget('bg') == "red":
-			self.send_position_enable()
+		pass
 
 	def on_btn_mission3(self):
+		self.prnt("Mission", "GUIDED")
+		self.GCS.UDP_client.send_cmd(['guided'])
+		self.prnt("Mission", "Send move_0")
+		if self.lbl_send_position.cget('bg') == "red":
+			self.send_position_enable()
 		self.prnt("Mission", "Listen to WASD keys")
 		if self.lbl_listen_keys.cget('bg') == "red":
 			self.listen_keys_enable()
@@ -454,23 +458,29 @@ class GUI_main(tk.Frame):
 	def on_btn_mission4(self):
 		self.prnt("Mission", "Fly! :)")
 
-	def on_btn_mission5(self):
+	def on_btn_mission5_0(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
-		self.prnt("Mission", "LAND mode")
-		self.GCS.UDP_client.send_cmd(['land'])
+		self.prnt("Mission", "ALT_HOLD mode")
+		self.GCS.UDP_client.send_cmd(['alt_hold'])
 
 	def on_btn_mission5_1(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
-		self.prnt("Mission", "POSHOLD mode")
-		self.GCS.UDP_client.send_cmd(['poshold'])
+		self.prnt("Mission", "LAND mode")
+		self.GCS.UDP_client.send_cmd(['land'])
 
 	def on_btn_mission5_2(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LOITER mode")
 		self.GCS.UDP_client.send_cmd(['loiter'])
+
+	def on_btn_mission5_3(self):
+		self.send_position_disable()
+		self.listen_keys_disable()
+		self.prnt("Mission", "POSHOLD mode")
+		self.GCS.UDP_client.send_cmd(['poshold'])
 
 	def on_btn_mission6(self):
 		self.prnt("Mission", "Disarm")
