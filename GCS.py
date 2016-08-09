@@ -11,13 +11,16 @@ import datetime
 import sys
 import os
 
+#TODO Panic switch in simulated environment
+#ALTHOLD in GUI, Mission, 
+
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
     def __init__(self,text_area):
         self.text_area = text_area
 	if not os.path.isdir("./log"):
 		os.mkdir("./log")
-	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%y.%m.%d_%H:%M:%S') + ".txt", "w")
+	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%y.%m.%d_%H.%M.%S') + ".txt", "w")
 
 class StdoutRedirector(IORedirector):
     '''A class for redirecting stdout to this Text widget.'''
