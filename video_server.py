@@ -42,7 +42,8 @@ def chunkAndSend(queue,socket,run_event):
 					#l = l + len(data[i])
 					s.sendto(pack,(HOST,PORT))
 					#print len(pack),i
-				#print "Sent Frame!"
+				print "sent: " + str(datetime.now())
+
 				#print l , i
 	except KeyboardInterrupt:
 		print "Thread interupt..."	
@@ -72,7 +73,6 @@ if __name__ == "__main__":
 			frame = frame.flatten()
 			data = frame.tostring()
 			q.put(data)
-			print "sent: " + str(datetime.now())
 			#sleep(0.1)
 			#print "main!"			
 					
