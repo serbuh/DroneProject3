@@ -15,7 +15,7 @@ class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
     def __init__(self,text_area):
         self.text_area = text_area
-	if not os.path.isdir("/home/el"):
+	if not os.path.isdir("/log"):
 		os.mkdir("./log")
 	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%y.%m.%d_%H:%M:%S') + ".txt", "w")
 
