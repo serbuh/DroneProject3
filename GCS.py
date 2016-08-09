@@ -11,8 +11,6 @@ import datetime
 import sys
 import os
 
-#TODO Panic switch in simulated environment
-#ALTHOLD in GUI, Mission, 
 
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
