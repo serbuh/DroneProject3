@@ -11,6 +11,8 @@ import datetime
 import sys
 import os
 
+#TODO File redirection disable flag (bug during insert(tk.END, str))
+#TODO add WASD capsed
 
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
