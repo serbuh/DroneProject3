@@ -42,6 +42,17 @@ sudo python GCS.py --connect /dev/ttyUSB0,57600 --drone_ip 192.168.x.x
 sudo python GCS.py --connect /dev/ttyACM0 --drone_ip 192.168.x.x
 ```
 
+**Drone Connection Sequence**
+```sh
+1. Connec too Qtcopter network  
+2. ssh odroid@192.168.12.1 password: odroid  
+3. sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x  
+4. On computer designated for GCS:  
+      linux: sudo python GCS.py --drone_ip 192.168.12.1  
+      windows: python GCS.py --drone_ip 192.168.12.1  
+5. For debguging connect another computer with Mission Planer via telemetry dongle , only after conneting the main GCS to the drone  
+```
+
 Install MAVProxy:
 ```sh
 sudo pip install MAVProxy
