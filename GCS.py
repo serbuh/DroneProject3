@@ -176,9 +176,9 @@ class GUI_main(tk.Frame):
 
 	def on_btn_send_position(self):
 		if self.lbl_send_position.cget('bg') == "green3":
-			self.send_postition_disable()
+			self.send_position_disable()
 		elif self.lbl_send_position.cget('bg') == "red":
-			self.send_postition_enable()
+			self.send_position_enable()
 
 	def send_position_disable(self):
 		self.prnt("GCS", "Send move_0 DISABLE")
