@@ -9,7 +9,7 @@ from time import sleep
 import threading
 
 
-HOST = '127.0.0.1'
+HOST = '192.168.12.95'
 PORT = 3333
 
 close_event = threading.Event()	
