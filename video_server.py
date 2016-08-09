@@ -31,16 +31,17 @@ def showImage(title , frame , wait = False ):
 def chunkstring(string, length):
     return (string[0+i:length+i] for i in range(0, len(string), length))
 
-def chunkAndSend(queue,socket,run_event):
+def chunk(frame_queue,chunks_queue, run_event):
 	try:
 		while run_event.is_set():
-			if not queue.empty():
-				data = queue.get()
+			if not frame_queue.empty():
+				data = frame_queue.get()
 				data = list(chunkstring(data,14400))
 				for i in range(0,64):
 					pack = str((i,data[i]))
+					chunks_queue.put(pack)
 					#l = l + len(data[i])
-					s.sendto(pack,(HOST,PORT))
+					#s.sendto(pack,(HOST,PORT))
 					#print len(pack),i
 				print "sent: " + str(datetime.now())
 
@@ -48,19 +49,36 @@ def chunkAndSend(queue,socket,run_event):
 	except KeyboardInterrupt:
 		print "Thread interupt..."	
 		close_event.set()	
+	print "Chunk Thread Close"
+		
+def send(chunks_queue,socket, run_event):
+	try:
+		while run_event.is_set():
+			if not chunks_queue.empty():
+				data = chunks_queue.get()
+				socket.sendto(pack,(HOST,PORT))
+				#print "sent: " + str(datetime.now())
+				#print l , i
+	except KeyboardInterrupt:
+		print "Thread interupt..."	
+		close_event.set()	
 	print "Send Thread Close"
-			
+	
 if __name__ == "__main__":
 	camera = Camera()
-	q = Queue()	
+	frame_queue = Queue()
+	chunks_queue = Queue()	
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	
 	run_event = threading.Event()
 	#run_event.set() 	
 	
-	sendThread = threading.Thread(target=chunkAndSend, args=[q,s,run_event])	
+	chunkThread = threading.Thread(target=chunk, args=[frame_queue,chunks_queue,run_event])
+	sendThread = threading.Thread(target=send, args=[chunks_queue,s,run_event])
 	#cap = cv2.VideoCapture(0)
 	run_event.set()	
+	print "Start Chunk Thread!"
+	chunkThread.start()	
 	print "Start Send Thread!"
 	sendThread.start()	
 	while not close_event.is_set():
@@ -79,7 +97,10 @@ if __name__ == "__main__":
 		except KeyboardInterrupt:
 			print "MAIN LOOP INTERUPT!"
 			run_event.clear()
-			print "joining..."
+			print "joining chunking..."
+			chunkThread.join()
+			print "dead.."
+			print "joining sending..."
 			sendThread.join()
 			print "dead.."
 			break			
