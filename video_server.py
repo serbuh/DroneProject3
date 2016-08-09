@@ -66,7 +66,7 @@ if __name__ == "__main__":
 			#ret, frame = cap.read()
 			#frame = cv2.resize(redBallTracking(frame),(640, 480))
 			frame = cv2.resize(frame,(640,480))		
-			showImage("Server",frame)
+			#showImage("Server",frame)
 			frame = frame.flatten()
 			data = frame.tostring()
 			q.put(data)
