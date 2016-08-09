@@ -54,8 +54,8 @@ class vehicle_controll:
 
 		elif cmd[0] == "override":
 			self.override()
-		elif cmd[0] == "release_override":
-			self.release_override()
+		elif cmd[0] == "override_release":
+			self.override_release()
 
 		elif cmd[0] == "is_armable":
 			self.is_armable()
@@ -217,9 +217,9 @@ class vehicle_controll:
 
 	def override(self):
 		self.report("override activated")
-		self.vehicle.channels.overrides = {'8':2000}
+		self.vehicle.channels.overrides = {'3':1500}
 
-	def release_override(self):
+	def override_release(self):
 		self.report("release override activated")
 		self.vehicle.channels.overrides = {}
 
