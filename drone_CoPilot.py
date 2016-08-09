@@ -24,6 +24,17 @@ class StdoutRedirector(IORedirector):
 	sys.__stdout__.write(msg)
 	if msg != '\n':
 		self.UDP_server_Report.send_report(str(msg))
+    def flush(self):
+        pass
+
+class StderrRedirector(IORedirector):
+    '''A class for redirecting stdout to this Text widget.'''
+    def write(self, msg):
+	sys.__stderr__.write(msg)
+	if msg != '\n':
+		self.UDP_server_Report.send_report(str(msg))
+    def flush(self):
+        pass
 
 class GUI_main(tk.Frame):
 	def __init__(self, root, vehicle, sitl, vehicle_controll, close_all, *args, **kwargs):
@@ -217,7 +228,8 @@ class drone_CoPilot():
 				# Start redirecting stdout to UDP:
 				print "Drone: redirecting stdout to UDP"
 				sys.stdout = StdoutRedirector(self.UDP_server_Report)
-				#sys.stderr = StdoutRedirector(self.UDP_server_Report)
+				print "Drone: redirecting stderr to UDP"
+				sys.stderr = StderrRedirector(self.UDP_server_Report)
 
 			print "Drone: open Telemetry, commands socket"
 			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, self.gcs_ip, 6001)
@@ -438,7 +450,8 @@ class drone_CoPilot():
 		if self.Report_enabled:
 			print "Drone: Stop redirecting stdout to UDP"
 			sys.stdout = sys.__stdout__
-			#sys.stderr = sys.__stderr__
+			print "Drone: Stop redirecting stderr to UDP"
+			sys.stderr = sys.__stderr__
 			print "Drone: Stoped redirecting stdout to UDP"
 
 		if self.vehicle is not None:
