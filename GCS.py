@@ -28,7 +28,9 @@ class StdoutRedirector(IORedirector):
     '''A class for redirecting stdout to this Text widget.'''
     def write(self,str):
 	self.text_area.see(tk.END)
+	self.text_area.config(state = tk.NORMAL)
 	self.text_area.insert(tk.END, str)
+	self.text_area.config(state = tk.DISABLED)
 	self.log_file.write(str)
 
 
@@ -271,7 +273,7 @@ class GUI_main(tk.Frame):
 		self.console_frame = tk.Frame(self.root)
 		self.console_frame.configure(background='black')
 
-		self.txt_console = tk.Text(font=('times',12), width=150, height=8, wrap=tk.WORD, bg='black', fg='green2')
+		self.txt_console = tk.Text(font=('times',12), width=150, height=8, wrap=tk.WORD, bg='black', fg='green2', state=tk.DISABLED)
 		self.txt_console.grid(row=1, column=0, columnspan=4)
 		if self.GCS.con_to_GUI_redirection:
 			# Start redirecting stdout to GUI:
