@@ -1,5 +1,18 @@
 # DroneProject3
 
+**Connect Odroid**  
+1. Connect to remote computer to qtcopter Wi-Fi.  
+2. Connect remote computer via SSH to Odroid: ```ssh odroid@192.168.12.1``` (password: odroid)  
+3. Go to the drone's code folder: ```cd DroneProject3/```  
+4. Run the Drone's code on Odroid  
+      a. If Odroid connected via USB:   ```sh sudo python drone_CoPilot.py --connect /dev/ttyACM0 --gcs_ip 192.168.x.x```  
+      b. If Odroid connected via Telem: ```sh sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x```  
+5. Run the GCS on Remote computer, (connected to Drone via Wi-Fi)  
+      a. On Windows:   ```sh sudo python GCS.py --drone_ip 192.168.12.1```  
+      b. On Linux: ```sh python GCS.py --drone_ip 192.168.12.1```  
+6. (Optional) Run Mission Planer on another or same remote computer (connected through Telemetry dongle):
+      ```sh mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map ```
+
 We use clean Ubuntu 14.04 with following dependencies installed:
 - Drone-kit:
 - FlyCapture:
@@ -25,42 +38,10 @@ Install serial:
 sudo pip install pyserial
 ```
 
-**Connect Odroid**  
-1. Connect to qtcopter Wi-Fi  
-2. ```ssh odroid@192.168.12.1``` (password: odroid)  
-3. ```cd DroneProject3/```  
-
-Connect Odroid to Pixhawk via (1) Telem or (2) USB
-```sh
-sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x
-sudo python drone_CoPilot.py --connect /dev/ttyACM0 --gcs_ip 192.168.x.x
-```
-
-Connect GCS to Odroid
-```sh
-sudo python GCS.py --connect /dev/ttyUSB0,57600 --drone_ip 192.168.x.x
-sudo python GCS.py --connect /dev/ttyACM0 --drone_ip 192.168.x.x
-```
-
-**Drone Connection Sequence**
-```sh
-1. Connec too Qtcopter network  
-2. ssh odroid@192.168.12.1 password: odroid  
-3. sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x  
-4. On computer designated for GCS:  
-      linux: sudo python GCS.py --drone_ip 192.168.12.1  
-      windows: python GCS.py --drone_ip 192.168.12.1  
-5. For debguging connect another computer with Mission Planer via telemetry dongle , only after conneting the main GCS to the drone  
-```
 
 Install MAVProxy:
 ```sh
 sudo pip install MAVProxy
-```
-
-Connect MAVProxy as an additional GCS
-```sh
-mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map
 ```
 
 Connect MAVProxy from Odroid to Pixhawk via (1) Telem or (2) USB
