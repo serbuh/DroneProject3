@@ -66,7 +66,7 @@ class UDP():
 		while not stop_receive_event.is_set():
 			try:
 				data_receive, addr = self.sock_receive.recvfrom(1024)
-				self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
+				#self.prnt_UDP("Received from: " + str(addr) + " Message: " + str(data_receive))
 				data_list = eval(data_receive)
 				#print data_receive, type(data_receive)
 				#print data_list, type(data_list)

@@ -20,7 +20,9 @@ class IORedirector(object):
         self.text_area = text_area
 	if not os.path.isdir("./log"):
 		os.mkdir("./log")
-	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%y.%m.%d_%H.%M.%S') + ".txt", "w")
+	# bufsize 0 - unbuffered; 1 - line buffered; >1 - buffer of (approximately) that size. <0 - system default
+	bufsize = 1
+	self.log_file = open("./log/log_" + datetime.datetime.utcnow().strftime('%y.%m.%d_%H.%M.%S') + ".txt", "w", bufsize)
 
 class StdoutRedirector(IORedirector):
     '''A class for redirecting stdout to this Text widget.'''
@@ -270,12 +272,12 @@ class GUI_main(tk.Frame):
 		self.console_frame.configure(background='black')
 
 		self.txt_console = tk.Text(font=('times',12), width=150, height=8, wrap=tk.WORD, bg='black', fg='green2')
-		self.txt_console.grid(row=1, column=0, columnspan=4) 
-		# Start redirecting stdout to GUI:
-		self.redirector = StdoutRedirector(self.txt_console)
-		sys.stdout = self.redirector
-		# (where self refers to the widget)
-
+		self.txt_console.grid(row=1, column=0, columnspan=4)
+		if self.GCS.con_to_GUI_redirection:
+			# Start redirecting stdout to GUI:
+			self.redirector = StdoutRedirector(self.txt_console)
+			sys.stdout = self.redirector
+			# (where self refers to the widget)
 
 		self.console_frame.grid(row=frame_row, column=frame_column)
 
@@ -522,35 +524,35 @@ class GUI_main(tk.Frame):
 
 	def key_callback(self, event):
 		#print repr(event.char)	+ "Pressed"
-		if (event.char=='p'):
+		if (event.char=='p' or event.char=='P'):
 			self.GCS.UDP_client.send_cmd(['arm', int(10)])
-		if (event.char=='w'):
+		if (event.char=='w' or event.char=='W'):
 			self.key_pressed = event.char
-		elif (event.char=='a'):
+		elif (event.char=='a' or event.char=='A'):
 			self.key_pressed = event.char
-		elif (event.char=='s'):
+		elif (event.char=='s' or event.char=='S'):
 			self.key_pressed = event.char
-		elif (event.char=='d'):
+		elif (event.char=='d' or event.char=='D'):
 			self.key_pressed = event.char
-		elif (event.char=='z'):
+		elif (event.char=='z' or event.char=='Z'):
 			self.key_pressed = event.char
-		elif (event.char=='x'):
+		elif (event.char=='x' or event.char=='X'):
 			self.key_pressed = event.char
-		elif (event.char=='q'):
+		elif (event.char=='q' or event.char=='Q'):
 			self.GCS.UDP_client.send_cmd(['yaw_left', int(10)])
-		elif (event.char=='e'):
+		elif (event.char=='e' or event.char=='E'):
 			self.GCS.UDP_client.send_cmd(['yaw_right', int(10)])
-		elif (event.char=='l'):
+		elif (event.char=='l' or event.char=='L'):
 			self.GCS.UDP_client.send_cmd(['land'])
-		#elif (event.char=='t'):
+		#elif (event.char=='t' or event.char=='T'):
 		#	self.GCS.UDP_client.send_cmd(['triangle'])
-		#elif (event.char=='y'):
+		#elif (event.char=='y' or event.char=='Y'):
 		#	self.GCS.UDP_client.send_cmd(['triangle2'])
-		#elif (event.char=='u'):
+		#elif (event.char=='u' or event.char=='U'):
 		#	self.GCS.UDP_client.send_cmd(['square'])
-		#elif (event.char=='i'):
+		#elif (event.char=='i' or event.char=='I'):
 		#	self.GCS.UDP_client.send_cmd(['square2'])
-		#elif (event.char=='h'):
+		#elif (event.char=='h' or event.char=='H'):
 		#	self.GCS.UDP_client.send_cmd(['diamond'])
 
 	def GUI_close(self):
@@ -597,14 +599,12 @@ class GUI_main(tk.Frame):
 
 
 class GCS():
-	def __init__(self):
+	def __init__(self, con_to_GUI_redirection):
 		try:
+			self.con_to_GUI_redirection = con_to_GUI_redirection
 			self.GUI = None
-			#global dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-			self.val_dict = dict.fromkeys(['roll', 'pitch', 'yaw', 'vx', 'vy', 'vz', 'heading', 'rangefinder', 'airspeed', 'groundspeed', 'gimbal_roll', 'gimbal_pitch', 'gimbal_yaw', 'frame_loc_north', 'frame_loc_east', 'frame_loc_down', 'frame_gl_lat', 'frame_gl_lon', 'frame_gl_alt', 'frame_gl_rel_lat', 'frame_gl_rel_lon', 'frame_gl_rel_alt', 'battery', 'last_heartbeat', 'gps_0_HDOP', 'gps_0_VDOP', 'gps_0_fix', 'gps_0_satellites', 'ekf_ok', 'mode', 'armed', 'system_status', 'is_armable_on_demand'])
-			# Init all val_dict fields
-			self.dict_init_fields()
-
+			# val_dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
+			self.val_dict = {}
 			self.parser = argparse.ArgumentParser(description='GCS module')
 			self.parser.add_argument('--drone_ip')
 			self.args = self.parser.parse_args()
@@ -612,16 +612,7 @@ class GCS():
 				self.drone_ip = "255.255.255.255"
 			else:
 				self.drone_ip = self.args.drone_ip
-			self.prnt("GSC", "Open socket for Telemetry and user commands")
-			self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, self.drone_ip, 5001)
-			self.prnt("GSC", "Open socket for drone Report")
-			self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, self.drone_ip, 5101)
-			
-			self.prnt("GSC", "Start receive Telem thread")
-			self.UDP_client.receive_loop_telem_thread(self.val_dict)
-			self.prnt("GSC", "Start receive Report thread")
-			self.UDP_client_Report.receive_loop_report_thread()
-	
+
 			self.run_GUI()
 
 		except KeyboardInterrupt:
@@ -631,13 +622,22 @@ class GCS():
 	def prnt(self, module, msg):
 		print datetime.datetime.utcnow().strftime('%H:%M:%S.%f') + ": <" + str(module) + "> " + str(msg)
 
-	def dict_init_fields(self):
-		for key, val in self.val_dict.iteritems():
-			self.val_dict[key] = dict.fromkeys(['value', 'lbl_val', 'lbl_name'])
+	def run_Telem(self):
+		self.prnt("GSC", "Run Telem: Open socket for Telemetry and user commands")
+		self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, self.drone_ip, 5001)
+		self.prnt("GSC", "Run Telem: Open socket for drone Report")
+		self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, self.drone_ip, 5101)
+		
+		self.prnt("GSC", "Run Telem: Start receive Telem thread")
+		self.UDP_client.receive_loop_telem_thread(self.val_dict)
+		self.prnt("GSC", "Run Telem: Start receive Report thread")
+		self.UDP_client_Report.receive_loop_report_thread()
 
 	def run_GUI(self):
 		self.root = tk.Tk()
 		self.GUI = GUI_main(self)
+		# GUI fully initialized. Ready to run Telem that will update the GUI
+		self.run_Telem()
 		try:
 			self.prnt("GSC", "GUI - Enter the mainloop")
 			self.root.mainloop()
@@ -647,9 +647,10 @@ class GCS():
 
 	def close_all(self):
 		
-		# Stop redirecting stdout to GUI:
-		sys.stdout = sys.__stdout__
-		self.GUI.redirector.log_file.close()
+		if self.con_to_GUI_redirection:
+			# Stop redirecting stdout to GUI:
+			sys.stdout = sys.__stdout__
+			self.GUI.redirector.log_file.close()
 
 		self.prnt("GSC", "Close all - Telemetry/commands")
 		self.UDP_client.close_UDP()
@@ -663,6 +664,7 @@ class GCS():
 
 
 if __name__ == "__main__":
-		GCS = GCS()
+		con_to_GUI_redirection = True
+		GCS = GCS(con_to_GUI_redirection)
 else:
 	print("You are running me not as a main?")
