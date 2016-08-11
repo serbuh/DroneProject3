@@ -11,8 +11,8 @@ import datetime
 import sys
 import os
 
-#TODO File redirection disable flag (bug during insert(tk.END, str))
-#TODO add WASD capsed
+#TODO Console redirect to tkInter Text widget. Crashes when geting text from keyboard and stdout redirect (thread unsafe)
+# http://stackoverflow.com/questions/20303291/issue-with-redirecting-stdout-to-tkinter-text-widget-with-threads
 
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
@@ -273,7 +273,7 @@ class GUI_main(tk.Frame):
 		self.console_frame = tk.Frame(self.root)
 		self.console_frame.configure(background='black')
 
-		self.txt_console = tk.Text(font=('times',12), width=150, height=8, wrap=tk.WORD, bg='black', fg='green2', state=tk.DISABLED)
+		self.txt_console = tk.Text(font=('times',12), width=150, height=1, wrap=tk.WORD, bg='black', fg='green2', state=tk.DISABLED)
 		self.txt_console.grid(row=1, column=0, columnspan=4)
 		if self.GCS.con_to_GUI_redirection:
 			# Start redirecting stdout to GUI:
@@ -666,7 +666,7 @@ class GCS():
 
 
 if __name__ == "__main__":
-		con_to_GUI_redirection = True
+		con_to_GUI_redirection = False
 		GCS = GCS(con_to_GUI_redirection)
 else:
 	print("You are running me not as a main?")
