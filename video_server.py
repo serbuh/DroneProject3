@@ -30,20 +30,19 @@ class Video_Server:
 	def sendVideo(self):
 		while not self.close_event.is_set():
 			try:
-				frame = self.camera.getFrame(True)
+				pass
+				#frame = self.camera.getFrame(True)
 				#frame = cv2.resize(redBallTracking(frame),(160, 120))	
-				frame = cv2.resize(frame,(160,120))
-				frame = frame.flatten()
-				data = frame.tostring()
-				self.socket.sendto(data,(HOST,PORT))
+				#frame = cv2.resize(frame,(160,120))
+				#frame = frame.flatten()
+				#data = frame.tostring()
+				#self.socket.sendto(data,(HOST,PORT))
 						
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
 				break
 			except:
-            			traceback.print_exc()
-            			break
-				
+				traceback.print_exc()		
 		print "Closed Video Feed"
 
 	def showImage(self,title , frame , wait = False ):	
@@ -60,8 +59,12 @@ class Video_Server:
 	def closeVideoServer(self):
 		print "Closing Video Feed..."
    		self.close_event.set()
-   		self.sendVideoThread.join()
-   		self.camera.disconnect()
+   		#threading.enumerate()
+		self.sendVideoThread.join()
+   		#threading.enumerate()
+		print "Send Thread Killed"
+		self.camera.disconnect()
+		print "Camera Disconected"
 
 
 def chunkstring(string, length):
@@ -102,52 +105,16 @@ def send(chunks_queue,socket, run_event):
 	print "Send Thread Close"
 	
 if __name__ == "__main__":
-	video_server = Video_Server(3333,'192.168.12.95')
-	'''camera = Camera()
-	#frame_queue = Queue()
-	#chunks_queue = Queue()	
-	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-	
-	#run_event = threading.Event()
-	#run_event.set() 	
-	
-	#chunkThread = threading.Thread(target=chunk, args=[frame_queue,chunks_queue,run_event])
-	#sendThread = threading.Thread(target=send, args=[chunks_queue,s,run_event])
-	#cap = cv2.VideoCapture(0)
-	#run_event.set()	
-	#print "Start Chunk Thread!"
-	#chunkThread.start()	
-	#print "Start Send Thread!"
-	#sendThread.start()	
-	while True:
-		try:
-			frame = camera.getFrame(True)
-			#ret, frame = cap.read()
-			frame = cv2.resize(redBallTracking(frame),(160, 120))
-			#frame = cv2.resize(frame,(160,120))	
-			#showImage("Server",frame)
-			frame = frame.flatten()
-			data = frame.tostring()
-			#frame_queue.put(data)
-			#sleep(0.1)
-			s.sendto(data,(HOST,PORT))
-			#print "main!"			
-					
-		except KeyboardInterrupt:
-			print "closing video server..."
-			break
-			rint "MAIN LOOP INTERUPT!"
-			run_event.clear()
-			print "joining chunking..."
-			chunkThread.join()
-			print "dead.."
-			print "joining sending..."
-			sendThread.join()
-			print "dead.."
-			break		
-			#cv2.destroyAllWindows()			
+	print "Video Send Main Loop Start "
+	try:
+		video_server = Video_Server(3333,'192.168.12.95')
+		while True:
+			time.sleep(1)
+	except (KeyboardInterrupt):
+		video_server.closeVideoServer()
+
+	except:
+		traceback.print_exc()
+	print "Video Main Loop Ended"
 			
-	#if close_event.is_set():
-	#	print "Cleaning..."
-	#	cv2.destroyAllWindows()
-	'''
+		
