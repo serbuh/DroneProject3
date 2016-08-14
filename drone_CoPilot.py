@@ -232,7 +232,7 @@ class drone_CoPilot():
 				sys.stdout = StdoutRedirector(self.UDP_server_Report)
 				print "Drone: redirecting stderr to UDP"
 				sys.stderr = StderrRedirector(self.UDP_server_Report)
-
+			
 			print "Drone: open Telemetry, commands socket"
 			self.UDP_server_Telem_Cmd = UDP.UDP(1, "Telem/Cmd", "0.0.0.0", 5000, self.gcs_ip, 6001)
 
@@ -261,6 +261,9 @@ class drone_CoPilot():
 			print "Drone: Close all - keyboard interrupt in main"
 			self.close_all()
 
+		except:
+			traceback.print_exc()
+
 	def run_GUI(self):
 		self.root = tk.Tk()
 		self.GUI = GUI_main(self.root, self.vehicle, self.sitl, self.vehicle_controll, self.close_all)
@@ -270,6 +273,8 @@ class drone_CoPilot():
 		except(KeyboardInterrupt):
 			print "Drone: Close all - keyboard interrupt in GUI"
 			self.close_all()
+		except:
+			traceback.print_exc()
 
 	def no_GUI(self):
 		try:
@@ -279,6 +284,8 @@ class drone_CoPilot():
 		except(KeyboardInterrupt):
 			print "Drone: Close all - keyboard interrupt in infinite loop"
 			self.close_all()
+		except:
+			traceback.print_exc()
 
 	def run_Video(self):
 		from video_server import Video_Server
@@ -477,9 +484,17 @@ class drone_CoPilot():
 			print "Drone: Close all - Vehicle object"
 			self.vehicle.close()
 
-		print "Drone: Close all - UDP socket"
-		self.UDP_server_Telem_Cmd.close_UDP()
-		self.UDP_server_Report.close_UDP()
+		if self.UDP_server_Telem_Cmd is not None:
+			print "Drone: Close all - UDP socket for Telem/Cmd"
+			self.UDP_server_Telem_Cmd.close_UDP()
+		else:
+			print "Drone: Close all - WARNING: UDP socket for Telem/Cmd does not exist. Nothing to close"
+
+		if self.UDP_server_Report is not None:
+			print "Drone: Close all - UDP socket for Reports"
+			self.UDP_server_Report.close_UDP()
+		else:
+			print "Drone: Close all - WARNING: UDP socket for Reports does not exist. Nothing to close"
 
 		if self.sitl is not None:
 			print "Drone: Close all - SITL"
