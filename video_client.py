@@ -56,7 +56,7 @@ class Video_Client:
            	 			raise KeyboardInterrupt
 
    	def closeVideoClient(self):
-   		print "Closing Video Feed..."
+   		#print "Closing Video Feed..."
    		self.close_event.set()
 
 #def reciveAndQueue(queue,socket,run_event):

@@ -1,4 +1,5 @@
 from dronekit import connect, VehicleMode
+from video_server import video_Server
 import UDP_class as UDP
 import time
 import socket
@@ -286,6 +287,7 @@ class drone_CoPilot():
 		print "Drone: Video - Sending to the client's port: " + str(self.video_client_port)
 		print "Drone: Video - Sending through port: " + str(self.video_server_port)
 		# Insert the video code here
+		self.video_server = video_Server(self.video_client_port,self.video_client_ip)
 
 	def connect2FCU(self):
 		connection_string = self.args.connect
@@ -486,6 +488,10 @@ class drone_CoPilot():
 		if self.GUI_enabled:
 			print "Drone: Close all - GUI"
 			self.GUI.GUI_close()
+
+		if self.args.video_client_ip:
+			print "Drone: Close all - Video"
+			self.video_server.closeVideoServer()
 
 		print "Drone: Close all - Complete"
 

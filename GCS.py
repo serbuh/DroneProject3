@@ -1,3 +1,4 @@
+from video_client import Video_Client
 import threading
 import time
 import UDP_class as UDP
@@ -642,7 +643,8 @@ class GCS():
 
 	def run_Video(self, video_port):
 		self.prnt("GCS","Start video on port " + str(video_port))
-		# Insert the video code here
+		#print "Start Video Thread!"
+		self.video_client = Video_Client(video_port)
 
 	def run_GUI(self):
 		self.root = tk.Tk()
@@ -676,6 +678,9 @@ class GCS():
 	
 		self.prnt("GSC", "Close all - GUI")
 		self.GUI.GUI_close()
+
+		self.prnt("GSC", "Close all - Video Feed")
+		slef.video_client.closeVideoClient()
 
 		self.prnt("GSC", "Close all - Complete")
 
