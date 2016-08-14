@@ -44,6 +44,11 @@ cd DroneProject3/
    mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map 
    ``` 
 
+To shutdown Odroid run:
+```
+sudo shutdown -P
+```
+
 Connect via Telem with the following connection string:
 ```
 sudo python drone_UDP_server.py --connect /dev/ttyUSB0,57600
