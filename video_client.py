@@ -13,16 +13,51 @@ from scipy import ndimage
 HOST = ''
 PORT = 3333
 
-def showImage(title , frame , wait = False ):	
-	cv2.imshow(title, frame)
-    	if wait:
-        	while True:
-           		if cv2.waitKey(0)&0xff==ord('q'):
-              			break
-        	cv2.destroyAllWindows()
-    	else:
-        	if cv2.waitKey(1)&0xff == ord('q'):
-            		raise KeyboardInterrupt
+
+class Video_Client:
+	def __init__(self,Port , Host = ''):
+		self.port = Port
+		self.host = Host
+		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		self.socket.bind((HOST,PORT))
+		self.socket.settimeout(2)
+		self.close_event = threading.Event() 
+		self.getVideoThread = threading.Thread(target=self.getVideo(), args=[])
+		self.getVideoThread.start()
+
+
+	def getVideo(self):
+		while not self.close_event.is_set():
+			try:
+				data = self.socket.recv(60000)
+				tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
+				frame = numpy.reshape(tmp_frame, (120,160,3))
+				frame = ndimage.rotate(frame, -90)
+				frame = cv2.resize(frame,(480,640))
+				self.showImage("Client", frame)
+			except socket.timeout:
+				print "No data on network!"
+			except (KeyboardInterrupt):
+				print "Exiting video client..."
+				break
+		cv2.destroyAllWindows()
+		print "Closed Video Feed"
+
+
+	def showImage(self , title , frame , wait = False ):	
+		cv2.imshow(title, frame)
+    		if wait:
+        		while True:
+           			if cv2.waitKey(0)&0xff==ord('q'):
+              				break
+        		cv2.destroyAllWindows()
+    		else:
+        		if cv2.waitKey(1)&0xff == ord('q'):
+           	 			raise KeyboardInterrupt
+
+   	def closeVideoClient(self):
+   		print "Closing Video Feed..."
+   		self.close_event.set()
 
 #def reciveAndQueue(queue,socket,run_event):
 #	flag = 0
@@ -46,9 +81,13 @@ def recieveAndQueue(queue,run_event):
 	print "Recieve Thread Closed"
 
 if __name__ == "__main__":
-	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+	print "Start Video Thread!"
+	video_client = Video_Client(3333)
+	
+
+	'''s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
-	s.settimeout(0.5)
+	s.settimeout(2)
 	while True:
 		try:
 			data = s.recv(60000)
@@ -63,7 +102,7 @@ if __name__ == "__main__":
 			print "Exiting video client..."
 			break
 
-'''if __name__ == "__main__":
+	if __name__ == "__main__":
 	i = 0
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
