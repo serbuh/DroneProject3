@@ -6,7 +6,7 @@ import cv2
 from camera import *
 import numpy as np
 from Queue import Queue
-#from ball_tracking_2 import *
+from ball_tracking_2 import *
 from time import sleep
 import threading
 
