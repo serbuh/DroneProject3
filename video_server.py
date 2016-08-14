@@ -67,36 +67,37 @@ def send(chunks_queue,socket, run_event):
 	
 if __name__ == "__main__":
 	camera = Camera()
-	frame_queue = Queue()
-	chunks_queue = Queue()	
+	#frame_queue = Queue()
+	#chunks_queue = Queue()	
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	
-	run_event = threading.Event()
+	#run_event = threading.Event()
 	#run_event.set() 	
 	
-	chunkThread = threading.Thread(target=chunk, args=[frame_queue,chunks_queue,run_event])
-	sendThread = threading.Thread(target=send, args=[chunks_queue,s,run_event])
+	#chunkThread = threading.Thread(target=chunk, args=[frame_queue,chunks_queue,run_event])
+	#sendThread = threading.Thread(target=send, args=[chunks_queue,s,run_event])
 	#cap = cv2.VideoCapture(0)
-	run_event.set()	
-	print "Start Chunk Thread!"
-	chunkThread.start()	
-	print "Start Send Thread!"
-	sendThread.start()	
+	#run_event.set()	
+	#print "Start Chunk Thread!"
+	#chunkThread.start()	
+	#print "Start Send Thread!"
+	#sendThread.start()	
 	while not close_event.is_set():
 		try:
 			frame = camera.getFrame(True)
 			#ret, frame = cap.read()
 			#frame = cv2.resize(redBallTracking(frame),(640, 480))
-			frame = cv2.resize(frame,(640,480))		
+			frame = cv2.resize(frame,(160,120))	
 			#showImage("Server",frame)
 			frame = frame.flatten()
 			data = frame.tostring()
-			frame_queue.put(data)
+			#frame_queue.put(data)
 			#sleep(0.1)
+			s.sendto(data,(HOST,PORT))
 			#print "main!"			
 					
 		except KeyboardInterrupt:
-			print "MAIN LOOP INTERUPT!"
+			'''print "MAIN LOOP INTERUPT!"
 			run_event.clear()
 			print "joining chunking..."
 			chunkThread.join()
@@ -104,9 +105,10 @@ if __name__ == "__main__":
 			print "joining sending..."
 			sendThread.join()
 			print "dead.."
-			break			
+			break
+			'''			
 			cv2.destroyAllWindows()			
 			
-	if close_event.is_set():
-		print "Cleaning..."
-		cv2.destroyAllWindows()
+	#if close_event.is_set():
+	#	print "Cleaning..."
+	#	cv2.destroyAllWindows()

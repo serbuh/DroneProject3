@@ -47,6 +47,24 @@ if __name__ == "__main__":
 	i = 0
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
+	s.settimeout(0.5)
+	while True:
+		try:
+			data = s.recv(60000)
+			tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
+			frame = numpy.reshape(tmp_frame, (120,160,3))
+			frame = cv2.resize(frame,(640,480))
+			showImage("Client", frame)
+		except socket.timeout:
+			print "No data on network!"
+		except (KeyboardInterrupt):
+			print "Exiting video client..."
+			break
+
+'''if __name__ == "__main__":
+	i = 0
+	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+	s.bind((HOST,PORT))
 	q = Queue()
 	print q.empty()
 	run_event = threading.Event()
@@ -91,3 +109,4 @@ if __name__ == "__main__":
 
 	if close_event.is_set():
 		cv2.destroyAllWindows()
+'''
