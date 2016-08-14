@@ -41,8 +41,8 @@ class Video_Server:
 				print "Exiting video server..."
 				break
 			except:
-            	traceback.print_exc()
-            	break
+            			traceback.print_exc()
+            			break
 				
 		print "Closed Video Feed"
 
