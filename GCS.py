@@ -678,9 +678,10 @@ class GCS():
 	
 		self.prnt("GSC", "Close all - GUI")
 		self.GUI.GUI_close()
-
-		self.prnt("GSC", "Close all - Video Feed")
-		self.video_client.closeVideoClient()
+		
+		if self.args.video_port:
+			self.prnt("GSC", "Close all - Video Feed")
+			self.video_client.closeVideoClient()
 
 		self.prnt("GSC", "Close all - Complete")
 

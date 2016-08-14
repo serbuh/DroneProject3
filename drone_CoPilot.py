@@ -1,5 +1,4 @@
 from dronekit import connect, VehicleMode
-from video_server import video_Server
 import UDP_class as UDP
 import time
 import socket
@@ -282,6 +281,7 @@ class drone_CoPilot():
 			self.close_all()
 
 	def run_Video(self):
+		from video_server import video_Server
 		print "Drone: Video - Start"
 		print "Drone: Video - Sending to the client's ip: " + str(self.video_client_ip)
 		print "Drone: Video - Sending to the client's port: " + str(self.video_client_port)
