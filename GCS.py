@@ -12,8 +12,6 @@ import datetime
 import sys
 import os
 
-#TODO Console redirect to tkInter Text widget. Crashes when geting text from keyboard and stdout redirect (thread unsafe)
-# http://stackoverflow.com/questions/20303291/issue-with-redirecting-stdout-to-tkinter-text-widget-with-threads
 
 class IORedirector(object):
     '''A general class for redirecting I/O to this Text widget.'''
