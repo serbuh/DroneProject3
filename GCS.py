@@ -608,7 +608,8 @@ class GCS():
 			# val_dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
 			self.val_dict = {}
 			self.parser = argparse.ArgumentParser(description='GCS module')
-			self.parser.add_argument('--drone_ip')
+			self.parser.add_argument('--drone_ip', help="Mention the Drone's ip to make a UDP connection with it")
+			self.parser.add_argument('--video', help="Enable video receive", action="store_true")
 			self.args = self.parser.parse_args()
 			if not self.args.drone_ip:
 				self.drone_ip = "255.255.255.255"
@@ -635,11 +636,16 @@ class GCS():
 		self.prnt("GSC", "Run Telem: Start receive Report thread")
 		self.UDP_client_Report.receive_loop_report_thread()
 
+	def run_Video(self):
+		self.prnt("GCS","Start video")
+
 	def run_GUI(self):
 		self.root = tk.Tk()
 		self.GUI = GUI_main(self)
 		# GUI fully initialized. Ready to run Telem that will update the GUI
 		self.run_Telem()
+		if self.args.video:
+			self.run_Video()
 		try:
 			self.prnt("GSC", "GUI - Enter the mainloop")
 			self.root.mainloop()
