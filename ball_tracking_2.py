@@ -43,7 +43,7 @@ def redBallTracking(frame):
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
 	a = frame.shape
-	if center != None:
+	'''if center != None:
 		if center[0] < (a[1])/2 :
 			s = "Left"
 		else:
@@ -53,5 +53,6 @@ def redBallTracking(frame):
 			print "Upper " + s + " corner"
 		else:
 			print "Lower " + s + " corner"
+	'''
 	return frame
 	
