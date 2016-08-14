@@ -2,17 +2,53 @@
 
 **Connect Odroid**  
 1. Connect to remote computer to qtcopter Wi-Fi.  
-2. Connect remote computer via SSH to Odroid: ```ssh odroid@192.168.12.1``` (password: odroid)  
-3. Go to the drone's code folder: ```cd DroneProject3/```  
+2. Connect remote computer via SSH to Odroid:  
+   ```
+ssh odroid@192.168.12.1
+   ```
+   (password: odroid)
+3. Go to the drone's code folder:  
+   ```
+cd DroneProject3/
+   ```  
 4. Run the Drone's code on Odroid  
-      a. If Odroid connected via USB:   ```sh sudo python drone_CoPilot.py --connect /dev/ttyACM0 --gcs_ip 192.168.x.x```  
-      b. If Odroid connected via Telem: ```sh sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x```  
+  a. If Odroid connected via USB:  
+   ```
+   sudo python drone_CoPilot.py --connect /dev/ttyACM0 --gcs_ip 192.168.x.x
+   ```  
+   b. If Odroid connected via Telem:  
+   ```
+   sudo python drone_CoPilot.py --connect /dev/ttyUSB0,57600 --gcs_ip 192.168.x.x
+   ```  
+   c. If you want to add a video transmit from a drone add  
+   ```
+   --video_client_ip xxx.xxx.xxx.xxx --video_client_port yyyy --video_server_port zzzz
+   ```  
+   (flag. xxx.xxx.xxx.xxx - is the client's ip, yyyy - client's port, zzzz - server's port (of the socket through which we are sending the video))  
 5. Run the GCS on Remote computer, (connected to Drone via Wi-Fi)  
-      a. On Windows:   ```sh sudo python GCS.py --drone_ip 192.168.12.1```  
-      b. On Linux: ```sh python GCS.py --drone_ip 192.168.12.1```  
-6. (Optional) Run Mission Planer on another or same remote computer (connected through Telemetry dongle):
-      ```sh mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map ```
+  a. On Windows:  
+   ```
+   sudo python GCS.py --drone_ip 192.168.12.1
+   ```  
+   b. On Linux:  
+   ```
+   python GCS.py --drone_ip 192.168.12.1
+   ```  
+   c. If you want to add a video receive from a drone add  
+   ```
+   --video_port xxxx
+   ```  
+   (flag. xxxx - is the port for receiving the video)  
+6. (Optional) Run Mission Planer on another or same remote computer (connected through Telemetry dongle):  
+   ```
+   mavproxy.py --master tcp:127.0.0.1:5763 --sitl 127.0.0.1:5501 --out 127.0.0.1:14550 --out 127.0.0.1:14551 --map 
+   ``` 
 
+Connect via Telem with the following connection string:
+```
+sudo python drone_UDP_server.py --connect /dev/ttyUSB0,57600
+```
+   
 We use clean Ubuntu 14.04 with following dependencies installed:
 - Drone-kit:
 - FlyCapture:

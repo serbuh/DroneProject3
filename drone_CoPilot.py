@@ -209,7 +209,10 @@ class drone_CoPilot():
 			#Set up option parsing to get connection string	
 			self.parser = argparse.ArgumentParser(description='HUD module')
 			self.parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
-			self.parser.add_argument('--gcs_ip')
+			self.parser.add_argument('--gcs_ip', help="Mention the GCS ip to make a UDP connection with it")
+			self.parser.add_argument('--video_client_ip', help="Video transmit. Client's ip")
+			self.parser.add_argument('--video_client_port', help="Video transmit. Client's port")
+			self.parser.add_argument('--video_server_port', help="Video transmit. Server's port (sending video through this port)")
 			self.args = self.parser.parse_args()
 
 			print "Drone: Connect to FCU"
@@ -242,6 +245,12 @@ class drone_CoPilot():
 			self.vehicle.add_attribute_listener('*', self.wildcard_callback)
 
 
+			if self.args.video_client_ip:
+				self.video_client_ip = self.args.video_client_ip
+				self.video_client_port = self.args.video_client_port
+				self.video_server_port = self.args.video_server_port
+				self.run_Video()
+
 			if (GUI_enabled is True):
 				self.run_GUI()
 			else:
@@ -270,6 +279,13 @@ class drone_CoPilot():
 		except(KeyboardInterrupt):
 			print "Drone: Close all - keyboard interrupt in infinite loop"
 			self.close_all()
+
+	def run_Video(self):
+		print "Drone: Video - Start"
+		print "Drone: Video - Sending to the client's ip: " + str(self.video_client_ip)
+		print "Drone: Video - Sending to the client's port: " + str(self.video_client_port)
+		print "Drone: Video - Sending through port: " + str(self.video_server_port)
+		# Insert the video code here
 
 	def connect2FCU(self):
 		connection_string = self.args.connect
