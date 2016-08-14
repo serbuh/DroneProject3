@@ -24,18 +24,19 @@ class Video_Server:
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.camera = Camera()
 		self.close_event = threading.Event() 
-		self.sendtVideoThread = threading.Thread(target=self.sendVideo(), args=[])
+		self.sendVideoThread = threading.Thread(target=self.sendVideo(), args=[])
 		self.sendVideoThread.start()
 
 
 	def sendVideo(self):
-		while not self.clsoe_event.is_set():
+		while not self.close_event.is_set():
 			try:
-				frame = camera.getFrame(True)
-				frame = cv2.resize(redBallTracking(frame),(160, 120))	
+				frame = self.camera.getFrame(True)
+				#frame = cv2.resize(redBallTracking(frame),(160, 120))	
+				frame = cv2.resize(frame,(160,120))
 				frame = frame.flatten()
 				data = frame.tostring()
-				s.sendto(data,(HOST,PORT))
+				self.socket.sendto(data,(HOST,PORT))
 						
 			except (KeyboardInterrupt):
 				print "Exiting video server..."

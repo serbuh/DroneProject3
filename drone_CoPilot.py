@@ -281,13 +281,13 @@ class drone_CoPilot():
 			self.close_all()
 
 	def run_Video(self):
-		from video_server import video_Server
+		from video_server import Video_Server
 		print "Drone: Video - Start"
 		print "Drone: Video - Sending to the client's ip: " + str(self.video_client_ip)
 		print "Drone: Video - Sending to the client's port: " + str(self.video_client_port)
 		print "Drone: Video - Sending through port: " + str(self.video_server_port)
 		# Insert the video code here
-		self.video_server = video_Server(self.video_client_port,self.video_client_ip)
+		self.video_server = Video_Server(self.video_client_port,self.video_client_ip)
 
 	def connect2FCU(self):
 		connection_string = self.args.connect
