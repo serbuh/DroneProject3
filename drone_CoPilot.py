@@ -209,7 +209,10 @@ class drone_CoPilot():
 			#Set up option parsing to get connection string	
 			self.parser = argparse.ArgumentParser(description='HUD module')
 			self.parser.add_argument('--connect', help="E.g. /dev/ttyACM0 or /dev/ttyUSB0,57600")
-			self.parser.add_argument('--gcs_ip')
+			self.parser.add_argument('--gcs_ip', help="Mention the GCS ip to make a UDP connection with it")
+			self.parser.add_argument('--video', help="Enable video transition", action="store_true")
+
+
 			self.args = self.parser.parse_args()
 
 			print "Drone: Connect to FCU"
@@ -241,6 +244,9 @@ class drone_CoPilot():
 			print "Drone: Start to listen for telemetry from the drone"
 			self.vehicle.add_attribute_listener('*', self.wildcard_callback)
 
+			if self.args.video:
+				# enable video
+				print "Drone: Start video"
 
 			if (GUI_enabled is True):
 				self.run_GUI()
