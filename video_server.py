@@ -82,7 +82,7 @@ if __name__ == "__main__":
 	#chunkThread.start()	
 	#print "Start Send Thread!"
 	#sendThread.start()	
-	while not close_event.is_set():
+	while True:
 		try:
 			frame = camera.getFrame(True)
 			#ret, frame = cap.read()
@@ -97,6 +97,8 @@ if __name__ == "__main__":
 			#print "main!"			
 					
 		except KeyboardInterrupt:
+			print "closing video server..."
+			break
 			'''print "MAIN LOOP INTERUPT!"
 			run_event.clear()
 			print "joining chunking..."
@@ -107,7 +109,7 @@ if __name__ == "__main__":
 			print "dead.."
 			break
 			'''			
-			cv2.destroyAllWindows()			
+			#cv2.destroyAllWindows()			
 			
 	#if close_event.is_set():
 	#	print "Cleaning..."
