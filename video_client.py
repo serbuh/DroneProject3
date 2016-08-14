@@ -7,6 +7,8 @@ import threading
 import time
 import errno
 from time import sleep
+from scipy import ndimage
+
 
 HOST = ''
 PORT = 3333
@@ -44,16 +46,16 @@ def recieveAndQueue(queue,run_event):
 	print "Recieve Thread Closed"
 
 if __name__ == "__main__":
-	i = 0
 	s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 	s.bind((HOST,PORT))
 	s.settimeout(0.5)
 	while True:
 		try:
 			data = s.recv(60000)
-			tmp_frame = numpy.fromstring(full_data, dtype=numpy.uint8)
+			tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
 			frame = numpy.reshape(tmp_frame, (120,160,3))
-			frame = cv2.resize(frame,(640,480))
+			frame = ndimage.rotate(frame, -90)
+			frame = cv2.resize(frame,(480,640))
 			showImage("Client", frame)
 		except socket.timeout:
 			print "No data on network!"
