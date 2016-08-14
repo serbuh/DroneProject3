@@ -14,7 +14,6 @@ import threading
 HOST = '192.168.12.95'
 PORT = 3333
 
-close_event = threading.Event()	
 
 
 class Video_Server:
@@ -24,7 +23,7 @@ class Video_Server:
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.camera = Camera()
 		self.close_event = threading.Event() 
-		self.sendVideoThread = threading.Thread(target=self.sendVideo(), args=[])
+		self.sendVideoThread = threading.Thread(target=self.sendVideo, args=())
 		self.sendVideoThread.start()
 
 
@@ -41,6 +40,9 @@ class Video_Server:
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
 				break
+			except:
+            	traceback.print_exc()
+            	break
 				
 		print "Closed Video Feed"
 
@@ -58,6 +60,8 @@ class Video_Server:
 	def closeVideoServer(self):
 		print "Closing Video Feed..."
    		self.close_event.set()
+   		self.sendVideoThread.join()
+   		self.camera.disconnect()
 
 
 def chunkstring(string, length):

@@ -27,4 +27,9 @@ class Camera:
 		else:
 			return a
 
+	def disconnect(self):
+		self.camera.stop_capture()
+		self.camera.disconnect()
+
+
 	
