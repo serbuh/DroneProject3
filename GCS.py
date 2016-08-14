@@ -654,7 +654,7 @@ class GCS():
 
 		self.run_Telem()
 
-		if self.video_port:
+		if self.args.video_port:
 			self.run_Video(self.video_port)
 
 		try:
@@ -680,7 +680,7 @@ class GCS():
 		self.GUI.GUI_close()
 
 		self.prnt("GSC", "Close all - Video Feed")
-		slef.video_client.closeVideoClient()
+		self.video_client.closeVideoClient()
 
 		self.prnt("GSC", "Close all - Complete")
 
