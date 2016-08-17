@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from sys import maxint
 import socket
 import time
 import cv2
@@ -25,21 +25,22 @@ class Video_Server:
 		self.close_event = threading.Event() 
 		self.sendVideoThread = threading.Thread(target=self.sendVideo, args=())
 		self.sendVideoThread.start()
-
+		self.frame_num = -1
 
 	def sendVideo(self):
 		while not self.close_event.is_set():
 			try:
-				pass
 				frame = self.camera.getFrame(True)
-				#frame = cv2.resize(redBallTracking(frame),(160, 120))	
+				frame = cv2.resize(redBallTracking(frame),(160, 120))	
+				self.frame_num += 1
 				frame = cv2.resize(frame,(160,120))
 				frame = frame.flatten()
 				data = frame.tostring()
 				data_list = self.chunkString(data,14400)
-				for i in range(0,len(data)):
-					self.socket.sendto((i,data_list[i]),(HOST,PORT))
-						
+				for i in range(0,len(data_list)):
+					self.socket.sendto(str(i,data_list[i],self.frame_num),(HOST,PORT))
+				if self.frame_num == maxint:
+					self.frame = -1		
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
 				break

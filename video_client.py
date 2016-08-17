@@ -24,20 +24,20 @@ class Video_Client:
 		self.socket.bind((HOST,PORT))
 		#self.socket.settimeout(2)
 		self.close_event = threading.Event()
+		self.frame_dict = dict.fromkeys((0,1,2,3))
 		self.frameQueue = Queue() 
 		self.getVideoThread = threading.Thread(target=self.getVideo, args=[])
 		self.getVideoThread.start()
 		self.showVideoThread = threading.Thread(target=self.showVideo, args=[])
 		self.showVideoThread.start()
-
+		self.frame_num = None
 
 	def getVideo(self):
 		while not self.close_event.is_set():
 			try:
-				print "recv"
 				data = self.socket.recv(65000)
-				print str(datetime.now())
-				self.frameQueue.put(data)
+				#print str(datetime.now())
+				self.frameQueue.put(eval(data))
 				#self.showImage("Client", frame)
 			except socket.timeout:
 				print "No data on network!"
@@ -53,8 +53,15 @@ class Video_Client:
 	def showVideo(self):
 		while not self.close_event.is_set():
 			try:
+				i = 0
 				data = self.frameQueue.get()
-				print len(data)
+				print "Frame: " + str(data[2]) +" Chunk: " str(data[0])
+				#if self.frame_num == None and data[0] != 0:
+				#	continue
+				#elif self.frame_num == None and data[0] == 0:
+				#	self.frame_num = data[2]
+				#elif 
+				self.frame_dict[data[0]] =  data[1]
 				#tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
 				#frame = numpy.reshape(tmp_frame, (120,160,3))
 				#frame = ndimage.rotate(frame, -90)
