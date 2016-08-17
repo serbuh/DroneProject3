@@ -31,12 +31,14 @@ class Video_Server:
 		while not self.close_event.is_set():
 			try:
 				pass
-				#frame = self.camera.getFrame(True)
+				frame = self.camera.getFrame(True)
 				#frame = cv2.resize(redBallTracking(frame),(160, 120))	
-				#frame = cv2.resize(frame,(160,120))
-				#frame = frame.flatten()
-				#data = frame.tostring()
-				#self.socket.sendto(data,(HOST,PORT))
+				frame = cv2.resize(frame,(160,120))
+				frame = frame.flatten()
+				data = frame.tostring()
+				data_list = self.chunkString(data,14400)
+				for i in range(0,len(data)):
+					self.socket.sendto((i,data_list[i]),(HOST,PORT))
 						
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
@@ -67,8 +69,8 @@ class Video_Server:
 		print "Camera Disconected"
 
 
-def chunkstring(string, length):
-    return (string[0+i:length+i] for i in range(0, len(string), length))
+	def chunkString(self ,string, length):
+    	return (string[0+i:length+i] for i in range(0, len(string), length))
 
 def chunk(frame_queue,chunks_queue, run_event):
 	try:

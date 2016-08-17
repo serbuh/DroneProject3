@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import socket
 import cv2
 import numpy
@@ -20,31 +22,54 @@ class Video_Client:
 		self.host = Host
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.socket.bind((HOST,PORT))
-		self.socket.settimeout(2)
-		self.close_event = threading.Event() 
-		self.getVideoThread = threading.Thread(target=self.getVideo(), args=[])
+		#self.socket.settimeout(2)
+		self.close_event = threading.Event()
+		self.frameQueue = Queue() 
+		self.getVideoThread = threading.Thread(target=self.getVideo, args=[])
 		self.getVideoThread.start()
+		self.showVideoThread = threading.Thread(target=self.showVideo, args=[])
+		self.showVideoThread.start()
 
 
 	def getVideo(self):
 		while not self.close_event.is_set():
 			try:
-				data = self.socket.recv(60000)
-				tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
-				frame = numpy.reshape(tmp_frame, (120,160,3))
-				frame = ndimage.rotate(frame, -90)
-				frame = cv2.resize(frame,(480,640))
-				self.showImage("Client", frame)
+				print "recv"
+				data = self.socket.recv(65000)
+				print str(datetime.now())
+				self.frameQueue.put(data)
+				#self.showImage("Client", frame)
 			except socket.timeout:
 				print "No data on network!"
 			except (KeyboardInterrupt):
-				print "Exiting video client..."
-				break
-		cv2.destroyAllWindows()
-		print "Closed Video Feed"
+				self.close_event.set()
+				self.showVideoThread.join()
+				cv2.destroyAllWindows()
+				print "Closed Video Feed"
+				
 
 
-	def showImage(self , title , frame , wait = False ):	
+
+	def showVideo(self):
+		while not self.close_event.is_set():
+			try:
+				data = self.frameQueue.get()
+				print len(data)
+				#tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
+				#frame = numpy.reshape(tmp_frame, (120,160,3))
+				#frame = ndimage.rotate(frame, -90)
+				#frame = cv2.resize(frame,(480,640))
+				#cv2.imshow("Client", frame)
+				if cv2.waitKey(1)&0xff == ord('q'):
+           	 			raise KeyboardInterrupt
+				#self.showFrame("Client",frame)
+			except(KeyboardInterrupt):
+				self.close_event.set()
+				self.getVideoThread.join()
+				cv2.destroyAllWindows()
+				print "Closed Video Feed"
+
+	def showFrame(self , title , frame , wait = False ):	
 		cv2.imshow(title, frame)
     		if wait:
         		while True:
