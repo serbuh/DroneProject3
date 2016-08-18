@@ -42,14 +42,24 @@ def redBallTracking(frame):
 				(0, 255, 255), 2)
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-	a = frame.shape
+	frame_size = frame.shape
+
+	# center[0] 	- x ; center[1] 	- y
+	# frame_size[1]	- x ; frame_size[0] 	- y
+	# offset scale: 0 ... 50 ... 100
+
+	x_offset = (center[0]/frame_size[1]) * 100
+	y_offset = (center[1]/frame_size[0]) * 100
+
+	print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
+	
 	'''if center != None:
-		if center[0] < (a[1])/2 :
+		if center[0] < (frame_size[1])/2 :
 			s = "Left"
 		else:
 			s = "Right"
 
-		if center[1] < (a[0])/2 :
+		if center[1] < (frame_size[0])/2 :
 			print "Upper " + s + " corner"
 		else:
 			print "Lower " + s + " corner"
