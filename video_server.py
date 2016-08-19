@@ -36,7 +36,7 @@ class Video_Server:
 				frame = cv2.resize(frame,(160,120))
 				frame = frame.flatten()
 				data = frame.tostring()
-				data_list = self.chunkString(data,14400)
+				data_list = list(self.chunkString(data,14400))
 				for i in range(0,len(data_list)):
 					self.socket.sendto(str(i,data_list[i],self.frame_num),(HOST,PORT))
 				if self.frame_num == maxint:
