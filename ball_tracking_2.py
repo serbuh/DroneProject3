@@ -11,7 +11,7 @@ def findMask(hsv,lower,upper):
 	return mask
 
 
-def redBallTracking(frame):
+def redBallTracking(vehicle_controll, frame):
 	frame = imutils.resize(frame, width=500)
 	blurred = cv2.GaussianBlur(frame, (11, 11), 0)
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -48,11 +48,25 @@ def redBallTracking(frame):
 	# frame_size[1]	- x ; frame_size[0] 	- y
 	# offset scale: 0 ... 50 ... 100
 
-	x_offset = (center[0]/frame_size[1]) * 100
-	y_offset = (center[1]/frame_size[0]) * 100
+	if center != None:
+		x_offset = (center[1]/frame_size[1]) * 100
+		y_offset = (center[0]/frame_size[0]) * 100
 
-	print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
-	
+		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
+		decide_moving(vehicle_controll, x_offset, y_offset)
+	else:
+		print "X offset is None, Y offset is None"
+
+def decide_moving(vehicle_controll, x_offset, y_offset):
+	if (40 < x_offset < 60):
+		print "Stay"		
+		#vehicle_controll.move_left(1)
+	elif x_offset < 40:
+		print "Must move right"
+	elif x_offset > 60:
+		print "Must move left"
+		#vehicle_controll.move_right(1)
+
 	'''if center != None:
 		if center[0] < (frame_size[1])/2 :
 			s = "Left"
