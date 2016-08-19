@@ -249,7 +249,7 @@ class drone_CoPilot():
 				self.video_client_ip = self.args.video_client_ip
 				self.video_client_port = self.args.video_client_port
 				self.video_server_port = self.args.video_server_port
-				self.run_Video()
+				self.run_Video(self.vehicle_controll)
 
 			if (GUI_enabled is True):
 				self.run_GUI()
@@ -287,14 +287,14 @@ class drone_CoPilot():
 		except:
 			traceback.print_exc()
 
-	def run_Video(self):
+	def run_Video(self, vehicle_controll):
 		from video_server import Video_Server
 		print "Drone: Video - Start"
 		print "Drone: Video - Sending to the client's ip: " + str(self.video_client_ip)
 		print "Drone: Video - Sending to the client's port: " + str(self.video_client_port)
 		print "Drone: Video - Sending through port: " + str(self.video_server_port)
 		# Insert the video code here
-		self.video_server = Video_Server(self.video_client_port,self.video_client_ip)
+		self.video_server = Video_Server(self.vehicle_controll, self.video_client_port, self.video_client_ip)
 
 	def connect2FCU(self):
 		connection_string = self.args.connect
