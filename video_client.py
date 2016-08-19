@@ -22,9 +22,9 @@ class Video_Client:
 		self.host = Host
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.socket.bind((HOST,PORT))
-		#self.socket.settimeout(2)
+		self.socket.settimeout(5)
 		self.close_event = threading.Event()
-		self.frame_dict = dict.fromkeys((0,1,2,3))
+		self.hist = [0,0,0,0] 
 		self.frameQueue = Queue() 
 		self.getVideoThread = threading.Thread(target=self.getVideo, args=[])
 		self.getVideoThread.start()
@@ -33,18 +33,32 @@ class Video_Client:
 		self.frame_num = None
 
 	def getVideo(self):
+		time_prev = datetime.now()
 		while not self.close_event.is_set():
 			try:
 				data = self.socket.recv(65000)
 				#print str(datetime.now())
-				self.frameQueue.put(eval(data))
+				data = eval(data)
+				if self.frame_num == None:
+					self.frame_num = data[0]
+				time_now = datetime.now()
+				time_delta = time_now - time_prev
+				print str(time_now) +" Delta: " + str(time_delta) + ": Frame: " + str(data[0]) +" Chunk: " + str(data[1])
+				time_prev = time_now
+				self.frameQueue.put(data)
+				if data[1] == 3:
+					time.sleep(0.005)
 				#self.showImage("Client", frame)
 			except socket.timeout:
 				print "No data on network!"
-			except (KeyboardInterrupt):
 				self.close_event.set()
-				self.showVideoThread.join()
-				cv2.destroyAllWindows()
+				print self.hist
+				break
+			except KeyboardInterrupt:
+				print "KeyboardInterrupt"
+				self.close_event.set()
+				#self.showVideoThread.join()
+				#cv2.destroyAllWindows()
 				print "Closed Video Feed"
 				
 
@@ -54,23 +68,30 @@ class Video_Client:
 		while not self.close_event.is_set():
 			try:
 				i = 0
-				data = self.frameQueue.get()
-				print "Frame: " + str(data[2]) +" Chunk: " str(data[0])
+				if not self.frameQueue.empty():
+					data = self.frameQueue.get()
+					self.hist[data[1]] += 1
+				else:
+					time.sleep(0.1)
+				#if data[0] > (self.frame_num + 100):
+					#print self.hist
+					#raise KeyboardInterrupt
 				#if self.frame_num == None and data[0] != 0:
 				#	continue
 				#elif self.frame_num == None and data[0] == 0:
 				#	self.frame_num = data[2]
 				#elif 
-				self.frame_dict[data[0]] =  data[1]
+				#self.frame_dict[data[0]] =  data[1]
 				#tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
 				#frame = numpy.reshape(tmp_frame, (120,160,3))
 				#frame = ndimage.rotate(frame, -90)
 				#frame = cv2.resize(frame,(480,640))
 				#cv2.imshow("Client", frame)
-				if cv2.waitKey(1)&0xff == ord('q'):
-           	 			raise KeyboardInterrupt
+				#if cv2.waitKey(1)&0xff == ord('q'):
+           	 	#		raise KeyboardInterrupt
 				#self.showFrame("Client",frame)
 			except(KeyboardInterrupt):
+				print self.hist
 				self.close_event.set()
 				self.getVideoThread.join()
 				cv2.destroyAllWindows()
@@ -115,6 +136,14 @@ def recieveAndQueue(queue,run_event):
 if __name__ == "__main__":
 	print "Start Video Thread!"
 	video_client = Video_Client(3333)
+	#while not video_client.close_event.is_set():
+	#	try:
+#			time.sleep(1)
+#		except(KeyboardInterrupt):
+#			video_client.closeVideoClient()
+#			print video_client.hist
+#
+#			break
 	
 
 	'''s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
