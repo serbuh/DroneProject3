@@ -49,22 +49,27 @@ def redBallTracking(vehicle_controll, frame):
 	# offset scale: 0 ... 50 ... 100
 
 	if center != None:
-		x_offset = (center[1]/frame_size[1]) * 100
-		y_offset = (center[0]/frame_size[0]) * 100
+		center = (center[0], frame_size[0] - center[1])
+		#print "Center x-1: "+ str(center[1]) + " Frame x-0: " + str(frame_size[0])
+		#print "Center y-0: "+ str(center[0]) + " Frame y-1: " + str(frame_size[1])
+		x_offset = int((float(center[1])/frame_size[0]) * 100)
+		y_offset = int((float(center[0])/frame_size[1]) * 100)
 
 		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
 		decide_moving(vehicle_controll, x_offset, y_offset)
 	else:
 		print "X offset is None, Y offset is None"
 
+	return frame
+
 def decide_moving(vehicle_controll, x_offset, y_offset):
 	if (40 < x_offset < 60):
 		print "Stay"		
 		#vehicle_controll.move_left(1)
 	elif x_offset < 40:
-		print "Must move right"
-	elif x_offset > 60:
 		print "Must move left"
+	elif x_offset > 60:
+		print "Must move right"		
 		#vehicle_controll.move_right(1)
 
 	'''if center != None:
@@ -78,5 +83,4 @@ def decide_moving(vehicle_controll, x_offset, y_offset):
 		else:
 			print "Lower " + s + " corner"
 	'''
-	return frame
 	

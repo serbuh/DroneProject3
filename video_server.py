@@ -33,9 +33,8 @@ class Video_Server:
 			try:
 				pass
 				frame = self.camera.getFrame(True)
-				#frame = cv2.resize(redBallTracking(self.vehicle_control,frame),(112,84))	
-				frame = cv2.resize(frame,(80,60))
-				#frame = cv2.resize(frame,(160,120))
+				frame = cv2.resize(redBallTracking(self.vehicle_control,frame),(80,60))	
+				#frame = cv2.resize(frame,(80,60))
 				frame = frame.flatten()
 				data = frame.tostring()
 				self.socket.sendto(data,(self.host,self.port))
