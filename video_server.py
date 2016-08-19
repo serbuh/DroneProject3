@@ -9,7 +9,7 @@ from Queue import Queue
 from ball_tracking_2 import *
 from time import sleep
 import threading
-
+import traceback
 
 HOST = '192.168.12.95'
 PORT = 3333
@@ -21,32 +21,47 @@ class Video_Server:
 		self.port = Port
 		self.host = Host
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		print "Waiting for the camera"
 		self.camera = Camera()
-		self.close_event = threading.Event() 
+		print "Camera found, starting thread"
+		self.close_event = threading.Event()
+		#self.getVideoThread = threading.Thread(target=self.getVideo , args=()) 
 		self.sendVideoThread = threading.Thread(target=self.sendVideo, args=())
 		self.sendVideoThread.start()
+		#self.getVideoThread.start()
+		#self.queue = 
 		self.frame_num = -1
 
 	def sendVideo(self):
+		time_prev = datetime.now()
 		while not self.close_event.is_set():
 			try:
 				frame = self.camera.getFrame(True)
-				frame = cv2.resize(redBallTracking(frame),(160, 120))	
+				#frame = cv2.resize(redBallTracking(frame),(160, 120))	
 				self.frame_num += 1
 				frame = cv2.resize(frame,(160,120))
 				frame = frame.flatten()
 				data = frame.tostring()
-				data_list = self.chunkString(data,14400)
+				data_list = list(self.chunkString(data,14400))
 				for i in range(0,len(data_list)):
-					self.socket.sendto(str(i,data_list[i],self.frame_num),(HOST,PORT))
-				if self.frame_num == maxint:
-					self.frame = -1		
+					#print "Sending: Frame index = {} , Chunk index = {}".format(self.frame_num,i)
+					self.socket.sendto(str((self.frame_num,i,data_list[i])),(HOST,PORT))
+					time_now = datetime.now()
+					time_delta = time_now - time_prev
+					print str(time_now) + ": delta: " + str(time_delta) + " Frame: {} , Chunk: {}".format(self.frame_num,i)
+					time_prev = time_now
+				if self.frame_num == 100:
+					self.time_first = time_now
+				if self.frame_num == 300:
+					self.time_second = time_now
+					self.closeVideoServer()		
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
 				break
 			except:
 				traceback.print_exc()		
 		print "Closed Video Feed"
+		print str(self.time_second - self.time_first)
 
 	def showImage(self,title , frame , wait = False ):	
 		cv2.imshow(title, frame)
@@ -63,7 +78,7 @@ class Video_Server:
 		print "Closing Video Feed..."
    		self.close_event.set()
    		#threading.enumerate()
-		self.sendVideoThread.join()
+		#self.sendVideoThread.join()
    		#threading.enumerate()
 		print "Send Thread Killed"
 		self.camera.disconnect()
@@ -71,7 +86,7 @@ class Video_Server:
 
 
 	def chunkString(self ,string, length):
-    	return (string[0+i:length+i] for i in range(0, len(string), length))
+    		return (string[0+i:length+i] for i in range(0, len(string), length))
 
 def chunk(frame_queue,chunks_queue, run_event):
 	try:
