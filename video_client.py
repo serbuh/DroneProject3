@@ -31,9 +31,9 @@ class Video_Client:
 			try:
 				data = self.socket.recv(60000)
 				tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
-				frame = numpy.reshape(tmp_frame, (120,160,3))
+				frame = numpy.reshape(tmp_frame, (60,80,3))
 				frame = ndimage.rotate(frame, -90)
-				frame = cv2.resize(frame,(480,640))
+				frame = cv2.resize(frame,(240,320))
 				self.showImage("Client", frame)
 			except socket.timeout:
 				print "No data on network!"
