@@ -44,43 +44,30 @@ def redBallTracking(vehicle_controll, frame):
 
 	frame_size = frame.shape
 
-	# center[0] 	- x ; center[1] 	- y
-	# frame_size[1]	- x ; frame_size[0] 	- y
-	# offset scale: 0 ... 50 ... 100
-
-	if center != None:
-		center = (center[0], frame_size[0] - center[1])
-		#print "Center x-1: "+ str(center[1]) + " Frame x-0: " + str(frame_size[0])
-		#print "Center y-0: "+ str(center[0]) + " Frame y-1: " + str(frame_size[1])
-		x_offset = int((float(center[1])/frame_size[0]) * 100)
-		y_offset = int((float(center[0])/frame_size[1]) * 100)
-
-		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
-		decide_moving(vehicle_controll, x_offset, y_offset)
-	else:
-		print "X offset is None, Y offset is None"
+	decide_moving(vehicle_controll, center, frame_size)
 
 	return frame
 
-def decide_moving(vehicle_controll, x_offset, y_offset):
-	if (40 < x_offset < 60):
-		print "Stay"		
-		#vehicle_controll.move_left(1)
-	elif x_offset < 40:
-		print "Must move left"
-	elif x_offset > 60:
-		print "Must move right"		
-		#vehicle_controll.move_right(1)
 
-	'''if center != None:
-		if center[0] < (frame_size[1])/2 :
-			s = "Left"
-		else:
-			s = "Right"
+def decide_moving(vehicle_controll, center, frame_size):
 
-		if center[1] < (frame_size[0])/2 :
-			print "Upper " + s + " corner"
-		else:
-			print "Lower " + s + " corner"
-	'''
+	center_margin_min, center_margin_max = 40, 60
+
+	if center != None:
+		center = (center[0], frame_size[0] - center[1])
+		x_offset = int((float(center[1])/frame_size[0]) * 100)
+		y_offset = int((float(center[0])/frame_size[1]) * 100)
+
+		# offset scale: 0 ... 50 ... 100
+		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
+
+		if (center_margin_min < x_offset < center_margin_max):
+			self.vehicle_controll.send_command("move_0")
+		elif x_offset < 40:
+			self.vehicle_controll.send_command("left", 1)
+		elif x_offset > 60:	
+			self.vehicle_controll.send_command("right", 1)
+	else:
+		print "X offset is None, Y offset is None"
+		self.vehicle_controll.send_command("move_0")
 	
