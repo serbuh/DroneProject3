@@ -91,12 +91,15 @@ mavproxy.py --master=/dev/ttyACM0 --baudrate 115200
 mavproxy.py --master=/dev/ttyUSB0 --baudrate 57600
 ```
 
-If module map is not loaded (fails to import cv) simply install that:
+If module map is not loaded (fails to import cv when OpenCV 3.0 or greater installed)  
+Try to install that:
 ```sh
 sudo apt-get install python-matplotlib python-serial python-wxgtk2.8 python-lxml
 sudo apt-get install python-scipy python-opencv ccache gawk git python-pip python-pexpect
-```
-
+```  
+or wait for this fix of mavproxy:
+[https://github.com/Dronecode/MAVProxy/pull/258](https://github.com/Dronecode/MAVProxy/pull/258)  
+  
 Possible new GUI + assync UDP design:
 - [https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
 ](https://www.safaribooksonline.com/library/view/python-cookbook/0596001673/ch09s07.html
