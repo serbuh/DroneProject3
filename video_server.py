@@ -18,7 +18,7 @@ PORT = 3333
 
 class Video_Server:
 	def __init__(self,Vehicle_Control,Port,Host):
-		self.port = Port
+		self.port = int(Port)
 		self.host = Host
 		self.vehicle_control = Vehicle_Control
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -38,7 +38,7 @@ class Video_Server:
 				#frame = cv2.resize(frame,(160,120))
 				frame = frame.flatten()
 				data = frame.tostring()
-				self.socket.sendto(data,(HOST,PORT))
+				self.socket.sendto(data,(self.host,self.port))
 						
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
@@ -109,7 +109,7 @@ def send(chunks_queue,socket, run_event):
 if __name__ == "__main__":
 	print "Video Send Main Loop Start "
 	try:
-		video_server = Video_Server(None,3333,'192.168.12.95')
+		video_server = Video_Server(None,3333,'192.168.24.251')
 		while True:
 			time.sleep(1)
 	except (KeyboardInterrupt):
