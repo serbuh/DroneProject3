@@ -609,28 +609,28 @@ class GUI_main(tk.Frame):
 
 
 	def on_btn_alt_hold_disable_guided_feat(self):
-		self.on_btn_rb_tracking_off()
+		self.on_btn_rb_follow_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "ALT_HOLD mode")
 		self.GCS.UDP_client.send_cmd(['alt_hold'])
 
 	def on_btn_land_disable_guided_feat(self):
-		self.on_btn_rb_tracking_off()
+		self.on_btn_rb_follow_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LAND mode")
 		self.GCS.UDP_client.send_cmd(['land'])
 
 	def on_btn_loiter_disable_guided_feat(self):
-		self.on_btn_rb_tracking_off()
+		self.on_btn_rb_follow_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LOITER mode")
 		self.GCS.UDP_client.send_cmd(['loiter'])
 
 	def on_btn_poshold_disable_guided_feat(self):
-		self.on_btn_rb_tracking_off()
+		self.on_btn_rb_follow_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "POSHOLD mode")
