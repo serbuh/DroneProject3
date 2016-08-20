@@ -21,9 +21,9 @@ class vehicle_controll:
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
-		self.video_on = True
-		self.rb_tracking_on = False
-		self.rb_follow_on = False
+		self.video_enabled = True
+		self.rb_tracking_enabled = False
+		self.rb_follow_enabled = False
 		self.in_panic = False
 		self.count_max = 6
 
@@ -76,6 +76,11 @@ class vehicle_controll:
 			self.video_on()
 		elif cmd[0] == "video_off":
 			self.video_off()
+
+		elif cmd[0] == "send_video_on":
+			self.send_video_on()
+		elif cmd[0] == "send_video_off":
+			self.send_video_off()
 
 		elif cmd[0] == "rb_tracking_on":
 			self.rb_tracking_on()
@@ -283,27 +288,35 @@ class vehicle_controll:
 
 	def video_on(self):
 		self.report("Drone controll - Video ON")
-		self.video_on = True
+		self.video_enabled = True
 
 	def video_off(self):
 		self.report("Drone controll - Video OFF")
-		self.video_on = False
+		self.video_enabled = False
+
+	def send_video_on(self):
+		self.report("Drone controll - Send Video ON")
+		self.send_video_enabled = True
+
+	def send_video_off(self):
+		self.report("Drone controll - Send Video OFF")
+		self.send_video_enabled = False
 	
 	def rb_tracking_on(self):
 		self.report("Drone controll - Red Ball Tracking ON")
-		self.rb_tracking_on = True
+		self.rb_tracking_enabled = True
 
 	def rb_tracking_off(self):
 		self.report("Drone controll - Red Ball Tracking OFF")
-		self.rb_tracking_on = False
+		self.rb_tracking_enabled = False
 
 	def rb_follow_on(self):
 		self.report("Drone controll - Red Ball Follow ON")
-		self.rb_follow_on = True
+		self.rb_follow_enabled = True
 
 	def rb_follow_off(self):
 		self.report("Drone controll - Red Ball Follow OFF")
-		self.rb_follow_on = True
+		self.rb_follow_enabled = True
 
 
 	def panic(self):
