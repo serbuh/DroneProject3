@@ -52,7 +52,8 @@ class GUI_main(tk.Frame):
 		
 		self.control_frame_row, self.control_frame_column, = 0, 0
 		self.HUD_frame_row, self.HUD_frame_column, = 0, 1
-		self.mission_frame_row, self.mission_frame_column, self.mission_frame_hide = 0, 3, True
+		self.WASD_mission_frame_row, self.WASD_mission_frame_column, self.WASD_mission_frame_hide = 0, 3, True
+		self.video_mission_frame_row, self.video_mission_frame_column, self.video_mission_frame_hide = 0, 3, True
 		self.console_frame_row, self.console_frame_column = 2, 0
 
 		self.firmware_frame_row, self.firmware_frame_column, self.firmware_frame_hide = 1, 1, True
@@ -64,7 +65,8 @@ class GUI_main(tk.Frame):
 		self.init_HUD_frame(frame_row=self.HUD_frame_row, frame_column=self.HUD_frame_column)
 		self.init_firmware_frame(frame_row=self.firmware_frame_row, frame_column=self.firmware_frame_column)
 		self.init_test_frame(frame_row=self.test_frame_row, frame_column=self.test_frame_column)
-		self.init_mission_frame(frame_row=self.mission_frame_row, frame_column=self.mission_frame_column)
+		self.init_WASD_mission_frame(frame_row=self.WASD_mission_frame_row, frame_column=self.WASD_mission_frame_column)
+		self.init_video_mission_frame(frame_row=self.video_mission_frame_row, frame_column=self.video_mission_frame_column)
 
 		self.send_move_0 = 0
 		self.key_pressed = None
@@ -108,12 +110,19 @@ class GUI_main(tk.Frame):
 		self.btn_override_release = tk.Button(self.control_frame, text='ch3: release', width=15, command=self.on_btn_override_release)
 		self.btn_override_release.grid(row=3, column=1, columnspan=1)
 
-		if (self.mission_frame_hide == True):
-			text_btn_mission_frame = "Show mission frame"
+		if (self.WASD_mission_frame_hide == True):
+			text_btn_WASD_mission_frame = "Show WASD mission"
 		else:
-			text_btn_mission_frame = "Hide mission frame"
-		self.btn_mission_frame = tk.Button(self.control_frame, fg='black', text=text_btn_mission_frame, width=15, command= self.on_btn_mission_frame)
-		self.btn_mission_frame.grid(row=4, column=0, columnspan=1)
+			text_btn_WASD_mission_frame = "Hide WASD mission"
+		self.btn_WASD_mission_frame = tk.Button(self.control_frame, fg='black', text=text_btn_WASD_mission_frame, width=15, command= self.on_btn_WASD_mission_frame)
+		self.btn_WASD_mission_frame.grid(row=4, column=0, columnspan=1)
+
+		if (self.video_mission_frame_hide == True):
+			text_btn_video_mission_frame = "Show video mission"
+		else:
+			text_btn_video_mission_frame = "Hide video mission"
+		self.btn_video_mission_frame = tk.Button(self.control_frame, fg='black', text=text_btn_video_mission_frame, width=15, command= self.on_btn_video_mission_frame)
+		self.btn_video_mission_frame.grid(row=4, column=1, columnspan=1)
 
 
 		# row 5,6
@@ -256,16 +265,25 @@ class GUI_main(tk.Frame):
 			self.test_frame_hide = True
 			self.btn_test_frame.config(text = "Show Test frame")
 
-	def on_btn_mission_frame(self):
-		if (self.mission_frame_hide == True):
-			self.mission_frame.grid(row=self.mission_frame_row, column=self.mission_frame_column)
-			self.mission_frame_hide = False
-			self.btn_mission_frame.config(text = "Hide Mission frame")
+	def on_btn_WASD_mission_frame(self):
+		if (self.WASD_mission_frame_hide == True):
+			self.WASD_mission_frame.grid(row=self.WASD_mission_frame_row, column=self.WASD_mission_frame_column)
+			self.WASD_mission_frame_hide = False
+			self.btn_WASD_mission_frame.config(text = "Hide WASD mission")
 		else:
-			self.mission_frame.grid_remove()
-			self.mission_frame_hide = True
-			self.btn_mission_frame.config(text = "Show Mission frame")
+			self.WASD_mission_frame.grid_remove()
+			self.WASD_mission_frame_hide = True
+			self.btn_WASD_mission_frame.config(text = "Show WASD mission")
 
+	def on_btn_video_mission_frame(self):
+		if (self.video_mission_frame_hide == True):
+			self.video_mission_frame.grid(row=self.video_mission_frame_row, column=self.video_mission_frame_column)
+			self.video_mission_frame_hide = False
+			self.btn_video_mission_frame.config(text = "Hide video mission")
+		else:
+			self.video_mission_frame.grid_remove()
+			self.video_mission_frame_hide = True
+			self.btn_video_mission_frame.config(text = "Show video mission")
 
 
 	def init_console_frame(self, frame_row, frame_column):
@@ -389,77 +407,21 @@ class GUI_main(tk.Frame):
 		self.prnt("GCS", "Test 3")
 
 
+### Buttons ->>>
 
-	def init_mission_frame(self, frame_row, frame_column):
-		self.mission_frame = tk.Frame(self.root)
-		self.mission_frame.configure(background='white')
-
-
-		self.lbl_mission_frame = tk.Label(self.mission_frame, text='Mission flow:', font=('arial', 12, 'bold'), fg='red',bg='white')
-		self.lbl_mission_frame.grid(row=0, column=0, columnspan=4)
-
-		self.lbl_mission1 = tk.Label(self.mission_frame, text='(1) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission1.grid(row=1, column=0, columnspan=1)
-		self.btn_mission1 = tk.Button(self.mission_frame, fg='black', text='Arm', width=10, command= self.on_btn_mission1)
-		self.btn_mission1.grid(row=1, column=1, columnspan=1)
-
-		self.lbl_mission2 = tk.Label(self.mission_frame, text='(2) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission2.grid(row=2, column=0, columnspan=1)
-		self.btn_mission2 = tk.Button(self.mission_frame, fg='black', text='Takeoff to:', width=10, command= self.on_btn_mission2)
-		self.btn_mission2.grid(row=2, column=1, columnspan=1)
-		self.ent_mission2 = tk.Entry(self.mission_frame, width=10)
-		self.ent_mission2.insert(0, "3")
-		self.ent_mission2.grid(row=2, column=2)
-
-		self.lbl_mission3 = tk.Label(self.mission_frame, text='(3) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission3.grid(row=3, column=0, columnspan=1)
-		self.btn_mission3 = tk.Button(self.mission_frame, fg='black', text='GUIDED, move_0, WASD', width=23, command= self.on_btn_mission3)
-		self.btn_mission3.grid(row=3, column=1, columnspan=2)
-
-		self.lbl_mission4 = tk.Label(self.mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission4.grid(row=4, column=0, columnspan=1)
-		self.btn_mission4 = tk.Button(self.mission_frame, fg='black', text='Fly! :)', width=10, command= self.on_btn_mission4)
-		self.btn_mission4.grid(row=4, column=1, columnspan=1)
-
-		self.lbl_mission5 = tk.Label(self.mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission5.grid(row=5, column=0, columnspan=1)
-		self.btn_mission5_0 = tk.Button(self.mission_frame, fg='black', text='ALT_HOLD', width=10, command= self.on_btn_mission5_0)
-		self.btn_mission5_0.grid(row=5, column=1, columnspan=1)
-		self.btn_mission5_1 = tk.Button(self.mission_frame, fg='black', text='LAND', width=10, command= self.on_btn_mission5_1)
-		self.btn_mission5_1.grid(row=5, column=2, columnspan=1)
-
-		self.btn_mission5_2 = tk.Button(self.mission_frame, fg='black', text='LOITER', width=10, command= self.on_btn_mission5_2)
-		self.btn_mission5_2.grid(row=6, column=1, columnspan=1)
-
-		self.btn_mission5_3 = tk.Button(self.mission_frame, fg='black', text='POSHOLD', width=10, command= self.on_btn_mission5_3)
-		self.btn_mission5_3.grid(row=6, column=2, columnspan=1)
-
-		self.lbl_mission6 = tk.Label(self.mission_frame, text='(6) ', font=('arial', 10), fg='black',bg='white')
-		self.lbl_mission6.grid(row=7, column=0, columnspan=1)
-		self.btn_mission6 = tk.Button(self.mission_frame, fg='black', text='Disarm', width=10, command= self.on_btn_mission6)
-		self.btn_mission6.grid(row=7, column=1, columnspan=1)
-
-
-		#self.lbl_mission7 = tk.Label(self.mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
-		#self.lbl_mission7.grid(row=7, column=0, columnspan=1)
-
-
-	def on_btn_mission1(self):
+	def on_btn_arm(self):
 		self.prnt("Mission", "Arm")
 		self.GCS.UDP_client.send_cmd(['arm'])
 
-	def on_btn_mission2(self):
-		altitude = self.ent_mission2.get()	
-		self.prnt("Mission", "Takeoff to " + str(altitude) + " meters")
+	def on_btn_takeoff_send_move_0(self):
+		altitude = self.ent_WASD_mission2.get()	
+		self.prnt("Mission", "Takeoff to, move_0" + str(altitude) + " meters")
 		self.GCS.UDP_client.send_cmd(['takeoff', int(altitude)])
 		if self.lbl_send_position.cget('bg') == "red":
 			self.send_move_0 = 1
 			self.lbl_send_position.config(text = "YES", bg='green3')
 
-	def on_btn_mission2_1(self):
-		pass
-
-	def on_btn_mission3(self):
+	def on_btn_GUIDED_move_0_WASD(self):
 		self.prnt("Mission", "GUIDED")
 		self.GCS.UDP_client.send_cmd(['guided'])
 		self.prnt("Mission", "Send move_0")
@@ -469,36 +431,155 @@ class GUI_main(tk.Frame):
 		if self.lbl_listen_keys.cget('bg') == "red":
 			self.listen_keys_enable()
 
-	def on_btn_mission4(self):
+	def on_btn_fly(self):
 		self.prnt("Mission", "Fly! :)")
 
-	def on_btn_mission5_0(self):
+
+	def on_btn_alt_hold_dis_pos_keys(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "ALT_HOLD mode")
 		self.GCS.UDP_client.send_cmd(['alt_hold'])
 
-	def on_btn_mission5_1(self):
+	def on_btn_land_dis_pos_keys(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LAND mode")
 		self.GCS.UDP_client.send_cmd(['land'])
 
-	def on_btn_mission5_2(self):
+	def on_btn_loiter_dis_pos_keys(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LOITER mode")
 		self.GCS.UDP_client.send_cmd(['loiter'])
 
-	def on_btn_mission5_3(self):
+	def on_btn_poshold_dis_pos_keys(self):
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "POSHOLD mode")
 		self.GCS.UDP_client.send_cmd(['poshold'])
 
-	def on_btn_mission6(self):
+	def on_btn_disarm(self):
 		self.prnt("Mission", "Disarm")
 		self.GCS.UDP_client.send_cmd(['disarm'])
+
+### ->>> Buttons
+
+### WASD Mission ->>>
+
+	def init_WASD_mission_frame(self, frame_row, frame_column):
+		self.WASD_mission_frame = tk.Frame(self.root)
+		self.WASD_mission_frame.configure(background='white')
+
+
+		self.lbl_WASD_mission_frame = tk.Label(self.WASD_mission_frame, text='WASD Mission', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_WASD_mission_frame.grid(row=0, column=0, columnspan=4)
+
+		self.lbl_WASD_mission1 = tk.Label(self.WASD_mission_frame, text='(1) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_WASD_mission1.grid(row=1, column=0, columnspan=1)
+		self.btn_WASD_mission1 = tk.Button(self.WASD_mission_frame, fg='black', text='Arm', width=14, command= self.on_btn_arm)
+		self.btn_WASD_mission1.grid(row=1, column=1, columnspan=1)
+
+		self.lbl_WASD_mission2 = tk.Label(self.WASD_mission_frame, text='(2) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_WASD_mission2.grid(row=2, column=0, columnspan=1)
+		self.btn_WASD_mission2 = tk.Button(self.WASD_mission_frame, fg='black', text='Takeoff to, move_0', width=14, command= self.on_btn_takeoff_send_move_0)
+		self.btn_WASD_mission2.grid(row=2, column=1, columnspan=1)
+		self.ent_WASD_mission2 = tk.Entry(self.WASD_mission_frame, width=14)
+		self.ent_WASD_mission2.insert(0, "3")
+		self.ent_WASD_mission2.grid(row=2, column=2)
+
+		self.lbl_WASD_mission3 = tk.Label(self.WASD_mission_frame, text='(3) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_WASD_mission3.grid(row=3, column=0, columnspan=1)
+		self.btn_WASD_mission3 = tk.Button(self.WASD_mission_frame, fg='black', text='GUIDED, move_0, WASD', width=31, command= self.on_btn_GUIDED_move_0_WASD)
+		self.btn_WASD_mission3.grid(row=3, column=1, columnspan=2)
+
+		self.lbl_WASD_mission4 = tk.Label(self.WASD_mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_WASD_mission4.grid(row=4, column=0, columnspan=1)
+		self.btn_WASD_mission4 = tk.Button(self.WASD_mission_frame, fg='black', text='Fly! :)', width=14, command= self.on_btn_fly)
+		self.btn_WASD_mission4.grid(row=4, column=1, columnspan=1)
+
+		self.lbl_WASD_mission5 = tk.Label(self.WASD_mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_WASD_mission5.grid(row=5, column=0, columnspan=1)
+		self.btn_WASD_mission5_0 = tk.Button(self.WASD_mission_frame, fg='black', text='ALT_HOLD', width=14, command= self.on_btn_alt_hold_dis_pos_keys)
+		self.btn_WASD_mission5_0.grid(row=5, column=1, columnspan=1)
+		self.btn_WASD_mission5_1 = tk.Button(self.WASD_mission_frame, fg='black', text='LAND', width=14, command= self.on_btn_land_dis_pos_keys)
+		self.btn_WASD_mission5_1.grid(row=5, column=2, columnspan=1)
+
+		self.btn_WASD_mission5_2 = tk.Button(self.WASD_mission_frame, fg='black', text='LOITER', width=14, command= self.on_btn_loiter_dis_pos_keys)
+		self.btn_WASD_mission5_2.grid(row=6, column=1, columnspan=1)
+
+		self.btn_WASD_mission5_3 = tk.Button(self.WASD_mission_frame, fg='black', text='POSHOLD', width=14, command= self.on_btn_poshold_dis_pos_keys)
+		self.btn_WASD_mission5_3.grid(row=6, column=2, columnspan=1)
+
+		self.lbl_WASD_mission6 = tk.Label(self.WASD_mission_frame, text='(6) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_WASD_mission6.grid(row=7, column=0, columnspan=1)
+		self.btn_WASD_mission6 = tk.Button(self.WASD_mission_frame, fg='black', text='Disarm', width=14, command= self.on_btn_disarm)
+		self.btn_WASD_mission6.grid(row=7, column=1, columnspan=1)
+
+
+		#self.lbl_WASD_mission7 = tk.Label(self.WASD_mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
+		#self.lbl_WASD_mission7.grid(row=7, column=0, columnspan=1)
+
+
+### ->>> WASD Mission
+### Video Mission ->>>
+
+
+	def init_video_mission_frame(self, frame_row, frame_column):
+		self.video_mission_frame = tk.Frame(self.root)
+		self.video_mission_frame.configure(background='white')
+
+
+		self.lbl_video_mission_frame = tk.Label(self.video_mission_frame, text='Video Mission', font=('arial', 12, 'bold'), fg='red',bg='white')
+		self.lbl_video_mission_frame.grid(row=0, column=0, columnspan=4)
+
+		self.lbl_video_mission1 = tk.Label(self.video_mission_frame, text='(1) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_video_mission1.grid(row=1, column=0, columnspan=1)
+		self.btn_video_mission1 = tk.Button(self.video_mission_frame, fg='black', text='Arm', width=14, command= self.on_btn_arm)
+		self.btn_video_mission1.grid(row=1, column=1, columnspan=1)
+
+		self.lbl_video_mission2 = tk.Label(self.video_mission_frame, text='(2) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_video_mission2.grid(row=2, column=0, columnspan=1)
+		self.btn_video_mission2 = tk.Button(self.video_mission_frame, fg='black', text='Takeoff to, move_0', width=14, command= self.on_btn_takeoff_send_move_0)
+		self.btn_video_mission2.grid(row=2, column=1, columnspan=1)
+		self.ent_video_mission2 = tk.Entry(self.video_mission_frame, width=14)
+		self.ent_video_mission2.insert(0, "3")
+		self.ent_video_mission2.grid(row=2, column=2)
+
+		self.lbl_video_mission3 = tk.Label(self.video_mission_frame, text='(3) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_video_mission3.grid(row=3, column=0, columnspan=1)
+		self.btn_video_mission3 = tk.Button(self.video_mission_frame, fg='black', text='GUIDED, move_0, WASD', width=31, command= self.on_btn_GUIDED_move_0_WASD)
+		self.btn_video_mission3.grid(row=3, column=1, columnspan=2)
+
+		self.lbl_video_mission4 = tk.Label(self.video_mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_video_mission4.grid(row=4, column=0, columnspan=1)
+		self.btn_video_mission4 = tk.Button(self.video_mission_frame, fg='black', text='Fly! :)', width=14, command= self.on_btn_fly)
+		self.btn_video_mission4.grid(row=4, column=1, columnspan=1)
+
+		self.lbl_video_mission5 = tk.Label(self.video_mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_video_mission5.grid(row=5, column=0, columnspan=1)
+		self.btn_video_mission5_0 = tk.Button(self.video_mission_frame, fg='black', text='ALT_HOLD', width=14, command= self.on_btn_alt_hold_dis_pos_keys)
+		self.btn_video_mission5_0.grid(row=5, column=1, columnspan=1)
+		self.btn_video_mission5_1 = tk.Button(self.video_mission_frame, fg='black', text='LAND', width=14, command= self.on_btn_land_dis_pos_keys)
+		self.btn_video_mission5_1.grid(row=5, column=2, columnspan=1)
+
+		self.btn_video_mission5_2 = tk.Button(self.video_mission_frame, fg='black', text='LOITER', width=14, command= self.on_btn_loiter_dis_pos_keys)
+		self.btn_video_mission5_2.grid(row=6, column=1, columnspan=1)
+
+		self.btn_video_mission5_3 = tk.Button(self.video_mission_frame, fg='black', text='POSHOLD', width=14, command= self.on_btn_poshold_dis_pos_keys)
+		self.btn_video_mission5_3.grid(row=6, column=2, columnspan=1)
+
+		self.lbl_video_mission6 = tk.Label(self.video_mission_frame, text='(6) ', font=('arial', 10), fg='black',bg='white')
+		self.lbl_video_mission6.grid(row=7, column=0, columnspan=1)
+		self.btn_video_mission6 = tk.Button(self.video_mission_frame, fg='black', text='Disarm', width=14, command= self.on_btn_disarm)
+		self.btn_video_mission6.grid(row=7, column=1, columnspan=1)
+
+
+		#self.lbl_video_mission7 = tk.Label(self.video_mission_frame, text='(7) ', font=('arial', 10), fg='black',bg='white')
+		#self.lbl_video_mission7.grid(row=7, column=0, columnspan=1)
+
+### ->>> Video Mission
+
 
 
 	def on_window_close(self):
