@@ -235,46 +235,46 @@ class GUI_main(tk.Frame):
 		self.btn_rb_tracking_off.grid(row=8, column=1, columnspan=1)
 
 		self.btn_rb_follow_on = tk.Button(self.control_frame, fg='black', text='RB Follow ON', width=15, command= self.on_btn_rb_follow_on)
-		self.btn_rb_follow_on.grid(row=8, column=0, columnspan=1)
+		self.btn_rb_follow_on.grid(row=9, column=0, columnspan=1)
 		self.btn_rb_follow_off = tk.Button(self.control_frame, fg='black', text='RB Follow OFF', width=15, command= self.on_btn_rb_follow_off)
-		self.btn_rb_follow_off.grid(row=8, column=1, columnspan=1)
+		self.btn_rb_follow_off.grid(row=9, column=1, columnspan=1)
 
-		#row 9
+		#row 10, 11
 		self.btn_send_position = tk.Button(self.control_frame, fg='black', text='Send move_0', width=15, command= self.on_btn_send_position)
-		self.btn_send_position.grid(row=9, column=0, columnspan=1)
+		self.btn_send_position.grid(row=10, column=0, columnspan=1)
 		self.lbl_send_position = tk.Label(self.control_frame, text='NO', fg='black',bg='red')
-		self.lbl_send_position.grid(row=9, column=1, columnspan=1)
+		self.lbl_send_position.grid(row=10, column=1, columnspan=1)
 
 		self.btn_listen_keys = tk.Button(self.control_frame, fg='black', text='Listen keys', width=15, command= self.on_btn_listen_keys)
-		self.btn_listen_keys.grid(row=10, column=0, columnspan=1)
+		self.btn_listen_keys.grid(row=11, column=0, columnspan=1)
 		self.lbl_listen_keys = tk.Label(self.control_frame, text='NO', fg='black',bg='red')
-		self.lbl_listen_keys.grid(row=10, column=1, columnspan=1)
+		self.lbl_listen_keys.grid(row=11, column=1, columnspan=1)
 
-		# row 11
+		# row 12
 		self.lbl_failsafe = tk.Label(self.control_frame, text='Activate flight modes:', font=('arial', 12, 'bold'), fg='red',bg='white')
-		self.lbl_failsafe.grid(row=11, column=0, columnspan=3)
+		self.lbl_failsafe.grid(row=12, column=0, columnspan=3)
 
-		# row 12, 13, 14, 15
+		# row 13, 14, 15, 16
 		self.btn_land = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Land', width=15, command= self.on_btn_land)
-		self.btn_land.grid(row=12, column=0, columnspan=1)
+		self.btn_land.grid(row=13, column=0, columnspan=1)
 
 		self.btn_rtl = tk.Button(self.control_frame, fg='black', activebackground='green2', text='RTL', width=15, command= self.on_btn_rtl)
-		self.btn_rtl.grid(row=12, column=1, columnspan=1)
+		self.btn_rtl.grid(row=13, column=1, columnspan=1)
 
 		self.btn_stabilize = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Stabilize', width=15, command= self.on_btn_stabilize)
-		self.btn_stabilize.grid(row=13, column=0, columnspan=1)
+		self.btn_stabilize.grid(row=14, column=0, columnspan=1)
 
 		self.btn_loiter = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Loiter', width=15, command= self.on_btn_loiter)
-		self.btn_loiter.grid(row=13, column=1, columnspan=1)
+		self.btn_loiter.grid(row=14, column=1, columnspan=1)
 
 		self.btn_guided = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Guided', width=15, command= self.on_btn_guided)
-		self.btn_guided.grid(row=14, column=0, columnspan=1)
+		self.btn_guided.grid(row=15, column=0, columnspan=1)
 
 		self.btn_poshold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Position Hold', width=15, command= self.on_btn_poshold)
-		self.btn_poshold.grid(row=14, column=1, columnspan=1)
+		self.btn_poshold.grid(row=15, column=1, columnspan=1)
 
 		self.btn_althold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Altitude Hold', width=15, command= self.on_btn_althold)
-		self.btn_althold.grid(row=15, column=0, columnspan=1)
+		self.btn_althold.grid(row=16, column=0, columnspan=1)
 
 		self.control_frame.grid(row=frame_row, column=frame_column)
 
