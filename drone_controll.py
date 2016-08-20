@@ -317,7 +317,7 @@ class vehicle_controll:
 
 	def rb_follow_off(self):
 		self.report("Drone controll - Red Ball Follow OFF")
-		self.rb_follow_enabled = True
+		self.rb_follow_enabled = False
 
 
 	def panic(self):

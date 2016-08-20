@@ -358,7 +358,7 @@ class GUI_main(tk.Frame):
 		self.send_move_0 = 1
 		self.lbl_send_position.config(text = "YES", bg='green3')
 
-###########
+
 	def on_btn_video_on(self):
 		self.prnt("Mission", "Video ON")
 		self.GCS.UDP_client.send_cmd(['video_on'])
