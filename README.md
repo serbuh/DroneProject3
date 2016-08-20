@@ -74,6 +74,15 @@ sudo python setup.py install
 sudo apt-get install python-tk
 ```
 
+For showing video in the GCS you must install:  
+```sh
+pip install Pillow
+```
+if you get "ImportError: cannot import name ImageTk" , run:  
+```sh
+sudo apt-get install python-imaging-tk
+```
+
 Install serial:
 ```sh
 sudo pip install pyserial
