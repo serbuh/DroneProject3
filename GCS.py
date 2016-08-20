@@ -561,7 +561,7 @@ class GUI_main(tk.Frame):
 	def on_btn_GUIDED_video_cntrl(self):
 		self.prnt("Mission", "GUIDED")
 		self.GCS.UDP_client.send_cmd(['guided'])
-		#TODO start video guided commands
+		self.video_guided_enable()
 
 	def on_btn_fly(self):
 		self.prnt("Mission", "Fly! :)")
@@ -675,7 +675,7 @@ class GUI_main(tk.Frame):
 
 		self.lbl_video_mission2 = tk.Label(self.video_mission_frame, text='(2) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_video_mission2.grid(row=2, column=0, columnspan=1)
-		self.btn_video_mission2 = tk.Button(self.video_mission_frame, fg='black', text='Takeoff to, move_0', width=16, command= self.on_btn_takeoff_send_move_0)
+		self.btn_video_mission2 = tk.Button(self.video_mission_frame, fg='black', text='Guided Takeoff, move_0', width=16, command= self.on_btn_takeoff_send_move_0)
 		self.btn_video_mission2.grid(row=2, column=1, columnspan=1)
 		self.ent_video_mission2 = tk.Entry(self.video_mission_frame, width=16)
 		self.ent_video_mission2.insert(0, "3")
