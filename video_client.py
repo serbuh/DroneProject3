@@ -16,12 +16,12 @@ PORT = 3333
 
 
 class Video_Client:
-	def __init__(self,ShowVideo,Port , lbl_video = None ,Host = ''):
+	def __init__(self,ShowVideo,Port,Host = ''):
 		print "Video Client - Start Video init"
 		self.port = Port
 		self.host = Host
 		self.showVideo = ShowVideo
-		self.lbl_video = lbl_video
+		self.imageBuffer = None
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.socket.bind((HOST,PORT))
 		self.socket.settimeout(2)
@@ -43,8 +43,7 @@ class Video_Client:
 				frame = frame[:,:,::-1]
 				image = Image.fromarray(frame)
 				image = ImageTk.PhotoImage(image)
-				self.lbl_video.imgtk = image 
-				self.lbl_video.configure(image=image)
+				self.imageBuffer = image
 				if self.showVideo:
 					self.showImage("Client", frame)
 			except socket.timeout:

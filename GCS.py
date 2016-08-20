@@ -75,7 +75,7 @@ class GCS():
 	def run_Video(self, video_port):
 		self.prnt("GCS","Start video on port " + str(video_port))
 		#print "Start Video Thread!"
-		self.video_client = Video_Client(False,video_port,self.GUI.lbl_video)
+		self.video_client = Video_Client(False,video_port)
 
 	def run_GUI(self):
 		self.root = tk.Tk()
@@ -837,9 +837,13 @@ class GUI_main(tk.Frame):
 		# zero the pressed key. It will be renewed when auto press will be activated
 		self.key_pressed = None
 		
+		if self.GCS.args.video_port:
+			self.lbl_video.imgtk = self.GCS.video_client.imageBuffer 
+			self.lbl_video.configure(image=self.GCS.video_client.imageBuffer)
+				
 
 		self.GUI_dict_refresh_values()
-		self.root.after(100, self.GUI_tick)
+		self.root.after(10, self.GUI_tick)
 
 	# Update the stored value in the dict with the new ones    
 	def GUI_dict_generate_new_values(self):
