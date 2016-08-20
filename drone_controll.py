@@ -22,6 +22,7 @@ class vehicle_controll:
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
 		self.video_enabled = True
+		self.send_video_enabled = True
 		self.rb_tracking_enabled = False
 		self.rb_follow_enabled = False
 		self.in_panic = False
