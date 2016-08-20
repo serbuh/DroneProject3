@@ -54,12 +54,12 @@ class GUI_main(tk.Frame):
 		
 		self.control_frame_row, self.control_frame_column, = 0, 0
 		self.HUD_frame_row, self.HUD_frame_column, = 0, 1
-		self.WASD_mission_frame_row, self.WASD_mission_frame_column, self.WASD_mission_frame_hide = 0, 3, True
-		self.video_mission_frame_row, self.video_mission_frame_column, self.video_mission_frame_hide = 0, 3, True
+		self.WASD_mission_frame_row, self.WASD_mission_frame_column, self.WASD_mission_frame_hide = 3, 0, True
+		self.video_mission_frame_row, self.video_mission_frame_column, self.video_mission_frame_hide = 3, 0, True
 		self.console_frame_row, self.console_frame_column = 2, 0
 
 		self.firmware_frame_row, self.firmware_frame_column, self.firmware_frame_hide = 1, 1, True
-		self.video_frame_row, self.video_frame_column, self.video_frame_hide = 3, 0, True
+		self.video_frame_row, self.video_frame_column, self.video_frame_hide = 0, 3, True
 		self.test_frame_row, self.test_frame_column, self.test_frame_hide = 4, 0, True
 
 
