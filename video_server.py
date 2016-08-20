@@ -31,14 +31,17 @@ class Video_Server:
 	def sendVideo(self):
 		while not self.close_event.is_set():
 			try:
-				pass
-				frame = self.camera.getFrame(True)
-				frame = cv2.resize(redBallTracking(self.vehicle_control,frame),(80,60))	
-				#frame = cv2.resize(frame,(80,60))
-				frame = frame.flatten()
-				data = frame.tostring()
-				self.socket.sendto(data,(self.host,self.port))
-						
+				if self.vehicle_control.video_on:
+					frame = self.camera.getFrame(True)
+					if self.vehicle_control.rb_tracking_on:
+						frame = cv2.resize(redBallTracking(self.vehicle_control,frame),(80,60))
+					else:	
+						frame = cv2.resize(frame,(80,60))
+					frame = frame.flatten()
+					data = frame.tostring()
+					self.socket.sendto(data,(self.host,self.port))
+				else:
+					time.sleep(1)		
 			except (KeyboardInterrupt):
 				print "Exiting video server..."
 				break
