@@ -11,8 +11,6 @@ import argparse
 import datetime
 import sys
 import os
-from PIL import Image
-from PIL import ImageTk
 
 
 class IORedirector(object):
@@ -77,7 +75,7 @@ class GCS():
 	def run_Video(self, video_port):
 		self.prnt("GCS","Start video on port " + str(video_port))
 		#print "Start Video Thread!"
-		self.video_client = Video_Client(False,video_port)
+		self.video_client = Video_Client(False,video_port,self.GUI.lbl_video)
 
 	def run_GUI(self):
 		self.root = tk.Tk()
@@ -109,12 +107,12 @@ class GCS():
 		self.prnt("GSC", "Close all - Drone Report")
 		self.UDP_client_Report.close_UDP()
 	
-		self.prnt("GSC", "Close all - GUI")
-		self.GUI.GUI_close()
-		
 		if self.args.video_port:
 			self.prnt("GSC", "Close all - Video Feed")
 			self.video_client.closeVideoClient()
+
+		self.prnt("GSC", "Close all - GUI")
+		self.GUI.GUI_close()
 
 		self.prnt("GSC", "Close all - Complete")
 
@@ -808,14 +806,6 @@ class GUI_main(tk.Frame):
 		# zero the pressed key. It will be renewed when auto press will be activated
 		self.key_pressed = None
 		
-		#print self.video_frame_hide
-		if not self.video_frame_hide:
-			if self.GCS.args.video_port:# and not self.GCS.video_client.frameQueue.empty():
-				print "Getting Frame"
-				image = Image.fromarray(self.GCS.video_client.frameQueue.get())
-				image = ImageTk.PhotoImage(image)
-				self.lbl_video.imgtk = image 
-				self.lbl_video.configure(image=image)
 
 		self.GUI_dict_refresh_values()
 		self.root.after(100, self.GUI_tick)

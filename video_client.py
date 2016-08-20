@@ -8,46 +8,51 @@ import time
 import errno
 from time import sleep
 from scipy import ndimage
-
+from PIL import Image
+from PIL import ImageTk
 
 HOST = ''
 PORT = 3333
 
 
 class Video_Client:
-	def __init__(self,ShowVideo,Port , Host = ''):
-		print "GCS - Start Video init"
+	def __init__(self,ShowVideo,Port , lbl_video = None ,Host = ''):
+		print "Video Client - Start Video init"
 		self.port = Port
 		self.host = Host
 		self.showVideo = ShowVideo
+		self.lbl_video = lbl_video
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.socket.bind((HOST,PORT))
 		self.socket.settimeout(2)
-		self.frameQueue = Queue()
 		self.close_event = threading.Event() 
 		self.getVideoThread = threading.Thread(target=self.getVideo, args=[])
 		self.getVideoThread.start()
-		print "GCS - Finish Video init"
+		print "Video Client - Finish Video init"
 
 
 	def getVideo(self):
 		while not self.close_event.is_set():
 			try:
+				#print "Getting Frame"
 				data = self.socket.recv(60000)
 				tmp_frame = numpy.fromstring(data, dtype=numpy.uint8)
 				frame = numpy.reshape(tmp_frame, (60,80,3))
 				frame = ndimage.rotate(frame, -90)
 				frame = cv2.resize(frame,(240,320))
-				self.frameQueue.put(frame)
+				image = Image.fromarray(frame)
+				image = ImageTk.PhotoImage(image)
+				self.lbl_video.imgtk = image 
+				self.lbl_video.configure(image=image)
 				if self.showVideo:
 					self.showImage("Client", frame)
 			except socket.timeout:
-				print "No data on network!"
+				print "Video Client - No data on network!"
 			except (KeyboardInterrupt):
-				print "Exiting video client..."
+				print "Video Client - Exiting video client..."
 				break
 		cv2.destroyAllWindows()
-		print "Closed Video Feed"
+		print "Video Client - Closed Video Feed"
 
 
 	def showImage(self , title , frame , wait = False ):	
@@ -64,6 +69,8 @@ class Video_Client:
    	def closeVideoClient(self):
    		#print "Closing Video Feed..."
    		self.close_event.set()
+   		print "Video Client - Close event set! Waiting for video feed to close..."
+   		self.getVideoThread.join()
 
 #def reciveAndQueue(queue,socket,run_event):
 #	flag = 0
