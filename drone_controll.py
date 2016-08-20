@@ -59,6 +59,11 @@ class vehicle_controll:
 
 		elif cmd[0] == "override":
 			self.override()
+		elif cmd[0] == "cam_point_down":
+			self.cam_point_down()
+		elif cmd[0] == "cam_point_forward":
+			self.cam_point_forward()
+
 		elif cmd[0] == "override_release":
 			self.override_release()
 
@@ -246,11 +251,19 @@ class vehicle_controll:
 
 
 	def override(self):
-		self.report("override activated")
+		self.report("Drone controll - Override activated")
 		self.vehicle.channels.overrides = {'3':1500}
 
+	def cam_point_down(self):
+		self.report("Drone controll - Cam point down")
+		self.vehicle.channels.overrides = {'7':1000}
+
+	def cam_point_forward(self):
+		self.report("Drone controll - Cam point forward")
+		self.vehicle.channels.overrides = {'7':2000}
+
 	def override_release(self):
-		self.report("release override activated")
+		self.report("Drone controll - Release overrides")
 		self.vehicle.channels.overrides = {}
 
 

@@ -183,8 +183,9 @@ class GUI_main(tk.Frame):
 		self.btn_check_firmware = tk.Button(self.control_frame, fg='black', text=text_btn_check_firmware, width=15, command= self.on_btn_check_firmware)
 		self.btn_check_firmware.grid(row=2, column=0, columnspan=1)
 
-		self.btn_override = tk.Button(self.control_frame, text='ch3: 1500', width=15, command=self.on_btn_override)
-		self.btn_override.grid(row=2, column=1, columnspan=1)
+		self.btn_cam_point_down = tk.Button(self.control_frame, text='Cam point down', width=15, command=self.on_btn_cam_point_down)
+		self.btn_cam_point_down.grid(row=2, column=1, columnspan=1)
+
 
 		if (self.test_frame_hide == True):
 			text_btn_test_frame = "Show test frame"
@@ -193,8 +194,11 @@ class GUI_main(tk.Frame):
 		self.btn_test_frame = tk.Button(self.control_frame, fg='black', text=text_btn_test_frame, width=15, command= self.on_btn_test_frame)
 		self.btn_test_frame.grid(row=3, column=0, columnspan=1)
 
-		self.btn_override_release = tk.Button(self.control_frame, text='ch3: release', width=15, command=self.on_btn_override_release)
-		self.btn_override_release.grid(row=3, column=1, columnspan=1)
+		self.btn_cam_point_forward = tk.Button(self.control_frame, text='Cam point forward', width=15, command=self.on_btn_cam_point_forward)
+		self.btn_cam_point_forward.grid(row=3, column=1, columnspan=1)
+
+		self.btn_override_release = tk.Button(self.control_frame, text='Ch Override release', width=15, command=self.on_btn_override_release)
+		self.btn_override_release.grid(row=4, column=1, columnspan=1)
 
 		if (self.WASD_mission_frame_hide == True):
 			text_btn_WASD_mission_frame = "Show WASD mission"
@@ -208,7 +212,7 @@ class GUI_main(tk.Frame):
 		else:
 			text_btn_video_mission_frame = "Hide video mission"
 		self.btn_video_mission_frame = tk.Button(self.control_frame, fg='black', text=text_btn_video_mission_frame, width=15, command= self.on_btn_video_mission_frame)
-		self.btn_video_mission_frame.grid(row=4, column=1, columnspan=1)
+		self.btn_video_mission_frame.grid(row=5, column=1, columnspan=1)
 
 		# row 5, 6, 7, 8 - Video buttons
 		if (self.video_frame_hide == True):
@@ -299,8 +303,11 @@ class GUI_main(tk.Frame):
 	def on_btn_althold(self):
 		self.GCS.UDP_client.send_cmd(['alt_hold'])
 
-	def on_btn_override(self):
-		self.GCS.UDP_client.send_cmd(['override'])
+	def on_btn_cam_point_down(self):
+		self.GCS.UDP_client.send_cmd(['cam_point_down'])
+
+	def on_btn_cam_point_forward(self):
+		self.GCS.UDP_client.send_cmd(['cam_point_forward'])
 
 	def on_btn_override_release(self):
 		self.GCS.UDP_client.send_cmd(['override_release'])
