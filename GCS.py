@@ -848,7 +848,7 @@ class GUI_main(tk.Frame):
 		# zero the pressed key. It will be renewed when auto press will be activated
 		self.key_pressed = None
 		
-		if self.GCS.args.video_port:
+		if self.GCS.args.video_port and self.GCS.video_client.imageBuffer is not None:
 			image = Image.fromarray(self.GCS.video_client.imageBuffer)
 			image = ImageTk.PhotoImage(image)
 			self.lbl_video.imgtk = image
