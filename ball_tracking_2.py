@@ -53,21 +53,21 @@ def decide_moving(vehicle_controll, center, frame_size):
 
 	center_margin_min, center_margin_max = 40, 60
 
-	if center != None:
-		center = (center[0], frame_size[0] - center[1])
-		x_offset = int((float(center[1])/frame_size[0]) * 100)
-		y_offset = int((float(center[0])/frame_size[1]) * 100)
+	if vehicle_controll.rb_follow_on: 
+		if center != None:
+			center = (center[0], frame_size[0] - center[1])
+			x_offset = int((float(center[1])/frame_size[0]) * 100)
+			y_offset = int((float(center[0])/frame_size[1]) * 100)
 
-		# offset scale: 0 ... 50 ... 100
-		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
+			# offset scale: 0 ... 50 ... 100
+			print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
 
-		if (center_margin_min < x_offset < center_margin_max):
+			if (center_margin_min < x_offset < center_margin_max):
+				vehicle_controll.send_command_list(['move_0'])
+			elif x_offset < 40:
+				vehicle_controll.send_command_list(['left', int(1)])
+			elif x_offset > 60:	
+				vehicle_controll.send_command_list(['right', int(1)])
+		else:
+			print "X offset is None, Y offset is None"
 			vehicle_controll.send_command_list(['move_0'])
-		elif x_offset < 40:
-			vehicle_controll.send_command_list(['left', int(1)])
-		elif x_offset > 60:	
-			vehicle_controll.send_command_list(['right', int(1)])
-	else:
-		print "X offset is None, Y offset is None"
-		vehicle_controll.send_command_list(['move_0'])
-
