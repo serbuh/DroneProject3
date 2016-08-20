@@ -31,15 +31,17 @@ class Video_Server:
 	def sendVideo(self):
 		while not self.close_event.is_set():
 			try:
-				if self.vehicle_control.video_on:
+				if self.vehicle_control.video_enabled:
 					frame = self.camera.getFrame(True)
-					if self.vehicle_control.rb_tracking_on:
-						frame = cv2.resize(redBallTracking(self.vehicle_control,frame),(80,60))
-					else:	
+					
+					if self.vehicle_control.rb_tracking_enabled:
+						frame = redBallTracking(self.vehicle_control,frame)
+
+					if self.vehicle_control.send_video_enabled:
 						frame = cv2.resize(frame,(80,60))
-					frame = frame.flatten()
-					data = frame.tostring()
-					self.socket.sendto(data,(self.host,self.port))
+						frame = frame.flatten()
+						data = frame.tostring()
+						self.socket.sendto(data,(self.host,self.port))
 				else:
 					time.sleep(1)		
 			except (KeyboardInterrupt):

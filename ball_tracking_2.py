@@ -53,7 +53,7 @@ def decide_moving(vehicle_controll, center, frame_size):
 
 	center_margin_min, center_margin_max = 40, 60
 
-	if vehicle_controll.rb_follow_on: 
+	if vehicle_controll.rb_follow_enabled: 
 		if center != None:
 			center = (center[0], frame_size[0] - center[1])
 			x_offset = int((float(center[1])/frame_size[0]) * 100)
