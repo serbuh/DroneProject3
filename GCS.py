@@ -210,6 +210,7 @@ class GUI_main(tk.Frame):
 		self.btn_video_mission_frame = tk.Button(self.control_frame, fg='black', text=text_btn_video_mission_frame, width=15, command= self.on_btn_video_mission_frame)
 		self.btn_video_mission_frame.grid(row=4, column=1, columnspan=1)
 
+		# row 5, 6, 7, 8 - Video buttons
 		if (self.video_frame_hide == True):
 			text_btn_video_frame = "Show video"
 		else:
@@ -218,48 +219,62 @@ class GUI_main(tk.Frame):
 		self.btn_video_frame.grid(row=5, column=0, columnspan=1)
 
 
-		# row 6, 7, 8
+		self.btn_video_on = tk.Button(self.control_frame, fg='black', text='Video ON', width=15, command= self.on_btn_video_on)
+		self.btn_video_on.grid(row=6, column=0, columnspan=1)
+		self.btn_video_off = tk.Button(self.control_frame, fg='black', text='Video OFF', width=15, command= self.on_btn_video_off)
+		self.btn_video_off.grid(row=6, column=1, columnspan=1)
+
+		self.btn_send_video_on = tk.Button(self.control_frame, fg='black', text='Send Video ON', width=15, command= self.on_btn_send_video_on)
+		self.btn_send_video_on.grid(row=7, column=0, columnspan=1)
+		self.btn_send_video_off = tk.Button(self.control_frame, fg='black', text='Send Video OFF', width=15, command= self.on_btn_send_video_off)
+		self.btn_send_video_off.grid(row=7, column=1, columnspan=1)
+
+		self.btn_rb_tracking_on = tk.Button(self.control_frame, fg='black', text='RB Tracking ON', width=15, command= self.on_btn_rb_tracking_on)
+		self.btn_rb_tracking_on.grid(row=8, column=0, columnspan=1)
+		self.btn_rb_tracking_off = tk.Button(self.control_frame, fg='black', text='RB Tracking OFF', width=15, command= self.on_btn_rb_tracking_off)
+		self.btn_rb_tracking_off.grid(row=8, column=1, columnspan=1)
+
+		self.btn_rb_follow_on = tk.Button(self.control_frame, fg='black', text='RB Follow ON', width=15, command= self.on_btn_rb_follow_on)
+		self.btn_rb_follow_on.grid(row=8, column=0, columnspan=1)
+		self.btn_rb_follow_off = tk.Button(self.control_frame, fg='black', text='RB Follow OFF', width=15, command= self.on_btn_rb_follow_off)
+		self.btn_rb_follow_off.grid(row=8, column=1, columnspan=1)
+
+		#row 9
 		self.btn_send_position = tk.Button(self.control_frame, fg='black', text='Send move_0', width=15, command= self.on_btn_send_position)
-		self.btn_send_position.grid(row=6, column=0, columnspan=1)
+		self.btn_send_position.grid(row=9, column=0, columnspan=1)
 		self.lbl_send_position = tk.Label(self.control_frame, text='NO', fg='black',bg='red')
-		self.lbl_send_position.grid(row=6, column=1, columnspan=1)
+		self.lbl_send_position.grid(row=9, column=1, columnspan=1)
 
 		self.btn_listen_keys = tk.Button(self.control_frame, fg='black', text='Listen keys', width=15, command= self.on_btn_listen_keys)
-		self.btn_listen_keys.grid(row=7, column=0, columnspan=1)
+		self.btn_listen_keys.grid(row=10, column=0, columnspan=1)
 		self.lbl_listen_keys = tk.Label(self.control_frame, text='NO', fg='black',bg='red')
-		self.lbl_listen_keys.grid(row=7, column=1, columnspan=1)
+		self.lbl_listen_keys.grid(row=10, column=1, columnspan=1)
 
-		self.btn_video_guided = tk.Button(self.control_frame, fg='black', text='Video Guided', width=15, command= self.on_btn_video_guided)
-		self.btn_video_guided.grid(row=8, column=0, columnspan=1)
-		self.lbl_video_guided = tk.Label(self.control_frame, text='NO', fg='black',bg='red')
-		self.lbl_video_guided.grid(row=8, column=1, columnspan=1)
-
-
-		# row 9
+		# row 11
 		self.lbl_failsafe = tk.Label(self.control_frame, text='Activate flight modes:', font=('arial', 12, 'bold'), fg='red',bg='white')
-		self.lbl_failsafe.grid(row=9, column=0, columnspan=3)
+		self.lbl_failsafe.grid(row=11, column=0, columnspan=3)
 
-		# row 10, 11, 12, 13
+		# row 12, 13, 14, 15
 		self.btn_land = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Land', width=15, command= self.on_btn_land)
-		self.btn_land.grid(row=10, column=0, columnspan=1)
+		self.btn_land.grid(row=12, column=0, columnspan=1)
 
 		self.btn_rtl = tk.Button(self.control_frame, fg='black', activebackground='green2', text='RTL', width=15, command= self.on_btn_rtl)
-		self.btn_rtl.grid(row=10, column=1, columnspan=1)
+		self.btn_rtl.grid(row=12, column=1, columnspan=1)
 
 		self.btn_stabilize = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Stabilize', width=15, command= self.on_btn_stabilize)
-		self.btn_stabilize.grid(row=11, column=0, columnspan=1)
+		self.btn_stabilize.grid(row=13, column=0, columnspan=1)
 
 		self.btn_loiter = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Loiter', width=15, command= self.on_btn_loiter)
-		self.btn_loiter.grid(row=11, column=1, columnspan=1)
+		self.btn_loiter.grid(row=13, column=1, columnspan=1)
 
 		self.btn_guided = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Guided', width=15, command= self.on_btn_guided)
-		self.btn_guided.grid(row=12, column=0, columnspan=1)
+		self.btn_guided.grid(row=14, column=0, columnspan=1)
 
 		self.btn_poshold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Position Hold', width=15, command= self.on_btn_poshold)
-		self.btn_poshold.grid(row=12, column=1, columnspan=1)
+		self.btn_poshold.grid(row=14, column=1, columnspan=1)
 
 		self.btn_althold = tk.Button(self.control_frame, fg='black', activebackground='green2', text='Altitude Hold', width=15, command= self.on_btn_althold)
-		self.btn_althold.grid(row=13, column=0, columnspan=1)
+		self.btn_althold.grid(row=15, column=0, columnspan=1)
 
 		self.control_frame.grid(row=frame_row, column=frame_column)
 
@@ -343,22 +358,38 @@ class GUI_main(tk.Frame):
 		self.send_move_0 = 1
 		self.lbl_send_position.config(text = "YES", bg='green3')
 
+###########
+	def on_btn_video_on(self):
+		self.prnt("Mission", "Video ON")
+		self.GCS.UDP_client.send_cmd(['video_on'])
 
-	def on_btn_video_guided(self):
-		if self.lbl_video_guided.cget('bg') == "green3":
-			self.video_guided_disable()
-		elif self.lbl_video_guided.cget('bg') == "red":
-			self.video_guided_enable()
+	def on_btn_video_off(self):
+		self.prnt("Mission", "Video OFF")
+		self.GCS.UDP_client.send_cmd(['video_off'])
 
-	def video_guided_disable(self):
-		self.prnt("Mission", "Video Guided DISABLE")
-		#TODO video guided disable
-		self.lbl_video_guided.config(text = "NO", bg='red')
+	def on_btn_send_video_on(self):
+		self.prnt("Mission", "Send Video ON")
+		self.GCS.UDP_client.send_cmd(['send_video_on'])
 
-	def video_guided_enable(self):
-		self.prnt("Mission", "Video Guided ENABLE")
-		#TODO video guided enable
-		self.lbl_video_guided.config(text = "YES", bg='green3')
+	def on_btn_send_video_off(self):
+		self.prnt("Mission", "Send Video OFF")
+		self.GCS.UDP_client.send_cmd(['send_video_off'])
+
+	def on_btn_rb_tracking_on(self):
+		self.prnt("Mission", "Red Ball Tracking ON")
+		self.GCS.UDP_client.send_cmd(['rb_tracking_on'])
+
+	def on_btn_rb_tracking_off(self):
+		self.prnt("Mission", "Red Ball Tracking OFF")
+		self.GCS.UDP_client.send_cmd(['rb_tracking_off'])
+
+	def on_btn_rb_follow_on(self):
+		self.prnt("Mission", "Red Ball Follow ON")
+		self.GCS.UDP_client.send_cmd(['rb_follow_on'])
+
+	def on_btn_rb_follow_off(self):
+		self.prnt("Mission", "Red Ball Follow OFF")
+		self.GCS.UDP_client.send_cmd(['rb_follow_off'])
 
 
 	def on_btn_check_firmware(self):

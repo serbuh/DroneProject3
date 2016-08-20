@@ -56,6 +56,7 @@ sudo python drone_UDP_server.py --connect /dev/ttyUSB0,57600
    
 We use clean Ubuntu 14.04 with following dependencies installed:
 - Drone-kit:
+[Drone Kit Quick Start](http://python.dronekit.io/guide/quick_start.html)
 - FlyCapture:
 [Fly Capture Guide](https://github.com/jordens/pyflycapture2)
 ```sh
