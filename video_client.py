@@ -40,6 +40,7 @@ class Video_Client:
 				frame = numpy.reshape(tmp_frame, (60,80,3))
 				frame = ndimage.rotate(frame, -90)
 				frame = cv2.resize(frame,(240,320))
+				frame = frame[:,:,::-1]
 				image = Image.fromarray(frame)
 				image = ImageTk.PhotoImage(image)
 				self.lbl_video.imgtk = image 
