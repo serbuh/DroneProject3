@@ -599,35 +599,35 @@ class GUI_main(tk.Frame):
 	def on_btn_GUIDED_video_cntrl(self):
 		self.prnt("Mission", "GUIDED")
 		self.GCS.UDP_client.send_cmd(['guided'])
-		self.video_guided_enable()
+		self.on_btn_rb_tracking_on()
 
 	def on_btn_fly(self):
 		self.prnt("Mission", "Fly! :)")
 
 
 	def on_btn_alt_hold_disable_guided_feat(self):
-		self.video_guided_disable()
+		self.on_btn_rb_tracking_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "ALT_HOLD mode")
 		self.GCS.UDP_client.send_cmd(['alt_hold'])
 
 	def on_btn_land_disable_guided_feat(self):
-		self.video_guided_disable()
+		self.on_btn_rb_tracking_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LAND mode")
 		self.GCS.UDP_client.send_cmd(['land'])
 
 	def on_btn_loiter_disable_guided_feat(self):
-		self.video_guided_disable()
+		self.on_btn_rb_tracking_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "LOITER mode")
 		self.GCS.UDP_client.send_cmd(['loiter'])
 
 	def on_btn_poshold_disable_guided_feat(self):
-		self.video_guided_disable()
+		self.on_btn_rb_tracking_off()
 		self.send_position_disable()
 		self.listen_keys_disable()
 		self.prnt("Mission", "POSHOLD mode")
@@ -760,6 +760,7 @@ class GUI_main(tk.Frame):
 		self.video_frame.configure(background='grey')
 		self.lbl_video = tk.Label(self.video_frame)
 		self.lbl_video.grid(row=0, column=0, columnspan=1)
+
 ### ->>> Video frame
 
 
