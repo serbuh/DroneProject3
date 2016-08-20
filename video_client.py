@@ -15,15 +15,19 @@ PORT = 3333
 
 
 class Video_Client:
-	def __init__(self,Port , Host = ''):
+	def __init__(self,ShowVideo,Port , Host = ''):
+		print "GCS - Start Video init"
 		self.port = Port
 		self.host = Host
+		self.showVideo = ShowVideo
 		self.socket =  socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		self.socket.bind((HOST,PORT))
 		self.socket.settimeout(2)
+		self.frameQueue = Queue()
 		self.close_event = threading.Event() 
-		self.getVideoThread = threading.Thread(target=self.getVideo(), args=[])
+		self.getVideoThread = threading.Thread(target=self.getVideo, args=[])
 		self.getVideoThread.start()
+		print "GCS - Finish Video init"
 
 
 	def getVideo(self):
@@ -34,7 +38,9 @@ class Video_Client:
 				frame = numpy.reshape(tmp_frame, (60,80,3))
 				frame = ndimage.rotate(frame, -90)
 				frame = cv2.resize(frame,(240,320))
-				self.showImage("Client", frame)
+				self.frameQueue.put(frame)
+				if self.showVideo:
+					self.showImage("Client", frame)
 			except socket.timeout:
 				print "No data on network!"
 			except (KeyboardInterrupt):
