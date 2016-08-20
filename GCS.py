@@ -11,6 +11,8 @@ import argparse
 import datetime
 import sys
 import os
+from PIL import Image
+from PIL import ImageTk
 
 
 class IORedirector(object):
@@ -630,15 +632,14 @@ class GUI_main(tk.Frame):
 		#self.lbl_video_mission7.grid(row=7, column=0, columnspan=1)
 
 ### ->>> Video Mission
-
+		
 ### Video frame ->>>
 
 	def init_video_frame(self, frame_row, frame_column):
 		self.video_frame = tk.Frame(self.root)
 		self.video_frame.configure(background='grey')
-		self.lbl_video = tk.Label(self.video_frame, text='Video', font=('arial', 10), fg='black', bg='grey')
+		self.lbl_video = tk.Label(self.video_frame)
 		self.lbl_video.grid(row=0, column=0, columnspan=1)
-
 ### ->>> Video frame
 
 
@@ -723,6 +724,15 @@ class GUI_main(tk.Frame):
 		# zero the pressed key. It will be renewed when auto press will be activated
 		self.key_pressed = None
 		
+		#print self.video_frame_hide
+		if not self.video_frame_hide:
+			if self.GCS.args.video_port:# and not self.GCS.video_client.frameQueue.empty():
+				print "Getting Frame"
+				image = Image.fromarray(self.GCS.video_client.frameQueue.get())
+				image = ImageTk.PhotoImage(image)
+				self.lbl_video.imgtk = image 
+				self.lbl_video.configure(image=image)
+
 		self.GUI_dict_refresh_values()
 		self.root.after(100, self.GUI_tick)
 
@@ -783,7 +793,7 @@ class GCS():
 	def run_Video(self, video_port):
 		self.prnt("GCS","Start video on port " + str(video_port))
 		#print "Start Video Thread!"
-		self.video_client = Video_Client(video_port)
+		self.video_client = Video_Client(False,video_port)
 
 	def run_GUI(self):
 		self.root = tk.Tk()

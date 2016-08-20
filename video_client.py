@@ -88,7 +88,7 @@ def recieveAndQueue(queue,run_event):
 
 if __name__ == "__main__":
 	print "Start Video Thread!"
-	video_client = Video_Client(3333)
+	video_client = Video_Client(True,3333)
 	
 
 	'''s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
