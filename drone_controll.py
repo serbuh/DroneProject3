@@ -21,6 +21,9 @@ class vehicle_controll:
 		self.vehicle.airspeed = 2
 		self.report("Set groundspeed to 2m/s, (15m/s max).")
 		self.vehicle.groundspeed = 2
+		self.video_on = True
+		self.rb_tracking_on = False
+		self.rb_follow_on = False
 		self.in_panic = False
 		self.count_max = 6
 
@@ -68,6 +71,21 @@ class vehicle_controll:
 			self.refresh_state()
 		elif cmd[0] == "check_firmware":
 			self.check_firmware()
+
+		elif cmd[0] == "video_on":
+			self.video_on()
+		elif cmd[0] == "video_off":
+			self.video_off()
+
+		elif cmd[0] == "rb_tracking_on":
+			self.rb_tracking_on()
+		elif cmd[0] == "rb_tracking_off":
+			self.rb_tracking_off()
+
+		elif cmd[0] == "rb_follow_on":
+			self.rb_follow_on()
+		elif cmd[0] == "rb_follow_off":
+			self.rb_follow_off()
 
 		elif cmd[0] == "forward":
 			self.move_forward(int(cmd[1]))
@@ -261,6 +279,31 @@ class vehicle_controll:
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_type': str(self.vehicle.version.release_type())})
 		#self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_ver': str(self.vehicle.version.release_version())})
 		self.UDP_server_Telem_Cmd.send_telem({'firmware_ver_release_stable': str(self.vehicle.version.is_stable())})
+
+
+	def video_on(self):
+		self.report("Drone controll - Video ON")
+		self.video_on = True
+
+	def video_off(self):
+		self.report("Drone controll - Video OFF")
+		self.video_on = False
+	
+	def rb_tracking_on(self):
+		self.report("Drone controll - Red Ball Tracking ON")
+		self.rb_tracking_on = True
+
+	def rb_tracking_off(self):
+		self.report("Drone controll - Red Ball Tracking OFF")
+		self.rb_tracking_on = False
+
+	def rb_follow_on(self):
+		self.report("Drone controll - Red Ball Follow ON")
+		self.rb_follow_on = True
+
+	def rb_follow_off(self):
+		self.report("Drone controll - Red Ball Follow OFF")
+		self.rb_follow_on = True
 
 
 	def panic(self):
