@@ -11,6 +11,9 @@ import argparse
 import datetime
 import sys
 import os
+from PIL import Image
+from PIL import ImageTk
+
 
 
 class IORedirector(object):
@@ -845,8 +848,10 @@ class GUI_main(tk.Frame):
 		self.key_pressed = None
 		
 		if self.GCS.args.video_port:
-			self.lbl_video.imgtk = self.GCS.video_client.imageBuffer 
-			self.lbl_video.configure(image=self.GCS.video_client.imageBuffer)
+			image = Image.fromarray(self.GCS.video_client.imageBuffer)
+			image = ImageTk.PhotoImage(image)
+			self.lbl_video.imgtk = image
+			self.lbl_video.configure(image=image)
 				
 
 		self.GUI_dict_refresh_values()

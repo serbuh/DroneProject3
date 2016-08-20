@@ -41,9 +41,7 @@ class Video_Client:
 				frame = ndimage.rotate(frame, -90)
 				frame = cv2.resize(frame,(240,320))
 				frame = frame[:,:,::-1]
-				image = Image.fromarray(frame)
-				image = ImageTk.PhotoImage(image)
-				self.imageBuffer = image
+				self.imageBuffer = frame
 				if self.showVideo:
 					self.showImage("Client", frame)
 			except socket.timeout:
