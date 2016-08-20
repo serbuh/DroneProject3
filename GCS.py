@@ -34,6 +34,90 @@ class StdoutRedirector(IORedirector):
 	self.text_area.config(state = tk.DISABLED)
 	self.log_file.write(str)
 
+class GCS():
+	def __init__(self, con_to_GUI_redirection):
+		try:
+			self.con_to_GUI_redirection = con_to_GUI_redirection
+			self.GUI = None
+			# val_dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
+			self.val_dict = {}
+			self.parser = argparse.ArgumentParser(description='GCS module')
+			self.parser.add_argument('--drone_ip', help="Mention the Drone's ip to make a UDP connection with it")
+			self.parser.add_argument('--video_port', help="Enable video receive. Need to mention the receive port for a video")
+			self.args = self.parser.parse_args()
+
+			if not self.args.drone_ip:
+				self.drone_ip = "255.255.255.255"
+			else:
+				self.drone_ip = self.args.drone_ip
+
+			if self.args.video_port:
+				self.video_port = self.args.video_port
+
+			self.run_GUI()
+
+		except KeyboardInterrupt:
+			self.prnt("GSC", "Close all - keyboard interrupt in main")
+			self.close_all()
+
+	def prnt(self, module, msg):
+		print datetime.datetime.utcnow().strftime('%H:%M:%S.%f') + ": <" + str(module) + "> " + str(msg)
+
+	def run_Telem(self):
+		self.prnt("GSC", "Run Telem: Open socket for Telemetry and user commands")
+		self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, self.drone_ip, 5001)
+		self.prnt("GSC", "Run Telem: Open socket for drone Report")
+		self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, self.drone_ip, 5101)
+		
+		self.prnt("GSC", "Run Telem: Start receive Telem thread")
+		self.UDP_client.receive_loop_telem_thread(self.val_dict)
+		self.prnt("GSC", "Run Telem: Start receive Report thread")
+		self.UDP_client_Report.receive_loop_report_thread()
+
+	def run_Video(self, video_port):
+		self.prnt("GCS","Start video on port " + str(video_port))
+		#print "Start Video Thread!"
+		self.video_client = Video_Client(False,video_port)
+
+	def run_GUI(self):
+		self.root = tk.Tk()
+		self.GUI = GUI_main(self)
+
+		# GUI fully initialized. Ready to run Telem that will update the GUI
+
+		self.run_Telem()
+
+		if self.args.video_port:
+			self.run_Video(self.video_port)
+
+		try:
+			self.prnt("GSC", "GUI - Enter the mainloop")
+			self.root.mainloop()
+		except(KeyboardInterrupt , SystemExit):
+			self.prnt("GSC", "Close all - keyboard interrupt in GUI/console")
+			self.close_all()
+
+	def close_all(self):
+		
+		if self.con_to_GUI_redirection:
+			# Stop redirecting stdout to GUI:
+			sys.stdout = sys.__stdout__
+			self.GUI.redirector.log_file.close()
+
+		self.prnt("GSC", "Close all - Telemetry/commands")
+		self.UDP_client.close_UDP()
+		self.prnt("GSC", "Close all - Drone Report")
+		self.UDP_client_Report.close_UDP()
+	
+		self.prnt("GSC", "Close all - GUI")
+		self.GUI.GUI_close()
+		
+		if self.args.video_port:
+			self.prnt("GSC", "Close all - Video Feed")
+			self.video_client.closeVideoClient()
+
+		self.prnt("GSC", "Close all - Complete")
+
 
 class GUI_main(tk.Frame):
 	def __init__(self, GCS):
@@ -749,90 +833,6 @@ class GUI_main(tk.Frame):
 			val['lbl_val'].config(text=str(val['value']))
 			#GCS.val_dict['roll']['lbl_val'].config(text=str(GCS.val_dict['roll']['value']))
 
-
-class GCS():
-	def __init__(self, con_to_GUI_redirection):
-		try:
-			self.con_to_GUI_redirection = con_to_GUI_redirection
-			self.GUI = None
-			# val_dict : {'val_X', {'lbl_name': <label>, 'lbl_val': <label>, 'value': <value>}}
-			self.val_dict = {}
-			self.parser = argparse.ArgumentParser(description='GCS module')
-			self.parser.add_argument('--drone_ip', help="Mention the Drone's ip to make a UDP connection with it")
-			self.parser.add_argument('--video_port', help="Enable video receive. Need to mention the receive port for a video")
-			self.args = self.parser.parse_args()
-
-			if not self.args.drone_ip:
-				self.drone_ip = "255.255.255.255"
-			else:
-				self.drone_ip = self.args.drone_ip
-
-			if self.args.video_port:
-				self.video_port = self.args.video_port
-
-			self.run_GUI()
-
-		except KeyboardInterrupt:
-			self.prnt("GSC", "Close all - keyboard interrupt in main")
-			self.close_all()
-
-	def prnt(self, module, msg):
-		print datetime.datetime.utcnow().strftime('%H:%M:%S.%f') + ": <" + str(module) + "> " + str(msg)
-
-	def run_Telem(self):
-		self.prnt("GSC", "Run Telem: Open socket for Telemetry and user commands")
-		self.UDP_client = UDP.UDP(0, "Telem/Cmd", "0.0.0.0", 6000, self.drone_ip, 5001)
-		self.prnt("GSC", "Run Telem: Open socket for drone Report")
-		self.UDP_client_Report = UDP.UDP(0, "Drone Report", "0.0.0.0", 6100, self.drone_ip, 5101)
-		
-		self.prnt("GSC", "Run Telem: Start receive Telem thread")
-		self.UDP_client.receive_loop_telem_thread(self.val_dict)
-		self.prnt("GSC", "Run Telem: Start receive Report thread")
-		self.UDP_client_Report.receive_loop_report_thread()
-
-	def run_Video(self, video_port):
-		self.prnt("GCS","Start video on port " + str(video_port))
-		#print "Start Video Thread!"
-		self.video_client = Video_Client(False,video_port)
-
-	def run_GUI(self):
-		self.root = tk.Tk()
-		self.GUI = GUI_main(self)
-
-		# GUI fully initialized. Ready to run Telem that will update the GUI
-
-		self.run_Telem()
-
-		if self.args.video_port:
-			self.run_Video(self.video_port)
-
-		try:
-			self.prnt("GSC", "GUI - Enter the mainloop")
-			self.root.mainloop()
-		except(KeyboardInterrupt , SystemExit):
-			self.prnt("GSC", "Close all - keyboard interrupt in GUI/console")
-			self.close_all()
-
-	def close_all(self):
-		
-		if self.con_to_GUI_redirection:
-			# Stop redirecting stdout to GUI:
-			sys.stdout = sys.__stdout__
-			self.GUI.redirector.log_file.close()
-
-		self.prnt("GSC", "Close all - Telemetry/commands")
-		self.UDP_client.close_UDP()
-		self.prnt("GSC", "Close all - Drone Report")
-		self.UDP_client_Report.close_UDP()
-	
-		self.prnt("GSC", "Close all - GUI")
-		self.GUI.GUI_close()
-		
-		if self.args.video_port:
-			self.prnt("GSC", "Close all - Video Feed")
-			self.video_client.closeVideoClient()
-
-		self.prnt("GSC", "Close all - Complete")
 
 
 if __name__ == "__main__":
