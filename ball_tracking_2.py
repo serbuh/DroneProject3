@@ -62,12 +62,12 @@ def decide_moving(vehicle_controll, center, frame_size):
 		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
 
 		if (center_margin_min < x_offset < center_margin_max):
-			self.vehicle_controll.send_command("move_0")
+			vehicle_controll.send_command_list(['move_0'])
 		elif x_offset < 40:
-			self.vehicle_controll.send_command("left", 1)
+			vehicle_controll.send_command_list(['left', int(1)])
 		elif x_offset > 60:	
-			self.vehicle_controll.send_command("right", 1)
+			vehicle_controll.send_command_list(['right', int(1)])
 	else:
 		print "X offset is None, Y offset is None"
-		self.vehicle_controll.send_command("move_0")
-	
+		vehicle_controll.send_command_list(['move_0'])
+
