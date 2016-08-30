@@ -37,7 +37,7 @@ def redBallTracking(vehicle_controll, frame):
 		M = cv2.moments(c)
 		center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
-		if radius > 10:
+		if radius > 15:
 			cv2.circle(frame, (int(x), int(y)), int(radius),
 				(0, 255, 255), 2)
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
@@ -53,7 +53,7 @@ def redBallTracking(vehicle_controll, frame):
 def decide_moving(vehicle_controll, center, frame_size):
 
 	x_margin_left, x_margin_right = 40, 60
-	y_margin_forward, y_margin_backward = 40, 60
+	y_margin_forward, y_margin_backward = 25, 75
 
 	if center != None:
 		center = (center[0], frame_size[0] - center[1])
