@@ -729,7 +729,7 @@ class GUI_main(tk.Frame):
 
 		self.lbl_video_mission4 = tk.Label(self.video_mission_frame, text='(4) ', font=('arial', 10), fg='black',bg='white')
 		self.lbl_video_mission4.grid(row=4, column=0, columnspan=1)
-		self.btn_video_mission4 = tk.Button(self.video_mission_frame, fg='black', text='Fly! :)', width=16, command= self.on_btn_fly)
+		self.btn_video_mission4 = tk.Button(self.video_mission_frame, fg='black', text='RB Follow ON', width=16, command= self.on_btn_rb_follow_on)
 		self.btn_video_mission4.grid(row=4, column=1, columnspan=1)
 
 		self.lbl_video_mission5 = tk.Label(self.video_mission_frame, text='(5) ', font=('arial', 10), fg='black',bg='white')
