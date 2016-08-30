@@ -2,7 +2,7 @@ import numpy as np
 import argparse
 import imutils
 import cv2
-from camera import *
+#from camera import *
 
 def findMask(hsv,lower,upper):
 	mask = cv2.inRange(hsv, lower, upper)
@@ -52,24 +52,37 @@ def redBallTracking(vehicle_controll, frame):
 
 def decide_moving(vehicle_controll, center, frame_size):
 
-	center_margin_min, center_margin_max = 40, 60
-
+	x_margin_left, x_margin_right = 40, 60
+	y_margin_forward, y_margin_backward = 40, 60
 
 	if center != None:
 		center = (center[0], frame_size[0] - center[1])
-		x_offset = int((float(center[1])/frame_size[0]) * 100)
-		y_offset = int((float(center[0])/frame_size[1]) * 100)
+		x_curr = int((float(center[1])/frame_size[0]) * 100)
+		y_curr = int((float(center[0])/frame_size[1]) * 100)
 
 		# offset scale: 0 ... 50 ... 100
-		print "X offset: " + str(x_offset) + "% , Y offset: " + str(y_offset) + "%"
+		print "X: " + str(x_curr) + "% , Y: " + str(y_curr) + "%"
 
-		if (center_margin_min < x_offset < center_margin_max):
-			vehicle_controll.send_command_list(['move_0'])
-		elif x_offset < 40:
-			vehicle_controll.send_command_list(['left', int(1)])
-		elif x_offset > 60:	
-			vehicle_controll.send_command_list(['right', int(1)])
+		# Decide to move
+		#move_x(x_curr, x_margin_left, x_margin_right)
+		move_y(y_curr, y_margin_forward, y_margin_backward)
+
 	else:
-		print "X offset is None, Y offset is None"
+		print "No target"
 		vehicle_controll.send_command_list(['move_0'])
 
+def move_x(x_curr, x_margin_left, x_margin_right):
+	if (x_margin_left < x_curr < x_margin_right):
+		vehicle_controll.send_command_list(['move_0'])
+	elif x_curr < x_margin_left:
+		vehicle_controll.send_command_list(['left', int(1)])
+	elif x_curr > x_margin_right:	
+		vehicle_controll.send_command_list(['right', int(1)])
+
+def move_y(y_curr, y_margin_forward, y_margin_backward):
+	if (y_margin_forward < y_curr < y_margin_backward):
+		vehicle_controll.send_command_list(['move_0'])
+	elif y_curr < y_margin_forward:
+		vehicle_controll.send_command_list(['forward', int(1)])
+	elif y_curr > y_margin_backward:	
+		vehicle_controll.send_command_list(['backward', int(1)])
