@@ -64,14 +64,14 @@ def decide_moving(vehicle_controll, center, frame_size):
 		print "X: " + str(x_curr) + "% , Y: " + str(y_curr) + "%"
 
 		# Decide to move
-		#move_x(x_curr, x_margin_left, x_margin_right)
-		move_y(y_curr, y_margin_forward, y_margin_backward)
+		#move_x(vehicle_controll,x_curr, x_margin_left, x_margin_right)
+		move_y(vehicle_controll,y_curr, y_margin_forward, y_margin_backward)
 
 	else:
 		print "No target"
 		vehicle_controll.send_command_list(['move_0'])
 
-def move_x(x_curr, x_margin_left, x_margin_right):
+def move_x(vehicle_controll,x_curr, x_margin_left, x_margin_right):
 	if (x_margin_left < x_curr < x_margin_right):
 		vehicle_controll.send_command_list(['move_0'])
 	elif x_curr < x_margin_left:
@@ -79,7 +79,7 @@ def move_x(x_curr, x_margin_left, x_margin_right):
 	elif x_curr > x_margin_right:	
 		vehicle_controll.send_command_list(['right', int(1)])
 
-def move_y(y_curr, y_margin_forward, y_margin_backward):
+def move_y(vehicle_controll,y_curr, y_margin_forward, y_margin_backward):
 	if (y_margin_forward < y_curr < y_margin_backward):
 		vehicle_controll.send_command_list(['move_0'])
 	elif y_curr < y_margin_forward:
